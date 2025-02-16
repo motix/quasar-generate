@@ -1,0 +1,39 @@
+{
+  "keepUnused": [".*"],
+  "wrappingStyle": "prettier",
+  "groupRules": [
+    {
+      "regex": ".*",
+      "importType": true
+    },
+
+    ".json$",
+    ".css$",
+
+    {},
+
+    "^@fortawesome",
+    "^@automapper",
+
+    "^vue",
+    "^pinia$",
+
+    "^quasar",
+    "^@quasar",
+
+    "^firebase",
+
+    "^vite",
+    "^@vite",
+
+    "^utils",
+    "^models",
+    "^stores",
+    "^services",
+    "^composables",
+    "^components",
+
+    "^[@]",
+    "^[.]"
+  ]
+}
