@@ -22,7 +22,7 @@ f || (await createQuasarProjects())
 f || (await cleanTemplatesProject())
 f || (await templatesProjectLintingAndFormatting())
 f || finishTemplatesProject()
-f || cleanExtensionProject()
+f || (await cleanExtensionProject())
 f || (await extensionProjectLintingAndFormatting())
 f || (await finishExtensionProject())
 
@@ -237,12 +237,25 @@ function finishTemplatesProject() {
   execSync(`cd ${templatesRoot} && yarn && yarn clean && cd ../../..`, { stdio: 'inherit' })
 }
 
-function cleanExtensionProject() {
+async function cleanExtensionProject() {
   // 13. Delete `src` folder.
 
   fs.rmSync(`./${extensionRoot}/src`, { recursive: true })
 
-  // 14. Add `src` from `assets`.
+  // 14. Add `lodash-es` and `@types/lodash-es` to `package.json`.
+
+  await extendJsonFile(extensionPackageJsonFilePath, [
+    {
+      path: 'devDependencies.lodash-es',
+      value: '^4.17.21',
+    },
+    {
+      path: 'devDependencies.@types/lodash-es',
+      value: '^4.17.12',
+    },
+  ])
+
+  // 15. Add `src` from `assets`.
 
   fs.cpSync(`./assets/Multi-module Extension Template/src`, `./${extensionRoot}/src`, {
     recursive: true,
@@ -250,7 +263,7 @@ function cleanExtensionProject() {
 }
 
 async function extensionProjectLintingAndFormatting() {
-  // 15. Copy `.vscode`, `.editorconfig`, `.prettierrc.json`, `eslint.config.js`,
+  // 16. Copy `.vscode`, `.editorconfig`, `.prettierrc.json`, `eslint.config.js`,
   // `import-sorter.json` from `templates` to root.
 
   fs.cpSync(`./${templatesRoot}/.vscode`, `./${extensionRoot}/.vscode`, { recursive: true })
@@ -259,7 +272,7 @@ async function extensionProjectLintingAndFormatting() {
   fs.copyFileSync(`./${templatesRoot}/eslint.config.js`, `./${extensionRoot}/eslint.config.js`)
   fs.copyFileSync(`./${templatesRoot}/import-sorter.json`, `./${extensionRoot}/import-sorter.json`)
 
-  // 16. Comment out `.vscode` in `.gitignore`.
+  // 17. Comment out `.vscode` in `.gitignore`.
 
   let gitignore = fs.readFileSync(`./${extensionRoot}/.gitignore`, 'utf-8')
 
@@ -268,7 +281,7 @@ async function extensionProjectLintingAndFormatting() {
     encoding: 'utf-8',
   })
 
-  // 17. Add `tsconfig.json`
+  // 18. Add `tsconfig.json`
 
   fs.writeFileSync(
     `./${extensionRoot}/tsconfig.json`,
@@ -289,24 +302,25 @@ async function extensionProjectLintingAndFormatting() {
     },
   )
 
-  // 18. Add all packages under `dependencies` and `devDependencies` from
+  // 19. Add all packages under `dependencies` and `devDependencies` from
   // `templates/package.json` to `package.json` under `devDependencies`.
 
   const templatesPackageJson = (
     await import(templatesPackageJsonFilePath, { with: { type: 'json' } })
   ).default
+  const dependencies = {
+    ...templatesPackageJson.dependencies,
+    ...templatesPackageJson.devDependencies,
+  }
+  const dependenciesAsArray = []
 
-  await extendJsonFile(extensionPackageJsonFilePath, [
-    {
-      path: 'devDependencies',
-      value: {
-        ...templatesPackageJson.dependencies,
-        ...templatesPackageJson.devDependencies,
-      },
-    },
-  ])
+  for (const prop in dependencies) {
+    dependenciesAsArray.push({ path: `devDependencies.${prop}`, value: dependencies[prop] })
+  }
 
-  // 19. Add `lint`, `format` and `clean` scripts to `package.json`.
+  await extendJsonFile(extensionPackageJsonFilePath, dependenciesAsArray)
+
+  // 20. Add `lint`, `format` and `clean` scripts to `package.json`.
 
   await extendJsonFile(extensionPackageJsonFilePath, [
     {
@@ -328,7 +342,7 @@ async function extensionProjectLintingAndFormatting() {
 }
 
 async function finishExtensionProject() {
-  // 20. Add build script.
+  // 21. Add build script.
 
   await extendJsonFile(extensionPackageJsonFilePath, [
     {
@@ -337,7 +351,7 @@ async function finishExtensionProject() {
     },
   ])
 
-  // 21. Install extension project packages, build and clean code.
+  // 22. Install extension project packages, build and clean code.
 
   execSync(`cd ${extensionRoot} && yarn && yarn build && yarn clean && cd ../..`, {
     stdio: 'inherit',
