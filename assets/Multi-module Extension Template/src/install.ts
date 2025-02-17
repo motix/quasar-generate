@@ -25,7 +25,6 @@ export default async function (api: InstallAPI) {
   api.extendPackageJson({
     scripts,
   })
-  // TODO: delete require.cache[api.resolve.app('package.json')]
 
   for (const module of modules) {
     await module(api)
