@@ -17,8 +17,8 @@ export async function extendJsonFile(filePath, pathAdnValues) {
         fs.writeFileSync(filePath, JSON.stringify(json, null, 2));
     }
 }
-export async function reduceJsonFile(filePath, paths) {
-    const json = (await import(filePath, { with: { type: 'json' } })).default;
+export function reduceJsonFile(filePath, paths) {
+    const json = fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath, 'utf-8')) : undefined;
     if (json) {
         for (const path of paths) {
             unset(json, path);
@@ -26,8 +26,8 @@ export async function reduceJsonFile(filePath, paths) {
         fs.writeFileSync(filePath, JSON.stringify(json, null, 2));
     }
 }
-export async function reduceJsonFileArray(filePath, pathAndValues) {
-    const json = (await import(filePath, { with: { type: 'json' } })).default;
+export function reduceJsonFileArray(filePath, pathAndValues) {
+    const json = fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath, 'utf-8')) : undefined;
     if (json) {
         for (const { path, value } of pathAndValues) {
             const values = get(json, path);

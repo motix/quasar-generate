@@ -1,11 +1,12 @@
 import type { InstallDefinition } from './lib/extension-wrappers.js'
+import type { InstallAPI } from '@quasar/app-vite'
 
 import { backupFile } from './lib/file-backup.js'
 import { reduceJsonFile } from './lib/json-helpers.js'
 import { getOrganizationName, getPackageName } from './lib/package-name.js'
-import getModules, { defineInstall } from './modules/index.js'
+import getModules from './modules/index.js'
 
-export default defineInstall(async function (api) {
+export default async function (api: InstallAPI) {
   const modules = await getModules<InstallDefinition>(api.appDir, 'install')
 
   backupFile(api, 'package.json')
@@ -20,7 +21,7 @@ export default defineInstall(async function (api) {
   scripts[`r-${packageName}`] = `yarn u-${packageName} && yarn i-${packageName}`
 
   // Remove current i- to keep i-, u- and r- together
-  await reduceJsonFile(api, 'package.json', [`scripts.i-${packageName}`])
+  reduceJsonFile(api, 'package.json', [`scripts.i-${packageName}`])
   api.extendPackageJson({
     scripts,
   })
@@ -29,4 +30,4 @@ export default defineInstall(async function (api) {
   for (const module of modules) {
     await module(api)
   }
-})
+}

@@ -17,37 +17,42 @@ export type PromptRecord = {
 export type PromptsDefinition = (api: PromptsAPI) => PromptRecord[] | Promise<PromptRecord[]>
 export type IndexDefinition = (api: IndexAPI) => void | Promise<void>
 export type InstallDefinition = (api: InstallAPI) => void | Promise<void>
-export type UninstallDefinition = (api: ExtendedUninstallAPI) => void | Promise<void>
+export type UninstallDefinition = (api: UninstallAPI) => void | Promise<void>
+export type ExtendedUninstallDefinition = (api: ExtendedUninstallAPI) => void | Promise<void>
 
 export function definePrompts(callback: PromptsDefinition): PromptsDefinition {
   return callback
 }
 
 export function defineIndex(callback: IndexDefinition): IndexDefinition {
-  return async (api: IndexAPI) => {
+  return async (api) => {
     await mergePrompts(callback.name, api)
     return callback(api)
   }
 }
 
 export function defineInstall(callback: InstallDefinition): InstallDefinition {
-  return async (api: InstallAPI) => {
+  return async (api) => {
     await mergePrompts(callback.name, api)
     return callback(api)
   }
 }
 
-export function defineUninstall(callback: UninstallDefinition): UninstallDefinition {
-  return async (api: UninstallAPI) => {
+export function defineUninstall(callback: ExtendedUninstallDefinition): UninstallDefinition {
+  return async (api) => {
     await mergePrompts(callback.name, api)
-    return callback({
-      ...api,
-      extendJsonFile: new InstallAPIClass({
-        ctx: api.ctx,
-        extId: api.extId,
-        prompts: api.prompts,
-      }).extendJsonFile,
+
+    const installApi = new InstallAPIClass({
+      ctx: api.ctx,
+      extId: api.extId,
+      prompts: api.prompts,
     })
+
+    api['extendJsonFile'] = (file: string, newData: object) => {
+      installApi.extendJsonFile(file, newData)
+    }
+
+    return callback(api as ExtendedUninstallAPI)
   }
 }
 
