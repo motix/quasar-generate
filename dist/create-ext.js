@@ -14,11 +14,10 @@ const f = false;
 f || (await createQuasarProjects());
 f || (await cleanTemplatesProject());
 f || (await templatesProjectLintingAndFormatting());
-f || finishTemplatesProject();
+f || (await finishTemplatesProject());
 f || (await cleanExtensionProject());
 f || (await extensionProjectLintingAndFormatting());
 f || (await finishExtensionProject());
-f || fixQuasarAppVite();
 async function createQuasarProjects() {
     // 1. Create Quasar project for the extension.
     const extensionAnswersMap = {
@@ -135,9 +134,9 @@ async function templatesProjectLintingAndFormatting() {
         { path: 'editor.codeActionsOnSave[]', value: 'source.fixAll.eslint' },
     ]);
     // 10. Modify `templates/eslint.config.js`.
-    let eslintConfig = fs.readFileSync(`./${templatesRoot}/eslint.config.js`, 'utf-8');
-    eslintConfig = eslintConfig.replace("  ...pluginVue.configs[ 'flat/essential' ],", "  ...pluginVue.configs[ 'flat/recommended' ],");
-    eslintConfig = eslintConfig.replace(`      '@typescript-eslint/consistent-type-imports': [
+    let eslintConfigJs = fs.readFileSync(`./${templatesRoot}/eslint.config.js`, 'utf-8');
+    eslintConfigJs = eslintConfigJs.replace("  ...pluginVue.configs[ 'flat/essential' ],", "  ...pluginVue.configs[ 'flat/recommended' ],");
+    eslintConfigJs = eslintConfigJs.replace(`      '@typescript-eslint/consistent-type-imports': [
         'error',
         { prefer: 'type-imports' }
       ],`, `      '@typescript-eslint/consistent-type-imports': [
@@ -148,11 +147,11 @@ async function templatesProjectLintingAndFormatting() {
         'error',
         { allowShortCircuit: true, allowTernary: true },
       ],`);
-    eslintConfig = eslintConfig.replace("      'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'", `      'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    eslintConfigJs = eslintConfigJs.replace("      'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'", `      'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
 
       // alphabetical
       'vue/attributes-order': ['warn', { alphabetical: true }]`);
-    fs.writeFileSync(`./${templatesRoot}/eslint.config.js`, eslintConfig, {
+    fs.writeFileSync(`./${templatesRoot}/eslint.config.js`, eslintConfigJs, {
         encoding: 'utf-8',
     });
     // 11. Modify `templates/package.json` `lint` script, changing `src*` to `modules`
@@ -168,8 +167,9 @@ async function templatesProjectLintingAndFormatting() {
         },
     ]);
 }
-function finishTemplatesProject() {
+async function finishTemplatesProject() {
     // 12. Install templates project packages and clean code.
+    await fixTemplatesQuasarAppVite();
     execSync(`cd ${templatesRoot} && yarn && yarn clean && cd ../../..`, { stdio: 'inherit' });
 }
 async function cleanExtensionProject() {
@@ -255,24 +255,22 @@ async function finishExtensionProject() {
     // 21. Add build script.
     await extendJsonFile(extensionPackageJsonFilePath, [{ path: 'scripts.build', value: 'npx tsc' }]);
     // 22. Install extension project packages, build and clean code.
+    await fixExtensionQuasarAppVite();
     execSync(`cd ${extensionRoot} && yarn && yarn build && yarn clean && cd ../..`, {
         stdio: 'inherit',
     });
 }
-function fixQuasarAppVite() {
-    const path = `./${extensionRoot}/node_modules/@quasar/app-vite/lib/app-extension/AppExtensionInstance.js`;
-    let content = fs.readFileSync(path, 'utf-8');
-    content = content.replace(`return getPackageScriptPath(
-      this.packageFullName,
-      scriptName,
-      this.#packagePath
-    )`, `return getPackageScriptPath(
-      this.packageFullName,
-      scriptName,
-      // this.#packagePath
-      this.#ctx.appPaths.appDir
-    )`);
-    fs.writeFileSync(path, content, {
-        encoding: 'utf-8',
-    });
+// TODO:: Remove when Quasar fixes this bug
+async function fixExtensionQuasarAppVite() {
+    fs.copyFileSync('./assets/fixQuasarAppVite.js', `./${extensionRoot}/fixQuasarAppVite.js`);
+    await extendJsonFile(extensionPackageJsonFilePath, [
+        { path: 'scripts.postinstall', value: 'node fixQuasarAppVite.js' },
+    ]);
+}
+// TODO:: Remove when Quasar fixes this bug
+async function fixTemplatesQuasarAppVite() {
+    fs.copyFileSync('./assets/fixQuasarAppVite.js', `./${templatesRoot}/fixQuasarAppVite.js`);
+    await extendJsonFile(templatesPackageJsonFilePath, [
+        { path: 'scripts.postinstall', value: 'node fixQuasarAppVite.js && quasar prepare' },
+    ]);
 }
