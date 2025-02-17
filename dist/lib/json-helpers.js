@@ -4,7 +4,7 @@ export async function extendJsonFile(filePath, pathAdnValues) {
     const json = (await import(filePath, { with: { type: 'json' } })).default;
     if (json) {
         for (let { path, value } of pathAdnValues) {
-            if (path.endsWith('[]')) {
+            if (typeof path === 'string' && path.endsWith('[]')) {
                 path = path.substring(0, path.length - 2);
                 const currentValue = get(json, path);
                 if (!currentValue.includes(value)) {

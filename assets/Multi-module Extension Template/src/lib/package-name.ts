@@ -12,7 +12,7 @@ export function getPackageName() {
 export function getOrganizationName() {
   let name = packageJson.name
 
-  name = name.substring(0, name.lastIndexOf('/') - 1)
+  name = name.substring(0, name.lastIndexOf('/'))
 
   return name
 }

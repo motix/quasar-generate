@@ -25,6 +25,7 @@ f || finishTemplatesProject()
 f || (await cleanExtensionProject())
 f || (await extensionProjectLintingAndFormatting())
 f || (await finishExtensionProject())
+f || fixQuasarAppVite()
 
 async function createQuasarProjects() {
   // 1. Create Quasar project for the extension.
@@ -146,8 +147,8 @@ export default () => {
 }
 
 async function templatesProjectLintingAndFormatting() {
-  const templatesExtensionsJson = path.resolve(`./${templatesRoot}/.vscode/extensions.json`)
-  const templatesSettingsJson = path.resolve(`./${templatesRoot}/.vscode/settings.json`)
+  const extensionsJson = path.resolve(`./${templatesRoot}/.vscode/extensions.json`)
+  const settingsJson = path.resolve(`./${templatesRoot}/.vscode/settings.json`)
 
   // 8. Add `format-imports` to `templates/package.json` and add `import-sorter.json` from `assets` to `templates`.
 
@@ -159,7 +160,7 @@ async function templatesProjectLintingAndFormatting() {
 
   // 9. Modify templates/.vscode/extensions.json and templates/.vscode/settings.json
 
-  await extendJsonFile(templatesExtensionsJson, [
+  await extendJsonFile(extensionsJson, [
     { path: 'recommendations[]', value: 'rohit-gohri.format-code-action' },
     { path: 'recommendations[]', value: 'dozerg.tsimportsorter' },
   ])
@@ -167,14 +168,14 @@ async function templatesProjectLintingAndFormatting() {
   // Default setting would often lead to Prettier
   // being run after ESLint and ESLint errors still being present.
 
-  await reduceJsonFileArray(templatesSettingsJson, [
+  await reduceJsonFileArray(settingsJson, [
     {
       path: 'editor.codeActionsOnSave',
       value: 'source.fixAll.eslint',
     },
   ])
 
-  await extendJsonFile(templatesSettingsJson, [
+  await extendJsonFile(settingsJson, [
     { path: 'editor.formatOnSave', value: false },
     { path: 'editor.codeActionsOnSave[]', value: 'source.formatDocument' },
     { path: 'editor.codeActionsOnSave[]', value: 'source.fixAll.eslint' },
@@ -342,18 +343,42 @@ async function extensionProjectLintingAndFormatting() {
 }
 
 async function finishExtensionProject() {
+  // 21. Exclude `dist` from search
+
+  const settingsJson = path.resolve(`./${extensionRoot}/.vscode/settings.json`)
+
+  await extendJsonFile(settingsJson, [{ path: ['search.exclude'], value: { dist: true } }])
+
   // 21. Add build script.
 
-  await extendJsonFile(extensionPackageJsonFilePath, [
-    {
-      path: 'scripts.build',
-      value: 'npx tsc',
-    },
-  ])
+  await extendJsonFile(extensionPackageJsonFilePath, [{ path: 'scripts.build', value: 'npx tsc' }])
 
   // 22. Install extension project packages, build and clean code.
 
   execSync(`cd ${extensionRoot} && yarn && yarn build && yarn clean && cd ../..`, {
     stdio: 'inherit',
+  })
+}
+
+function fixQuasarAppVite() {
+  const path = `./${extensionRoot}/node_modules/@quasar/app-vite/lib/app-extension/AppExtensionInstance.js`
+  let content = fs.readFileSync(path, 'utf-8')
+
+  content = content.replace(
+    `return getPackageScriptPath(
+      this.packageFullName,
+      scriptName,
+      this.#packagePath
+    )`,
+    `return getPackageScriptPath(
+      this.packageFullName,
+      scriptName,
+      // this.#packagePath
+      this.#ctx.appPaths.appDir
+    )`,
+  )
+
+  fs.writeFileSync(path, content, {
+    encoding: 'utf-8',
   })
 }

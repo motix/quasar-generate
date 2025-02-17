@@ -43,6 +43,7 @@ export function defineUninstall(callback: UninstallDefinition): UninstallDefinit
     return callback({
       ...api,
       extendJsonFile: new InstallAPIClass({
+        ctx: api.ctx,
         extId: api.extId,
         prompts: api.prompts,
       }).extendJsonFile,
