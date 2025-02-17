@@ -3,13 +3,13 @@ import { get, set, unset } from 'lodash-es'
 
 export async function extendJsonFile(
   filePath: string,
-  pathAdnValues: { path: string; value: unknown }[],
+  pathAdnValues: { path: string | Array<string>; value: unknown }[],
 ) {
   const json = (await import(filePath, { with: { type: 'json' } })).default
 
   if (json) {
     for (let { path, value } of pathAdnValues) {
-      if (path.endsWith('[]')) {
+      if (typeof path === 'string' && path.endsWith('[]')) {
         path = path.substring(0, path.length - 2)
         const currentValue: Array<typeof value> = get(json, path)
 
