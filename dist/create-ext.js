@@ -79,11 +79,10 @@ export default () => {
   return {}
 }
 `, { encoding: 'utf-8' });
-    // Uninstall packages: `@quasar/extras`, `vue-tsc`, `vite-plugin-checker`,
+    // Uninstall packages: `@quasar/extras`, `vite-plugin-checker`,
     // `@types/node`, `autoprefixer` and upgrade all remaining packages to latest.
     reduceJsonFile(templatesPackageJsonFilePath, [
         'dependencies.@quasar/extras',
-        'devDependencies.vue-tsc',
         'devDependencies.vite-plugin-checker',
         'devDependencies.@types/node',
         'devDependencies.autoprefixer',
@@ -96,6 +95,7 @@ export default () => {
         { path: 'devDependencies.eslint', value: '^9.20.1' },
         { path: 'devDependencies.eslint-plugin-vue', value: '^9.32.0' },
         { path: 'devDependencies.globals', value: '^15.15.0' },
+        { path: 'devDependencies.vue-tsc', value: '^2.2.2' },
         { path: 'devDependencies.@vue/eslint-config-typescript', value: '^14.4.0' },
         { path: 'devDependencies.@vue/eslint-config-prettier', value: '^10.2.0' },
         { path: 'devDependencies.prettier', value: '^3.5.1' },
@@ -124,6 +124,13 @@ async function templatesProjectLintingAndFormatting() {
     ]);
 }
 async function finishTemplatesProject() {
+    // Add build script.
+    await extendJsonFile(templatesPackageJsonFilePath, [
+        {
+            path: 'scripts.tsc',
+            value: 'yarn vue-tsc --noEmit --skipLibCheck',
+        },
+    ]);
     // Install templates project packages and clean code.
     await fixTemplatesQuasarAppVite();
     execSync(`cd ${templatesRoot} && yarn && yarn clean && cd ../../..`, { stdio: 'inherit' });
@@ -210,7 +217,9 @@ async function finishExtensionProject() {
     // Putting `path` in an array to keep it as a single property in JSON file
     await extendJsonFile(settingsJson, [{ path: ['search.exclude'], value: { dist: true } }]);
     // Add build script.
-    await extendJsonFile(extensionPackageJsonFilePath, [{ path: 'scripts.build', value: 'npx tsc' }]);
+    await extendJsonFile(extensionPackageJsonFilePath, [
+        { path: 'scripts.build', value: 'npx tsc && cd templates && yarn tsc && cd ..' },
+    ]);
     // Install extension project packages, build and clean code.
     await fixExtensionQuasarAppVite();
     execSync(`cd ${extensionRoot} && yarn && yarn build && yarn clean && cd ../..`, {

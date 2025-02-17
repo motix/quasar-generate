@@ -18,7 +18,7 @@ export default async function (api: InstallAPI) {
   const scripts = {}
   scripts[`i-${packageName}`] = `quasar ext invoke ${organizationName}/${packageName}`
   scripts[`u-${packageName}`] = `quasar ext uninvoke ${organizationName}/${packageName}`
-  scripts[`r-${packageName}`] = `yarn u-${packageName} && yarn i-${packageName}`
+  scripts[`r-${packageName}`] = `yarn u-${packageName} && yarn i-${packageName} && yarn clean`
 
   // Remove current i- to keep i-, u- and r- together
   reduceJsonFile(api, 'package.json', [`scripts.i-${packageName}`])

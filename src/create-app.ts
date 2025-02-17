@@ -27,6 +27,8 @@ f || (await setupFormatLint(appRoot))
 f || (await finishProject())
 
 async function createQuasarProject() {
+  // Create Quasar project for the app.
+
   const answersMap: Record<string, string | undefined> = {
     'What would you like to build?': ACCEPT_DEFAULT, // App with Quasar CLI
     'Project folder': `output/${config.projectFolder}`,
@@ -51,12 +53,16 @@ async function createQuasarProject() {
 }
 
 async function finishProject() {
+  // Add `tsc` script.
+
   await extendJsonFile(appPackageJsonFilePath, [
     {
       path: 'scripts.tsc',
       value: 'yarn vue-tsc --noEmit --skipLibCheck',
     },
   ])
+
+  // Install templates project packages and clean code.
 
   await fixQuasarAppVite()
   execSync(`cd ${appRoot} && yarn && yarn clean && cd ../..`, {
