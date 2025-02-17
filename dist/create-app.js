@@ -28,7 +28,7 @@ await cliGhostwriter({
     endingMarker: 'Enjoy! - Quasar Team',
 });
 await fixQuasarAppVite();
-execSync(`cd ${appRoot} && yarn && yarn build && cd ../..`, {
+execSync(`cd ${appRoot} && yarn && yarn build && yarn format && yarn lint && cd ../..`, {
     stdio: 'inherit',
 });
 // TODO:: Remove when Quasar fixes this bug
