@@ -1,10 +1,11 @@
 import type { PromptRecord, PromptsDefinition } from './lib/extension-wrappers.js'
+import type { PromptsAPI } from '@quasar/app-vite'
 
 import getExtensionConfig from './lib/extension-config.js'
 import normalizeModuleName from './lib/normalize-module-name.js'
-import getModules, { definePrompts } from './modules/index.js'
+import getModules from './modules/index.js'
 
-export default definePrompts(async function (api) {
+export default async function (api: PromptsAPI) {
   const modules = await getModules<PromptsDefinition>(api.appDir, 'prompts')
   const config = await getExtensionConfig(api.appDir)
   let prompts: PromptRecord[] = []
@@ -27,4 +28,4 @@ export default definePrompts(async function (api) {
   }
 
   return prompts
-})
+}

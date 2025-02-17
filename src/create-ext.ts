@@ -109,7 +109,7 @@ export default () => {
   // 6. Uninstall packages: `@quasar/extras`, `vue-tsc`, `vite-plugin-checker`,
   // `@types/node`, `autoprefixer` and upgrade all remaining packages to latest.
 
-  await reduceJsonFile(templatesPackageJsonFilePath, [
+  reduceJsonFile(templatesPackageJsonFilePath, [
     'dependencies.@quasar/extras',
     'devDependencies.vue-tsc',
     'devDependencies.vite-plugin-checker',
@@ -167,7 +167,7 @@ async function templatesProjectLintingAndFormatting() {
   // Default setting would often lead to Prettier
   // being run after ESLint and ESLint errors still being present.
 
-  await reduceJsonFileArray(settingsJson, [
+  reduceJsonFileArray(settingsJson, [
     {
       path: 'editor.codeActionsOnSave',
       value: 'source.fixAll.eslint',
@@ -347,6 +347,7 @@ async function finishExtensionProject() {
 
   const settingsJson = path.resolve(`./${extensionRoot}/.vscode/settings.json`)
 
+  // Putting `path` in an array to keep it as a single property in JSON file
   await extendJsonFile(settingsJson, [{ path: ['search.exclude'], value: { dist: true } }])
 
   // 21. Add build script.
