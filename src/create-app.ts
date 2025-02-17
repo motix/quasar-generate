@@ -41,7 +41,7 @@ await cliGhostwriter({
 })
 
 await fixQuasarAppVite()
-execSync(`cd ${appRoot} && yarn && yarn build && cd ../..`, {
+execSync(`cd ${appRoot} && yarn && yarn build && yarn format && yarn lint && cd ../..`, {
   stdio: 'inherit',
 })
 
