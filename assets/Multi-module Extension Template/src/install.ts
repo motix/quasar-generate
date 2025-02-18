@@ -16,8 +16,10 @@ export default async function (api: InstallAPI) {
   const organizationName = getOrganizationName()
 
   const scripts: Record<string, string> = {}
-  scripts[`i-${packageName}`] = `quasar ext invoke ${organizationName}/${packageName}`
-  scripts[`u-${packageName}`] = `quasar ext uninvoke ${organizationName}/${packageName}`
+  scripts[`i-${packageName}`] =
+    `quasar ext invoke ${organizationName}/${packageName} && yarn format`
+  scripts[`u-${packageName}`] =
+    `quasar ext uninvoke ${organizationName}/${packageName} && yarn format`
   scripts[`r-${packageName}`] = `yarn u-${packageName} && yarn i-${packageName} && yarn clean`
 
   // Remove current i- to keep i-, u- and r- together
