@@ -29,6 +29,11 @@ f || (await finishProject())
 async function createQuasarProject() {
   // Create Quasar project for the app.
 
+  console.log(
+    ' \x1b[32mquasar-generate •\x1b[0m',
+    `Creating Quasar project for \x1b[47m${config.packageName}\x1b[0m`,
+  )
+
   const answersMap: Record<string, string | undefined> = {
     'What would you like to build?': ACCEPT_DEFAULT, // App with Quasar CLI
     'Project folder': `output/${config.projectFolder}`,
@@ -53,7 +58,7 @@ async function createQuasarProject() {
 }
 
 async function finishProject() {
-  // Add `tsc` script.
+  // Add build script.
 
   await extendJsonFile(appPackageJsonFilePath, [
     {
@@ -62,7 +67,12 @@ async function finishProject() {
     },
   ])
 
-  // Install templates project packages and clean code.
+  // Install the app packages and clean code.
+
+  console.log(
+    ' \x1b[32mquasar-generate •\x1b[0m',
+    `Installing \x1b[47m${config.packageName}\x1b[0m packages and clean code`,
+  )
 
   await fixQuasarAppVite()
   execSync(`cd ${appRoot} && yarn && yarn clean && cd ../..`, {
