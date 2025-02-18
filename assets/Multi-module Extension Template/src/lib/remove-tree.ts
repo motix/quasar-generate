@@ -3,6 +3,7 @@ import type { UninstallAPI } from '@quasar/app-vite'
 import fs from 'fs'
 import path from 'path'
 
+// @ts-expect-error Importing from a specific path in node_modules
 import { getCallerPath } from '../../node_modules/@quasar/app-vite/lib/utils/get-caller-path.js'
 
 export default function (
