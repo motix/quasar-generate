@@ -9,28 +9,46 @@ import { getCallerPath } from '../../node_modules/@quasar/app-vite/lib/utils/get
 export default function (
   api: UninstallAPI,
   templatePath: string,
-  knownPaths?: string[],
-  excludePaths?: string[],
+  options?: {
+    knownPaths?: string[]
+    excludePaths?: string[]
+    removeIfEmpty?: string[]
+  },
 ) {
   const dir: string = getCallerPath()
-  const absolutePath = path.resolve(dir, templatePath)
+  const absoluteTemplatePath = path.resolve(dir, templatePath)
 
-  const paths = fs.readdirSync(absolutePath)
+  const paths = fs.readdirSync(absoluteTemplatePath)
 
   for (const currentPath of paths) {
-    removePath(api, absolutePath, currentPath, [...(knownPaths || []), ...(excludePaths || [])])
+    removePath(api, absoluteTemplatePath, currentPath, [
+      ...(options?.knownPaths || []),
+      ...(options?.excludePaths || []),
+    ])
   }
 
-  knownPaths?.forEach((value) => api.removePath(value))
+  options?.knownPaths?.forEach((value) => api.removePath(value))
+
+  options?.removeIfEmpty?.forEach((value) => {
+    const absolutePath = api.resolve.app(value)
+
+    if (fs.existsSync(absolutePath)) {
+      if (fs.lstatSync(absolutePath).isFile()) {
+        throw new Error('removeIfEmpty option cannot remove file.')
+      } else {
+        fs.readdirSync(absolutePath).length === 0 && api.removePath(value)
+      }
+    }
+  })
 }
 
 function removePath(
   api: UninstallAPI,
-  templatePath: string,
+  absoluteTemplatePath: string,
   relativePath: string,
   excludePaths: string[],
 ) {
-  const absolutePath = path.resolve(templatePath, relativePath)
+  const absolutePath = path.resolve(absoluteTemplatePath, relativePath)
 
   if (excludePaths.includes(relativePath)) {
     return
@@ -42,7 +60,7 @@ function removePath(
     const paths = fs.readdirSync(absolutePath)
 
     for (const currentPath of paths) {
-      removePath(api, templatePath, path.join(relativePath, currentPath), excludePaths)
+      removePath(api, absoluteTemplatePath, path.join(relativePath, currentPath), excludePaths)
     }
   }
 }
