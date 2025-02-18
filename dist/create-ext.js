@@ -21,6 +21,7 @@ f || (await extensionProjectLintingAndFormatting());
 f || (await finishExtensionProject());
 async function createQuasarProjects() {
     // Create Quasar project for the extension.
+    console.log(' \x1b[32mquasar-generate •\x1b[0m', `Creating Quasar project for \x1b[47m${config.extensionId}\x1b[0m`);
     const extensionAnswersMap = {
         'What would you like to build?': `${DOWN_KEY}`, // AppExtension (AE) for Quasar CLI
         'Project folder': `output/${config.projectFolder}`,
@@ -38,7 +39,8 @@ async function createQuasarProjects() {
         answersMap: extensionAnswersMap,
         endingMarker: 'Enjoy! - Quasar Team',
     });
-    // In newly created project, create another Quasar project for templates.
+    // Create Quasar project for templates.
+    console.log(' \x1b[32mquasar-generate •\x1b[0m', 'Creating Quasar project for \x1b[47mtemplates\x1b[0m');
     const templatesAnswersMap = {
         'What would you like to build?': ACCEPT_DEFAULT, // App with Quasar CLI
         'Project folder': templatesRoot,
@@ -75,16 +77,24 @@ async function cleanTemplatesProject() {
     // Modify `templates/quasar.config.ts` content.
     fs.writeFileSync(`./${templatesRoot}/quasar.config.ts`, `// Supports quasar prepare
 
-export default () => {
-  return {}
-}
+import { defineConfig } from '#q-app/wrappers'
+
+export default defineConfig((/* ctx */) => {
+  return {
+    build: {
+      typescript: {
+        strict: true,
+        vueShim: true,
+      },
+    },
+  }
+})
 `, { encoding: 'utf-8' });
     // Uninstall packages: `@quasar/extras`, `vite-plugin-checker`,
     // `@types/node`, `autoprefixer` and upgrade all remaining packages to latest.
     reduceJsonFile(templatesPackageJsonFilePath, [
         'dependencies.@quasar/extras',
         'devDependencies.vite-plugin-checker',
-        'devDependencies.@types/node',
         'devDependencies.autoprefixer',
     ]);
     await extendJsonFile(templatesPackageJsonFilePath, [
@@ -99,6 +109,7 @@ export default () => {
         { path: 'devDependencies.@vue/eslint-config-typescript', value: '^14.4.0' },
         { path: 'devDependencies.@vue/eslint-config-prettier', value: '^10.2.0' },
         { path: 'devDependencies.prettier', value: '^3.5.1' },
+        { path: 'devDependencies.@types/node', value: '^20.5.9' },
         { path: 'devDependencies.@quasar/app-vite', value: '^2.1.0' },
         { path: 'devDependencies.typescript', value: '^5.7.3' },
     ]);
@@ -131,7 +142,8 @@ async function finishTemplatesProject() {
             value: 'yarn vue-tsc --noEmit --skipLibCheck',
         },
     ]);
-    // Install templates project packages and clean code.
+    // Install templates packages and clean code.
+    console.log(' \x1b[32mquasar-generate •\x1b[0m', 'Installing \x1b[47mtemplates\x1b[0m packages and clean code');
     await fixTemplatesQuasarAppVite();
     execSync(`cd ${templatesRoot} && yarn && yarn clean && cd ../../..`, { stdio: 'inherit' });
 }
@@ -220,7 +232,8 @@ async function finishExtensionProject() {
     await extendJsonFile(extensionPackageJsonFilePath, [
         { path: 'scripts.build', value: 'npx tsc && cd templates && yarn tsc && cd ..' },
     ]);
-    // Install extension project packages, build and clean code.
+    // Install the extension packages, build and clean code
+    console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47m${config.extensionId}\x1b[0m packages, build and clean code`);
     await fixExtensionQuasarAppVite();
     execSync(`cd ${extensionRoot} && yarn && yarn build && yarn clean && cd ../..`, {
         stdio: 'inherit',
