@@ -1,5 +1,5 @@
 import fs from 'fs'
-import { get, set, unset } from 'lodash-es'
+import { get, isArray, set, unset } from 'lodash-es'
 
 export async function extendJsonFile(
   filePath: string,
@@ -27,12 +27,22 @@ export async function extendJsonFile(
   }
 }
 
-export function reduceJsonFile(filePath: string, paths: string[]) {
+export function reduceJsonFile(filePath: string, paths: string[], removeIfEmpty?: string[]) {
   const json = fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath, 'utf-8')) : undefined
 
   if (json) {
     for (const path of paths) {
       unset(json, path)
+    }
+
+    if (removeIfEmpty !== undefined) {
+      for (const path of removeIfEmpty) {
+        const value = get(json, path)
+
+        if ((isArray(value) && value.length === 0) || Object.keys(value).length === 0) {
+          unset(json, path)
+        }
+      }
     }
 
     fs.writeFileSync(filePath, JSON.stringify(json, null, 2))
@@ -42,6 +52,7 @@ export function reduceJsonFile(filePath: string, paths: string[]) {
 export function reduceJsonFileArray(
   filePath: string,
   pathAndValues: { path: string; value: unknown }[],
+  removeIfEmpty?: string[],
 ) {
   const json = fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath, 'utf-8')) : undefined
 
@@ -50,6 +61,16 @@ export function reduceJsonFileArray(
       const values = get(json, path)
 
       values?.includes(value) && values.splice(values.indexOf(value), 1)
+    }
+
+    if (removeIfEmpty !== undefined) {
+      for (const path of removeIfEmpty) {
+        const value = get(json, path)
+
+        if ((isArray(value) && value.length === 0) || Object.keys(value).length === 0) {
+          unset(json, path)
+        }
+      }
     }
 
     fs.writeFileSync(filePath, JSON.stringify(json, null, 2))
