@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { get, set, unset } from 'lodash-es';
+import { get, isArray, set, unset } from 'lodash-es';
 export async function extendJsonFile(filePath, pathAdnValues) {
     const json = (await import(filePath, { with: { type: 'json' } })).default;
     if (json) {
@@ -17,21 +17,37 @@ export async function extendJsonFile(filePath, pathAdnValues) {
         fs.writeFileSync(filePath, JSON.stringify(json, null, 2));
     }
 }
-export function reduceJsonFile(filePath, paths) {
+export function reduceJsonFile(filePath, paths, removeIfEmpty) {
     const json = fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath, 'utf-8')) : undefined;
     if (json) {
         for (const path of paths) {
             unset(json, path);
         }
+        if (removeIfEmpty !== undefined) {
+            for (const path of removeIfEmpty) {
+                const value = get(json, path);
+                if ((isArray(value) && value.length === 0) || Object.keys(value).length === 0) {
+                    unset(json, path);
+                }
+            }
+        }
         fs.writeFileSync(filePath, JSON.stringify(json, null, 2));
     }
 }
-export function reduceJsonFileArray(filePath, pathAndValues) {
+export function reduceJsonFileArray(filePath, pathAndValues, removeIfEmpty) {
     const json = fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath, 'utf-8')) : undefined;
     if (json) {
         for (const { path, value } of pathAndValues) {
             const values = get(json, path);
             values?.includes(value) && values.splice(values.indexOf(value), 1);
+        }
+        if (removeIfEmpty !== undefined) {
+            for (const path of removeIfEmpty) {
+                const value = get(json, path);
+                if ((isArray(value) && value.length === 0) || Object.keys(value).length === 0) {
+                    unset(json, path);
+                }
+            }
         }
         fs.writeFileSync(filePath, JSON.stringify(json, null, 2));
     }
