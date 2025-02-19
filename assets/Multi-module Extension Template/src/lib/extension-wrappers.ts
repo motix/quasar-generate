@@ -20,7 +20,7 @@ export type PromptRecord = {
   name: string
   type: 'input' | 'number' | 'confirm'
   message: string
-  default: unknown
+  default?: unknown
 }
 
 export type PromptsDefinition = (api: PromptsAPI) => PromptRecord[] | Promise<PromptRecord[]>
