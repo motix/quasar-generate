@@ -9,15 +9,19 @@ import removeTree from './remove-tree.js'
 
 type Config = Awaited<ReturnType<typeof getExtensionConfig>>
 
-type ExtendedIndexAPI = IndexAPI & Pick<Config, 'hasModule'>
+type ExtendedApi = Pick<Config, 'hasModule'> & {
+  deployToDev: () => boolean
+}
+
+type ExtendedIndexAPI = IndexAPI & ExtendedApi
 
 type ExtendedInstallAPI = InstallAPI &
-  Pick<Config, 'hasModule'> & {
+  ExtendedApi & {
     renderTemplate: (name?: string, scope?: object) => void
   }
 
 type ExtendedUninstallAPI = UninstallAPI &
-  Pick<Config, 'hasModule'> &
+  ExtendedApi &
   Pick<InstallAPI, 'extendJsonFile'> & {
     removeTemplateTree: (
       name?: string,
@@ -113,10 +117,12 @@ async function extendApi(moduleName: string, api: IndexAPI | InstallAPI | Uninst
   await mergePrompts(moduleName, api)
 
   const config = await getExtensionConfig(api.appDir)
-
-  Object.assign(api, {
+  const extendedFunctions: ExtendedApi = {
     hasModule: (name: string) => config.hasModule(name),
-  })
+    deployToDev: () => api.appDir.endsWith('\\dev'),
+  }
+
+  Object.assign(api, extendedFunctions)
 }
 
 async function mergePrompts(moduleName: string, api: IndexAPI | InstallAPI | UninstallAPI) {
