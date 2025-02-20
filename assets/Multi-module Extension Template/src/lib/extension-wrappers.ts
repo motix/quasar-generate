@@ -2,18 +2,32 @@ import type { IndexAPI, InstallAPI, PromptsAPI, UninstallAPI } from '@quasar/app
 
 // @ts-expect-error Importing from a specific path in node_modules
 import { InstallAPI as InstallAPIClass } from '../../node_modules/@quasar/app-vite/lib/app-extension/api-classes/InstallAPI.js'
+// @ts-expect-error Importing from a specific path in node_modules
+import { getCallerPath } from '../../node_modules/@quasar/app-vite/lib/utils/get-caller-path.js'
 import getExtensionConfig from './extension-config.js'
-import normalizeModuleName from './normalize-module-name.js'
+import removeTree from './remove-tree.js'
 
 type Config = Awaited<ReturnType<typeof getExtensionConfig>>
 
 type ExtendedIndexAPI = IndexAPI & Pick<Config, 'hasModule'>
 
-type ExtendedInstallAPI = InstallAPI & Pick<Config, 'hasModule'>
+type ExtendedInstallAPI = InstallAPI &
+  Pick<Config, 'hasModule'> & {
+    renderTemplate: (name?: string, scope?: object) => void
+  }
 
 type ExtendedUninstallAPI = UninstallAPI &
-  Pick<InstallAPI, 'extendJsonFile'> &
-  Pick<Config, 'hasModule'>
+  Pick<Config, 'hasModule'> &
+  Pick<InstallAPI, 'extendJsonFile'> & {
+    removeTemplateTree: (
+      name?: string,
+      options?: {
+        knownPaths?: string[]
+        excludePaths?: string[]
+        removeIfEmpty?: string[]
+      },
+    ) => void
+  }
 
 // See Inquirer.js https://github.com/SBoudrias/Inquirer.js for other features
 export type PromptRecord = {
@@ -36,22 +50,38 @@ export function definePrompts(callback: PromptsDefinition): PromptsDefinition {
 }
 
 export function defineIndex(callback: ExtendedIndexDefinition): IndexDefinition {
+  const callerPath: string = getCallerPath()
+  const moduleName = callerPath.substring(callerPath.lastIndexOf('/') + 1)
+
   return async (api) => {
-    await extendApi(callback.name, api)
+    await extendApi(moduleName, api)
     return callback(api as ExtendedIndexAPI)
   }
 }
 
 export function defineInstall(callback: ExtendedInstallDefinition): InstallDefinition {
+  const callerPath: string = getCallerPath()
+  const moduleName = callerPath.substring(callerPath.lastIndexOf('/') + 1)
+
   return async (api) => {
-    await extendApi(callback.name, api)
+    await extendApi(moduleName, api)
+
+    Object.assign(api, {
+      renderTemplate(name: string = 'dist', scope?: object) {
+        api.render(`../../templates/modules/${moduleName}/${name}`, scope)
+      },
+    })
+
     return callback(api as ExtendedInstallAPI)
   }
 }
 
 export function defineUninstall(callback: ExtendedUninstallDefinition): UninstallDefinition {
+  const callerPath: string = getCallerPath()
+  const moduleName = callerPath.substring(callerPath.lastIndexOf('/') + 1)
+
   return async (api) => {
-    await extendApi(callback.name, api)
+    await extendApi(moduleName, api)
 
     const installApi: InstallAPI = new InstallAPIClass({
       ctx: api.ctx,
@@ -63,15 +93,34 @@ export function defineUninstall(callback: ExtendedUninstallDefinition): Uninstal
       extendJsonFile: (file: string, newData: object) => {
         installApi.extendJsonFile(file, newData)
       },
+      removeTemplateTree: (
+        name: string = 'dist',
+        options?: {
+          knownPaths?: string[]
+          excludePaths?: string[]
+          removeIfEmpty?: string[]
+        },
+      ) => {
+        removeTree(api, `../../templates/modules/${moduleName}/${name}`, options)
+      },
     })
 
     return callback(api as ExtendedUninstallAPI)
   }
 }
 
-async function mergePrompts(callbackName: string, api: IndexAPI | InstallAPI | UninstallAPI) {
+async function extendApi(moduleName: string, api: IndexAPI | InstallAPI | UninstallAPI) {
+  await mergePrompts(moduleName, api)
+
   const config = await getExtensionConfig(api.appDir)
-  const moduleName = normalizeModuleName(callbackName)
+
+  Object.assign(api, {
+    hasModule: (name: string) => config.hasModule(name),
+  })
+}
+
+async function mergePrompts(moduleName: string, api: IndexAPI | InstallAPI | UninstallAPI) {
+  const config = await getExtensionConfig(api.appDir)
 
   if (config.hasPrompts(moduleName)) {
     const promptsConfig = config.prompts(moduleName)
@@ -82,14 +131,4 @@ async function mergePrompts(callbackName: string, api: IndexAPI | InstallAPI | U
       }
     }
   }
-}
-
-async function extendApi(callbackName: string, api: IndexAPI | InstallAPI | UninstallAPI) {
-  await mergePrompts(callbackName, api)
-
-  const config = await getExtensionConfig(api.appDir)
-
-  Object.assign(api, {
-    hasModule: (name: string) => config.hasModule(name),
-  })
 }

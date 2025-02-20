@@ -15,8 +15,8 @@ export default function (
     removeIfEmpty?: string[]
   },
 ) {
-  const dir: string = getCallerPath()
-  const absoluteTemplatePath = path.resolve(dir, templatePath)
+  const callerPath: string = getCallerPath()
+  const absoluteTemplatePath = path.resolve(callerPath, templatePath)
 
   const paths = fs.readdirSync(absoluteTemplatePath)
 
