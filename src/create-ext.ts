@@ -217,7 +217,7 @@ async function templatesProjectLintingAndFormatting() {
     },
     {
       path: 'scripts.clean',
-      value: 'yarn format-imports modules && yarn format && yarn lint --fix',
+      value: 'yarn format-imports modules && yarn format --log-level warn && yarn lint --fix',
     },
   ])
 }
@@ -342,7 +342,7 @@ async function extensionProjectLintingAndFormatting() {
     {
       path: 'scripts.clean',
       value:
-        'yarn format-imports src && yarn format-imports templates/modules && yarn format && yarn lint --fix',
+        'yarn format-imports src && yarn format-imports templates/modules && yarn format --log-level warn && yarn lint --fix',
     },
   ])
 }

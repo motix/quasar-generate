@@ -78,7 +78,7 @@ export default async function (appRoot: string) {
   await extendJsonFile(appPackageJsonFilePath, [
     {
       path: 'scripts.clean',
-      value: 'yarn format-imports src && yarn format && yarn lint --fix',
+      value: 'yarn format-imports src && yarn format --log-level warn && yarn lint --fix',
     },
   ])
 }
