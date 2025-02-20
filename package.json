@@ -8,7 +8,7 @@
   "scripts": {
     "lint": "eslint -c ./eslint.config.js \"./src/**/*.{ts,js,cjs,mjs,vue}\"",
     "format": "prettier --write \"./src/**/*.{js,ts,vue,scss,html,md,json}\"",
-    "clean": "yarn format-imports src && yarn format && yarn lint --fix",
+    "clean": "yarn format-imports src && yarn format --log-level warn && yarn lint --fix",
     "build": "npx tsc",
     "create-app": "node ./dist/create-app.js",
     "create-ext": "node ./dist/create-ext.js",
