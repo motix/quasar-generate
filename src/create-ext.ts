@@ -90,8 +90,8 @@ async function cleanTemplatesProject() {
 
   fs.rmSync(`./${templatesRoot}/public`, { recursive: true })
   fs.rmSync(`./${templatesRoot}/src`, { recursive: true })
-  fs.rmSync(`./${templatesRoot}/postcss.config.js`, { recursive: true })
-  fs.rmSync(`./${templatesRoot}/README.md`, { recursive: true })
+  fs.rmSync(`./${templatesRoot}/postcss.config.js`)
+  fs.rmSync(`./${templatesRoot}/README.md`)
 
   // Modify `templates/index.html` content.
 
@@ -125,6 +125,45 @@ export default defineConfig((/* ctx */) => {
 `,
     { encoding: 'utf-8' },
   )
+
+  // Re-create `src` folder and sub folders
+
+  fs.mkdirSync(`./${templatesRoot}/src/layouts`, { recursive: true })
+  fs.mkdirSync(`./${templatesRoot}/src/pages`)
+
+  // Add `MainLayout.vue`
+
+  fs.writeFileSync(
+    `./${templatesRoot}/src/layouts/MainLayout.vue`,
+    `<template>
+  <div></div>
+</template>
+
+<script setup lang="ts">
+// Supports dev templates
+</script>
+`,
+    { encoding: 'utf-8' },
+  )
+
+  // Add `IndexPage.vue`
+
+  fs.writeFileSync(
+    `./${templatesRoot}/src/pages/IndexPage.vue`,
+    `<template>
+  <div></div>
+</template>
+
+<script setup lang="ts">
+// Supports dev templates
+</script>
+`,
+    { encoding: 'utf-8' },
+  )
+
+  // Remove `dev` and `build` scripts
+
+  reduceJsonFile(templatesPackageJsonFilePath, ['scripts.dev', 'scripts.build'])
 
   // Uninstall packages: `@quasar/extras`, `vite-plugin-checker`,
   // `@types/node`, `autoprefixer` and upgrade all remaining packages to latest.
