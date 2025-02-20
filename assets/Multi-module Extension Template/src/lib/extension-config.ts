@@ -17,7 +17,7 @@ export default async function (appDir: string) {
     prompts: (name) =>
       typeof modules[name] === 'object' && !!modules[name].prompts
         ? modules[name].prompts
-        : (function () {
+        : (() => {
             throw new Error(`Module '${name}' does not exist or it doesn't have prompts.`)
           })(),
     moduleIndex: (name) => moduleNames.indexOf(name),
