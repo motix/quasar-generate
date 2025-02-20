@@ -119,7 +119,8 @@ async function extendApi(moduleName: string, api: IndexAPI | InstallAPI | Uninst
   const config = await getExtensionConfig(api.appDir)
   const extendedFunctions: ExtendedApi = {
     hasModule: (name: string) => config.hasModule(name),
-    deployToDev: () => api.appDir.endsWith('\\dev'),
+    deployToDev: () =>
+      api.appDir.endsWith('/dev') || api.appDir.endsWith('\\dev') || api.appDir.endsWith('-dev'),
   }
 
   Object.assign(api, extendedFunctions)
