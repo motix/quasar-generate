@@ -355,10 +355,11 @@ async function finishExtensionProject() {
   // Putting `path` in an array to keep it as a single property in JSON file
   await extendJsonFile(settingsJson, [{ path: ['search.exclude'], value: { dist: true } }])
 
-  // Add build script.
+  // Add build scripts.
 
   await extendJsonFile(extensionPackageJsonFilePath, [
     { path: 'scripts.build', value: 'npx tsc && cd templates && yarn tsc && cd ..' },
+    { path: 'scripts.watch', value: 'npx tsc --watch' },
   ])
 
   // Install the extension packages, build and clean code

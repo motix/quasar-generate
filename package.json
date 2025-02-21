@@ -10,6 +10,7 @@
     "format": "prettier --write \"./src/**/*.{js,ts,vue,scss,html,md,json}\"",
     "clean": "yarn format-imports src && yarn format --log-level warn && yarn lint --fix",
     "build": "npx tsc",
+    "watch": "npx tsc --watch",
     "create-app": "node ./dist/create-app.js",
     "create-ext": "node ./dist/create-ext.js",
     "test": "echo \"Error: no test specified\" && exit 1"
