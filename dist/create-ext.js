@@ -263,14 +263,14 @@ async function finishExtensionProject() {
         stdio: 'inherit',
     });
 }
-// TODO:: Remove when Quasar fixes this bug
+// TODO: Remove when Quasar fixes this bug
 async function fixExtensionQuasarAppVite() {
     fs.copyFileSync('./assets/fixQuasarAppVite.js', `./${extensionRoot}/fixQuasarAppVite.js`);
     await extendJsonFile(extensionPackageJsonFilePath, [
         { path: 'scripts.postinstall', value: 'node fixQuasarAppVite.js' },
     ]);
 }
-// TODO:: Remove when Quasar fixes this bug
+// TODO: Remove when Quasar fixes this bug
 async function fixTemplatesQuasarAppVite() {
     fs.copyFileSync('./assets/fixQuasarAppVite.js', `./${templatesRoot}/fixQuasarAppVite.js`);
     await extendJsonFile(templatesPackageJsonFilePath, [

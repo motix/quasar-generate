@@ -375,7 +375,7 @@ async function finishExtensionProject() {
   })
 }
 
-// TODO:: Remove when Quasar fixes this bug
+// TODO: Remove when Quasar fixes this bug
 async function fixExtensionQuasarAppVite() {
   fs.copyFileSync('./assets/fixQuasarAppVite.js', `./${extensionRoot}/fixQuasarAppVite.js`)
   await extendJsonFile(extensionPackageJsonFilePath, [
@@ -383,7 +383,7 @@ async function fixExtensionQuasarAppVite() {
   ])
 }
 
-// TODO:: Remove when Quasar fixes this bug
+// TODO: Remove when Quasar fixes this bug
 async function fixTemplatesQuasarAppVite() {
   fs.copyFileSync('./assets/fixQuasarAppVite.js', `./${templatesRoot}/fixQuasarAppVite.js`)
   await extendJsonFile(templatesPackageJsonFilePath, [
