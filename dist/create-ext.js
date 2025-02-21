@@ -230,6 +230,9 @@ async function extensionProjectLintingAndFormatting() {
         dependenciesAsArray.push({ path: `devDependencies.${prop}`, value: dependencies[prop] });
     }
     await extendJsonFile(extensionPackageJsonFilePath, dependenciesAsArray);
+    // Add `.prettierignore` file to ignore `dist`.
+    fs.writeFileSync(`./${templatesRoot}/.prettierignore`, `dist
+`, { encoding: 'utf-8' });
     // Add `lint`, `format` and `clean` scripts to `package.json`.
     await extendJsonFile(extensionPackageJsonFilePath, [
         {
@@ -238,7 +241,7 @@ async function extensionProjectLintingAndFormatting() {
         },
         {
             path: 'scripts.format',
-            value: 'prettier --write "**/*.{js,ts,vue,scss,html,md,json}" --ignore-path templates/.gitignore',
+            value: 'prettier --write "**/*.{js,ts,vue,scss,html,md,json}" --ignore-path templates/.gitignore  --ignore-path .prettierignore',
         },
         {
             path: 'scripts.clean',
