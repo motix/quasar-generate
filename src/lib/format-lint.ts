@@ -37,6 +37,12 @@ export default async function (appRoot: string) {
     { path: 'editor.codeActionsOnSave[]', value: 'source.fixAll.eslint' },
   ])
 
+  // Modify `.prettierrc.json`
+
+  await extendJsonFile(path.resolve(`./${appRoot}/.prettierrc.json`), [
+    { path: 'semi', value: true },
+  ])
+
   // Modify `eslint.config.js`.
 
   let eslintConfigJs = fs.readFileSync(`./${appRoot}/eslint.config.js`, 'utf-8')

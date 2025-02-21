@@ -28,6 +28,10 @@ export default async function (appRoot) {
         { path: 'editor.codeActionsOnSave[]', value: 'source.formatDocument' },
         { path: 'editor.codeActionsOnSave[]', value: 'source.fixAll.eslint' },
     ]);
+    // Modify `.prettierrc.json`
+    await extendJsonFile(path.resolve(`./${appRoot}/.prettierrc.json`), [
+        { path: 'semi', value: true },
+    ]);
     // Modify `eslint.config.js`.
     let eslintConfigJs = fs.readFileSync(`./${appRoot}/eslint.config.js`, 'utf-8');
     eslintConfigJs = eslintConfigJs.replace("  ...pluginVue.configs[ 'flat/essential' ],", "  ...pluginVue.configs[ 'flat/recommended' ],");
