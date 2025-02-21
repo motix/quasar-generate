@@ -329,7 +329,7 @@ async function extensionProjectLintingAndFormatting() {
   // Add `.prettierignore` file to ignore `dist`.
 
   fs.writeFileSync(
-    `./${templatesRoot}/.prettierignore`,
+    `./${extensionRoot}/.prettierignore`,
     `dist
 `,
     { encoding: 'utf-8' },
