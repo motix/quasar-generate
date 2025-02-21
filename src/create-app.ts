@@ -80,7 +80,7 @@ async function finishProject() {
   })
 }
 
-// TODO:: Remove when Quasar fixes this bug
+// TODO: Remove when Quasar fixes this bug
 async function fixQuasarAppVite() {
   fs.copyFileSync('./assets/fixQuasarAppVite.js', `./${appRoot}/fixQuasarAppVite.js`)
   await extendJsonFile(appPackageJsonFilePath, [
