@@ -326,6 +326,15 @@ async function extensionProjectLintingAndFormatting() {
 
   await extendJsonFile(extensionPackageJsonFilePath, dependenciesAsArray)
 
+  // Modify `import-sorter.json` file to ignore `dist`
+
+  await extendJsonFile(path.resolve(`./${extensionRoot}/import-sorter.json`), [
+    {
+      path: 'excludeGlob',
+      value: [`**/${config.projectFolder}/dist/**`],
+    },
+  ])
+
   // Add `.prettierignore` file to ignore `dist`.
 
   fs.writeFileSync(
