@@ -330,7 +330,7 @@ async function extensionProjectLintingAndFormatting() {
 
   fs.writeFileSync(
     `./${extensionRoot}/.prettierignore`,
-    `dist
+    `/dist
 `,
     { encoding: 'utf-8' },
   )
