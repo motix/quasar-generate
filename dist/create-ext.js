@@ -4,27 +4,28 @@ import path from 'path';
 import { ACCEPT_DEFAULT, cliGhostwriter, DOWN_KEY } from '@dreamonkey/cli-ghostwriter';
 import setupFormatLint from './lib/format-lint.js';
 import { extendJsonFile, reduceJsonFile } from './lib/json-helpers.js';
+const globalAssets = './assets';
 const project = process.argv[2];
 const config = (await import(`../projects/${project}.js`)).default;
-const extensionRoot = `output/${config.projectFolder}`;
+const extensionRoot = `./output/${config.projectFolder}`;
 const templatesRoot = `${extensionRoot}/templates`;
-const extensionPackageJsonFilePath = path.resolve(`./${extensionRoot}/package.json`);
-const templatesPackageJsonFilePath = path.resolve(`./${templatesRoot}/package.json`);
+const extensionPackageJsonFilePath = path.resolve(`${extensionRoot}/package.json`);
+const templatesPackageJsonFilePath = path.resolve(`${templatesRoot}/package.json`);
 // Turning on/off functions
 const f = false;
 f || (await createQuasarProjects());
-f || (await cleanTemplatesProject());
-f || (await templatesProjectLintingAndFormatting());
-f || (await finishTemplatesProject());
-f || (await cleanExtensionProject());
+f || cleanTemplatesProject();
+f || templatesProjectLintingAndFormatting();
+f || finishTemplatesProject();
+f || cleanExtensionProject();
 f || (await extensionProjectLintingAndFormatting());
-f || (await finishExtensionProject());
+f || finishExtensionProject();
 async function createQuasarProjects() {
     // Create Quasar project for the extension.
     console.log(' \x1b[32mquasar-generate •\x1b[0m', `Creating Quasar project for \x1b[47m${config.extensionId}\x1b[0m`);
     const extensionAnswersMap = {
         'What would you like to build?': `${DOWN_KEY}`, // AppExtension (AE) for Quasar CLI
-        'Project folder': `output/${config.projectFolder}`,
+        'Project folder': extensionRoot,
         'Will you use an organization to publish it?': 'y',
         'Organization name': config.organizationName,
         'Quasar App Extension ext-id': config.extensionId,
@@ -62,20 +63,20 @@ async function createQuasarProjects() {
         endingMarker: 'Enjoy! - Quasar Team',
     });
 }
-async function cleanTemplatesProject() {
+function cleanTemplatesProject() {
     // Delete `templates/public`, `templates/src`,
     // `templates/postcss.config.js`, `templates/README.md`.
-    fs.rmSync(`./${templatesRoot}/public`, { recursive: true });
-    fs.rmSync(`./${templatesRoot}/src`, { recursive: true });
-    fs.rmSync(`./${templatesRoot}/postcss.config.js`);
-    fs.rmSync(`./${templatesRoot}/README.md`);
+    fs.rmSync(`${templatesRoot}/public`, { recursive: true });
+    fs.rmSync(`${templatesRoot}/src`, { recursive: true });
+    fs.rmSync(`${templatesRoot}/postcss.config.js`);
+    fs.rmSync(`${templatesRoot}/README.md`);
     // Modify `templates/index.html` content.
-    fs.writeFileSync(`./${templatesRoot}/index.html`, `<!-- Supports quasar prepare -->
+    fs.writeFileSync(`${templatesRoot}/index.html`, `<!-- Supports quasar prepare -->
 
 <!-- quasar:entry-point -->
 `, { encoding: 'utf-8' });
     // Modify `templates/quasar.config.ts` content.
-    fs.writeFileSync(`./${templatesRoot}/quasar.config.ts`, `// Supports quasar prepare
+    fs.writeFileSync(`${templatesRoot}/quasar.config.ts`, `// Supports quasar prepare
 
 import { defineConfig } from '#q-app/wrappers'
 
@@ -91,10 +92,10 @@ export default defineConfig((/* ctx */) => {
 })
 `, { encoding: 'utf-8' });
     // Re-create `src` folder and sub folders
-    fs.mkdirSync(`./${templatesRoot}/src/layouts`, { recursive: true });
-    fs.mkdirSync(`./${templatesRoot}/src/pages`);
+    fs.mkdirSync(`${templatesRoot}/src/layouts`, { recursive: true });
+    fs.mkdirSync(`${templatesRoot}/src/pages`);
     // Add `MainLayout.vue`
-    fs.writeFileSync(`./${templatesRoot}/src/layouts/MainLayout.vue`, `<template>
+    fs.writeFileSync(`${templatesRoot}/src/layouts/MainLayout.vue`, `<template>
   <div></div>
 </template>
 
@@ -103,7 +104,7 @@ export default defineConfig((/* ctx */) => {
 </script>
 `, { encoding: 'utf-8' });
     // Add `IndexPage.vue`
-    fs.writeFileSync(`./${templatesRoot}/src/pages/IndexPage.vue`, `<template>
+    fs.writeFileSync(`${templatesRoot}/src/pages/IndexPage.vue`, `<template>
   <div></div>
 </template>
 
@@ -120,7 +121,7 @@ export default defineConfig((/* ctx */) => {
         'devDependencies.vite-plugin-checker',
         'devDependencies.autoprefixer',
     ]);
-    await extendJsonFile(templatesPackageJsonFilePath, [
+    extendJsonFile(templatesPackageJsonFilePath, [
         { path: 'dependencies.quasar', value: '^2.17.7' },
         { path: 'dependencies.vue', value: '^3.5.13' },
         { path: 'dependencies.vue-router', value: '^4.5.0' },
@@ -137,16 +138,16 @@ export default defineConfig((/* ctx */) => {
         { path: 'devDependencies.typescript', value: '^5.7.3' },
     ]);
     // Create folder `templates/modules` and add default file.
-    fs.mkdirSync(`./${templatesRoot}/modules`, { recursive: true });
-    fs.writeFileSync(`./${templatesRoot}/modules/index.ts`, `// Dump file to prevent \`lint\` script from rasing error.
+    fs.mkdirSync(`${templatesRoot}/modules`, { recursive: true });
+    fs.writeFileSync(`${templatesRoot}/modules/index.ts`, `// Dump file to prevent \`lint\` script from rasing error.
 // Remove this file if any code was added.
 `, { encoding: 'utf-8' });
 }
-async function templatesProjectLintingAndFormatting() {
-    await setupFormatLint(templatesRoot);
+function templatesProjectLintingAndFormatting() {
+    setupFormatLint(templatesRoot);
     // Modify `templates/package.json` `lint` and `clean` script,
     // changing `src*` and `src` to `modules`
-    await extendJsonFile(templatesPackageJsonFilePath, [
+    extendJsonFile(templatesPackageJsonFilePath, [
         {
             path: 'scripts.lint',
             value: 'eslint -c ./eslint.config.js "./modules/**/*.{ts,js,cjs,mjs,vue}"',
@@ -157,9 +158,9 @@ async function templatesProjectLintingAndFormatting() {
         },
     ]);
 }
-async function finishTemplatesProject() {
+function finishTemplatesProject() {
     // Add build script.
-    await extendJsonFile(templatesPackageJsonFilePath, [
+    extendJsonFile(templatesPackageJsonFilePath, [
         {
             path: 'scripts.tsc',
             value: 'yarn vue-tsc --noEmit --skipLibCheck',
@@ -167,14 +168,14 @@ async function finishTemplatesProject() {
     ]);
     // Install templates packages and clean code.
     console.log(' \x1b[32mquasar-generate •\x1b[0m', 'Installing \x1b[47mtemplates\x1b[0m packages and clean code');
-    await fixTemplatesQuasarAppVite();
+    fixTemplatesQuasarAppVite();
     execSync(`cd ${templatesRoot} && yarn && yarn clean && cd ../../..`, { stdio: 'inherit' });
 }
-async function cleanExtensionProject() {
+function cleanExtensionProject() {
     // Delete `src` folder.
-    fs.rmSync(`./${extensionRoot}/src`, { recursive: true });
+    fs.rmSync(`${extensionRoot}/src`, { recursive: true });
     // Add `lodash-es` and `@types/lodash-es` to `package.json`.
-    await extendJsonFile(extensionPackageJsonFilePath, [
+    extendJsonFile(extensionPackageJsonFilePath, [
         {
             path: 'devDependencies.lodash-es',
             value: '^4.17.21',
@@ -185,26 +186,26 @@ async function cleanExtensionProject() {
         },
     ]);
     // Add `src` from `assets`.
-    fs.cpSync(`./assets/Multi-module Extension Template/src`, `./${extensionRoot}/src`, {
+    fs.cpSync(`${globalAssets}/Multi-module Extension Template/src`, `${extensionRoot}/src`, {
         recursive: true,
     });
 }
 async function extensionProjectLintingAndFormatting() {
     // Copy `.vscode`, `.editorconfig`, `.prettierrc.json`, `eslint.config.js`,
     // `import-sorter.json` from `templates` to root.
-    fs.cpSync(`./${templatesRoot}/.vscode`, `./${extensionRoot}/.vscode`, { recursive: true });
-    fs.copyFileSync(`./${templatesRoot}/.editorconfig`, `./${extensionRoot}/.editorconfig`);
-    fs.copyFileSync(`./${templatesRoot}/.prettierrc.json`, `./${extensionRoot}/.prettierrc.json`);
-    fs.copyFileSync(`./${templatesRoot}/eslint.config.js`, `./${extensionRoot}/eslint.config.js`);
-    fs.copyFileSync(`./${templatesRoot}/import-sorter.json`, `./${extensionRoot}/import-sorter.json`);
+    fs.cpSync(`${templatesRoot}/.vscode`, `${extensionRoot}/.vscode`, { recursive: true });
+    fs.copyFileSync(`${templatesRoot}/.editorconfig`, `${extensionRoot}/.editorconfig`);
+    fs.copyFileSync(`${templatesRoot}/.prettierrc.json`, `${extensionRoot}/.prettierrc.json`);
+    fs.copyFileSync(`${templatesRoot}/eslint.config.js`, `${extensionRoot}/eslint.config.js`);
+    fs.copyFileSync(`${templatesRoot}/import-sorter.json`, `${extensionRoot}/import-sorter.json`);
     // Comment out `.vscode` in `.gitignore`.
-    let gitignore = fs.readFileSync(`./${extensionRoot}/.gitignore`, 'utf-8');
+    let gitignore = fs.readFileSync(`${extensionRoot}/.gitignore`, 'utf-8');
     gitignore = gitignore.replace('.vscode', '# .vscode');
-    fs.writeFileSync(`./${extensionRoot}/.gitignore`, gitignore, {
+    fs.writeFileSync(`${extensionRoot}/.gitignore`, gitignore, {
         encoding: 'utf-8',
     });
     // Add `tsconfig.json`
-    fs.writeFileSync(`./${extensionRoot}/tsconfig.json`, `{
+    fs.writeFileSync(`${extensionRoot}/tsconfig.json`, `{
   "extends": "./templates/.quasar/tsconfig.json",
   "compilerOptions": {
     "noEmit": false,
@@ -229,19 +230,19 @@ async function extensionProjectLintingAndFormatting() {
     for (const prop in dependencies) {
         dependenciesAsArray.push({ path: `devDependencies.${prop}`, value: dependencies[prop] });
     }
-    await extendJsonFile(extensionPackageJsonFilePath, dependenciesAsArray);
+    extendJsonFile(extensionPackageJsonFilePath, dependenciesAsArray);
     // Modify `import-sorter.json` file to ignore `dist`
-    await extendJsonFile(path.resolve(`./${extensionRoot}/import-sorter.json`), [
+    extendJsonFile(path.resolve(`${extensionRoot}/import-sorter.json`), [
         {
             path: 'excludeGlob',
             value: [`**/${config.projectFolder}/dist/**`],
         },
     ]);
     // Add `.prettierignore` file to ignore `dist`.
-    fs.writeFileSync(`./${extensionRoot}/.prettierignore`, `/dist
+    fs.writeFileSync(`${extensionRoot}/.prettierignore`, `/dist
 `, { encoding: 'utf-8' });
     // Add `lint`, `format` and `clean` scripts to `package.json`.
-    await extendJsonFile(extensionPackageJsonFilePath, [
+    extendJsonFile(extensionPackageJsonFilePath, [
         {
             path: 'scripts.lint',
             value: 'eslint -c ./eslint.config.js "./src/**/*.{ts,js,cjs,mjs,vue}" && cd templates && yarn lint && cd ..',
@@ -256,34 +257,34 @@ async function extensionProjectLintingAndFormatting() {
         },
     ]);
 }
-async function finishExtensionProject() {
+function finishExtensionProject() {
     // Exclude `dist` from search
-    const settingsJson = path.resolve(`./${extensionRoot}/.vscode/settings.json`);
+    const settingsJson = path.resolve(`${extensionRoot}/.vscode/settings.json`);
     // Putting `path` in an array to keep it as a single property in JSON file
-    await extendJsonFile(settingsJson, [{ path: ['search.exclude'], value: { dist: true } }]);
+    extendJsonFile(settingsJson, [{ path: ['search.exclude'], value: { dist: true } }]);
     // Add build scripts.
-    await extendJsonFile(extensionPackageJsonFilePath, [
+    extendJsonFile(extensionPackageJsonFilePath, [
         { path: 'scripts.build', value: 'npx tsc && cd templates && yarn tsc && cd ..' },
         { path: 'scripts.watch', value: 'npx tsc --watch' },
     ]);
     // Install the extension packages, build and clean code
     console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47m${config.extensionId}\x1b[0m packages, build and clean code`);
-    await fixExtensionQuasarAppVite();
+    fixExtensionQuasarAppVite();
     execSync(`cd ${extensionRoot} && yarn && yarn build && yarn clean && cd ../..`, {
         stdio: 'inherit',
     });
 }
 // TODO: Remove when Quasar fixes this bug
-async function fixExtensionQuasarAppVite() {
-    fs.copyFileSync('./assets/fixQuasarAppVite.js', `./${extensionRoot}/fixQuasarAppVite.js`);
-    await extendJsonFile(extensionPackageJsonFilePath, [
+function fixExtensionQuasarAppVite() {
+    fs.copyFileSync(`${globalAssets}/fixQuasarAppVite.js`, `${extensionRoot}/fixQuasarAppVite.js`);
+    extendJsonFile(extensionPackageJsonFilePath, [
         { path: 'scripts.postinstall', value: 'node fixQuasarAppVite.js' },
     ]);
 }
 // TODO: Remove when Quasar fixes this bug
-async function fixTemplatesQuasarAppVite() {
-    fs.copyFileSync('./assets/fixQuasarAppVite.js', `./${templatesRoot}/fixQuasarAppVite.js`);
-    await extendJsonFile(templatesPackageJsonFilePath, [
+function fixTemplatesQuasarAppVite() {
+    fs.copyFileSync(`${globalAssets}/fixQuasarAppVite.js`, `${templatesRoot}/fixQuasarAppVite.js`);
+    extendJsonFile(templatesPackageJsonFilePath, [
         { path: 'scripts.postinstall', value: 'node fixQuasarAppVite.js && quasar prepare' },
     ]);
 }

@@ -4,6 +4,7 @@ export interface CreateAppConfig {
   productName: string
   productDescription: string
   author: string
+  sharedAssets: string
 }
 
 export interface CreateExtensionConfig {

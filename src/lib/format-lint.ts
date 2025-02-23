@@ -3,22 +3,23 @@ import path from 'path'
 
 import { extendJsonFile, reduceJsonFileArray } from './json-helpers.js'
 
-export default async function (appRoot: string) {
-  const extensionsJson = path.resolve(`./${appRoot}/.vscode/extensions.json`)
-  const settingsJson = path.resolve(`./${appRoot}/.vscode/settings.json`)
-  const appPackageJsonFilePath = path.resolve(`./${appRoot}/package.json`)
+export default function (appRoot: string) {
+  const globalAssets = './assets'
+  const extensionsJson = path.resolve(`${appRoot}/.vscode/extensions.json`)
+  const settingsJson = path.resolve(`${appRoot}/.vscode/settings.json`)
+  const appPackageJsonFilePath = path.resolve(`${appRoot}/package.json`)
 
   // Add `format-imports` to `package.json` and add `import-sorter.json` from `assets`.
 
-  await extendJsonFile(appPackageJsonFilePath, [
+  extendJsonFile(appPackageJsonFilePath, [
     { path: 'devDependencies.format-imports', value: '^4.0.7' },
   ])
 
-  fs.copyFileSync('./assets/import-sorter.json', `./${appRoot}/import-sorter.json`)
+  fs.copyFileSync(`${globalAssets}/import-sorter.json`, `${appRoot}/import-sorter.json`)
 
   // Modify .vscode/extensions.json and .vscode/settings.json
 
-  await extendJsonFile(extensionsJson, [
+  extendJsonFile(extensionsJson, [
     { path: 'recommendations[]', value: 'rohit-gohri.format-code-action' },
     { path: 'recommendations[]', value: 'dozerg.tsimportsorter' },
   ])
@@ -31,7 +32,7 @@ export default async function (appRoot: string) {
       value: 'source.fixAll.eslint',
     },
   ])
-  await extendJsonFile(settingsJson, [
+  extendJsonFile(settingsJson, [
     { path: 'editor.formatOnSave', value: false },
     { path: 'editor.codeActionsOnSave[]', value: 'source.formatDocument' },
     { path: 'editor.codeActionsOnSave[]', value: 'source.fixAll.eslint' },
@@ -39,13 +40,11 @@ export default async function (appRoot: string) {
 
   // Modify `.prettierrc.json`
 
-  await extendJsonFile(path.resolve(`./${appRoot}/.prettierrc.json`), [
-    { path: 'semi', value: true },
-  ])
+  extendJsonFile(path.resolve(`${appRoot}/.prettierrc.json`), [{ path: 'semi', value: true }])
 
   // Modify `eslint.config.js`.
 
-  let eslintConfigJs = fs.readFileSync(`./${appRoot}/eslint.config.js`, 'utf-8')
+  let eslintConfigJs = fs.readFileSync(`${appRoot}/eslint.config.js`, 'utf-8')
 
   eslintConfigJs = eslintConfigJs.replace(
     "  ...pluginVue.configs[ 'flat/essential' ],",
@@ -75,13 +74,13 @@ export default async function (appRoot: string) {
       'vue/attributes-order': ['warn', { alphabetical: true }]`,
   )
 
-  fs.writeFileSync(`./${appRoot}/eslint.config.js`, eslintConfigJs, {
+  fs.writeFileSync(`${appRoot}/eslint.config.js`, eslintConfigJs, {
     encoding: 'utf-8',
   })
 
   // Add `clean` script.
 
-  await extendJsonFile(appPackageJsonFilePath, [
+  extendJsonFile(appPackageJsonFilePath, [
     {
       path: 'scripts.clean',
       value: 'yarn format-imports src && yarn format --log-level warn && yarn lint --fix',
