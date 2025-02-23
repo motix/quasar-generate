@@ -1,11 +1,11 @@
 import fs from 'fs'
 import { get, isArray, set, unset } from 'lodash-es'
 
-export async function extendJsonFile(
+export function extendJsonFile(
   filePath: string,
   pathAdnValues: { path: string | Array<string>; value: unknown }[],
 ) {
-  const json = (await import(filePath, { with: { type: 'json' } })).default
+  const json = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }))
 
   if (json) {
     for (let { path, value } of pathAdnValues) {
