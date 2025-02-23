@@ -46,10 +46,6 @@ function finishProject() {
     // Add build script.
     extendJsonFile(appPackageJsonFilePath, [
         {
-            path: 'description',
-            value: `Add build scipt ${new Date().toString()}`,
-        },
-        {
             path: 'scripts.tsc',
             value: 'yarn vue-tsc --noEmit --skipLibCheck',
         },
@@ -110,20 +106,12 @@ ${fs.readFileSync(`${globalAssets}/.npmrc`, 'utf-8')}`;
     // Update `postinstall` script.
     extendJsonFile(appPackageJsonFilePath, [
         {
-            path: 'description',
-            value: `Update postinstall script ${new Date().toString()}`,
-        },
-        {
             path: 'scripts.postinstall',
             value: 'node fixQuasarAppVite.js && cross-env FIREBASE_ENV=PROD quasar prepare',
         },
     ]);
     // Add Better Comments settings
     extendJsonFile(settingsJson, [
-        {
-            path: 'description',
-            value: `Add Better Comments settings ${new Date().toString()}`,
-        },
         {
             path: 'better-comments.tags',
             value: [
@@ -207,10 +195,6 @@ ${fs.readFileSync(`${globalAssets}/.npmrc`, 'utf-8')}`;
 function fixQuasarAppVite() {
     fs.copyFileSync('./assets/fixQuasarAppVite.js', `${appRoot}/fixQuasarAppVite.js`);
     extendJsonFile(appPackageJsonFilePath, [
-        {
-            path: 'description',
-            value: `fixQuasarAppVite ${new Date().toString()}`,
-        },
         {
             path: 'scripts.postinstall',
             value: 'node fixQuasarAppVite.js && quasar prepare',
