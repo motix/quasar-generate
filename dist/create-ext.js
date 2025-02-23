@@ -20,6 +20,7 @@ f || finishTemplatesProject();
 f || cleanExtensionProject();
 f || (await extensionProjectLintingAndFormatting());
 f || finishExtensionProject();
+f || launchExtensionProject();
 async function createQuasarProjects() {
     // Create Quasar project for the extension.
     console.log(' \x1b[32mquasar-generate •\x1b[0m', `Creating Quasar project for \x1b[47m${config.extensionId}\x1b[0m`);
@@ -271,6 +272,12 @@ function finishExtensionProject() {
     console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47m${config.extensionId}\x1b[0m packages, build and clean code`);
     fixExtensionQuasarAppVite();
     execSync(`cd ${extensionRoot} && yarn && yarn build && yarn clean && cd ../..`, {
+        stdio: 'inherit',
+    });
+}
+function launchExtensionProject() {
+    console.log(' \x1b[32mquasar-generate •\x1b[0m', `Launching \x1b[47m${config.extensionId}\x1b[0m in Visual Studio Code...`);
+    execSync(`code ${extensionRoot}`, {
         stdio: 'inherit',
     });
 }
