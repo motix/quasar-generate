@@ -17,7 +17,7 @@ import { extendJsonFile } from './lib/json-helpers.js'
 const globalAssets = './assets'
 const project = process.argv[2]
 const config = (await import(`../projects/${project}/project.js`)).default as CreateAppConfig
-// const sharedAssets = `./${path.relative(path.resolve('.'), path.resolve(`./projects/${project}`, config.sharedAssets))}`
+const sharedAssets = `./${path.relative(path.resolve('.'), path.resolve(`./projects/${project}`, config.sharedAssets))}`
 const projectAssets = `./projects/${project}/assets`
 const appRoot = `./output/${config.projectFolder}`
 const settingsJson = path.resolve(`${appRoot}/.vscode/settings.json`)
@@ -30,13 +30,14 @@ f || (await createQuasarProject())
 f || setupFormatLint(appRoot)
 f || finishProject()
 f || initProject()
+f || launchProject()
 
 async function createQuasarProject() {
   // Create Quasar project for the app.
 
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
-    `Creating Quasar project for \x1b[47m${config.packageName}\x1b[0m`,
+    `Creating Quasar project for \x1b[47m${config.packageName}\x1b[0m...`,
   )
 
   const answersMap: Record<string, string | undefined> = {
@@ -76,7 +77,7 @@ function finishProject() {
 
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
-    `Installing \x1b[47m${config.packageName}\x1b[0m packages and clean code`,
+    `Installing \x1b[47m${config.packageName}\x1b[0m packages and clean code...`,
   )
 
   fixQuasarAppVite()
@@ -94,31 +95,29 @@ function initProject() {
 
   let npmrc = fs.readFileSync(`${appRoot}/.npmrc`, 'utf-8')
 
-  if (!npmrc.includes('@fortawesome:registry')) {
-    npmrc = `${npmrc}
+  npmrc = `${npmrc}
 ${fs.readFileSync(`${globalAssets}/.npmrc`, 'utf-8')}`
 
-    fs.writeFileSync(`${appRoot}/.npmrc`, npmrc, {
-      encoding: 'utf-8',
-    })
-  }
+  fs.writeFileSync(`${appRoot}/.npmrc`, npmrc, {
+    encoding: 'utf-8',
+  })
 
   // Add `.npmrc` to `.gitignore`.
 
   let gitignore = fs.readFileSync(`${appRoot}/.gitignore`, 'utf-8')
 
-  if (!gitignore.includes('.npmrc')) {
-    gitignore = `${gitignore}
+  gitignore = `${gitignore}
 # .npmrc
 .npmrc
 `
 
-    fs.writeFileSync(`${appRoot}/.gitignore`, gitignore, {
-      encoding: 'utf-8',
-    })
-  }
+  fs.writeFileSync(`${appRoot}/.gitignore`, gitignore, {
+    encoding: 'utf-8',
+  })
 
   // Install `mnapp`.
+
+  console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47mmnapp\x1b[0m...`)
 
   execSync(
     `cd ${appRoot} && yarn link @motinet/quasar-app-extension-mnapp && node fixQuasarAppVite.js && quasar ext invoke @motinet/mnapp && cd ../..`,
@@ -135,34 +134,64 @@ ${fs.readFileSync(`${globalAssets}/.npmrc`, 'utf-8')}`
 
   gitignore = fs.readFileSync(`${appRoot}/.gitignore`, 'utf-8')
 
-  if (!gitignore.includes('.firebase')) {
-    gitignore = `${gitignore}
+  gitignore = `${gitignore}
 # Firebase
 .firebase
-`
-  }
 
-  if (!gitignore.includes('# dotenv')) {
-    gitignore = `${gitignore}
 # dotenv
 .env
 `
-  }
 
   fs.writeFileSync(`${appRoot}/.gitignore`, gitignore, {
     encoding: 'utf-8',
   })
 
-  // Update `postinstall` script.
+  // Modify `router/index.ts` and `router/routes.ts`.
 
-  extendJsonFile(appPackageJsonFilePath, [
-    {
-      path: 'scripts.postinstall',
-      value: 'node fixQuasarAppVite.js && cross-env FIREBASE_ENV=PROD quasar prepare',
-    },
-  ])
+  let routerIndexTs = fs.readFileSync(`${appRoot}/src/router/index.ts`, { encoding: 'utf-8' })
 
-  // Add Better Comments settings
+  routerIndexTs = routerIndexTs.replace(
+    'scrollBehavior: () => ({ left: 0, top: 0 }),',
+    '// scrollBehavior: () => ({ left: 0, top: 0 }),',
+  )
+
+  fs.writeFileSync(`${appRoot}/src/router/index.ts`, routerIndexTs, {
+    encoding: 'utf-8',
+  })
+
+  let routesTs = fs.readFileSync(`${appRoot}/src/router/routes.ts`, { encoding: 'utf-8' })
+
+  routesTs = routesTs
+    .replace(
+      "path: '/'",
+      `// Boot files will add other routes into this ruote via its name
+name: 'MainLayout', path: '/'`,
+    )
+    .replace(
+      'children: [',
+      `children: [
+// Index
+
+`,
+    )
+    .replace(
+      "path: ''",
+      `// Need a name to avoid Vue Router warn
+name: 'HomePage', path: '', meta: { isNoReturnPage: true }`,
+    )
+
+  fs.writeFileSync(`${appRoot}/src/router/routes.ts`, routesTs, {
+    encoding: 'utf-8',
+  })
+
+  // Replace `public`, `MainLayout.vue` and `IndexPage.vue`
+
+  fs.rmSync(`${appRoot}/public`, { recursive: true })
+  fs.cpSync(`${sharedAssets}/public`, `${appRoot}/public`, { recursive: true })
+  fs.copyFileSync(`${sharedAssets}/MainLayout.vue`, `${appRoot}/src/layouts/MainLayout.vue`)
+  fs.copyFileSync(`${sharedAssets}/IndexPage.vue`, `${appRoot}/src/pages/IndexPage.vue`)
+
+  // Add Better Comments settings.
 
   extendJsonFile(settingsJson, [
     {
@@ -243,6 +272,37 @@ ${fs.readFileSync(`${globalAssets}/.npmrc`, 'utf-8')}`
       ],
     },
   ])
+
+  // Update `postinstall` script.
+
+  extendJsonFile(appPackageJsonFilePath, [
+    {
+      path: 'scripts.postinstall',
+      value: 'node fixQuasarAppVite.js && cross-env FIREBASE_ENV=PROD quasar prepare',
+    },
+  ])
+
+  // Format code
+
+  console.log(
+    ' \x1b[32mquasar-generate •\x1b[0m',
+    `Formatting code after \x1b[47mmnapp\x1b[0m installation...`,
+  )
+
+  execSync(`cd ${appRoot} && yarn format --log-level warn && cd ../..`, {
+    stdio: 'inherit',
+  })
+}
+
+function launchProject() {
+  console.log(
+    ' \x1b[32mquasar-generate •\x1b[0m',
+    `Launching \x1b[47m${config.packageName}\x1b[0m in Visual Studio Code...`,
+  )
+
+  execSync(`code ${appRoot}`, {
+    stdio: 'inherit',
+  })
 }
 
 // TODO: Remove when Quasar fixes this bug
