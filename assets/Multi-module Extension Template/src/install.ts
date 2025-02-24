@@ -28,7 +28,10 @@ export default async function (api: InstallAPI) {
     scripts,
   })
 
+  console.log(' \x1b[32mmnapp • \x1b[0mInstalling', modules.length, 'modules...')
+
   for (const module of modules) {
+    console.log(' \x1b[32mmnapp • \x1b[0mInstalling module', `\x1b[32m${module.name}\x1b[0m...`)
     await module(api)
   }
 }
