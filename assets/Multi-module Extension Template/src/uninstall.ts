@@ -8,14 +8,18 @@ import getModules from './modules/index.js'
 export default async function (api: UninstallAPI) {
   const modules = await getModules<UninstallDefinition>(api.appDir, 'uninstall')
 
-  console.log(' \x1b[32mmnapp • \x1b[0mUninstalling', modules.length, 'modules...')
+  const packageName = getPackageName()
+
+  console.log(` \x1b[32m${packageName} •\x1b[0m`, 'Uninstalling', modules.length, 'modules...')
 
   for (const module of modules) {
-    console.log(' \x1b[32mmnapp • \x1b[0mUninstalling module', `\x1b[32m${module.name}\x1b[0m...`)
+    console.log(
+      ` \x1b[32m${packageName} •\x1b[0m`,
+      'Uninstalling module',
+      `\x1b[32m${module.name}\x1b[0m...`,
+    )
     await module(api)
   }
-
-  const packageName = getPackageName()
 
   reduceJsonFile(api, 'package.json', [`scripts.u-${packageName}`, `scripts.r-${packageName}`])
 }
