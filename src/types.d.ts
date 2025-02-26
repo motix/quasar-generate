@@ -4,11 +4,7 @@ export interface CreateAppConfig {
   productName: string
   productDescription: string
   author: string
-  initProject:
-    | false
-    | {
-        sharedAssets: string
-      }
+  initProject: false | { sharedAssets: string }
 }
 
 export interface CreateExtensionConfig {
@@ -17,4 +13,5 @@ export interface CreateExtensionConfig {
   extensionId: string
   projectDescription: string
   author: string
+  hasDev: false | { project: string }
 }

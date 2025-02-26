@@ -11,6 +11,7 @@ import { extendJsonFile, reduceJsonFile } from './lib/json-helpers.js'
 
 const globalAssets = './assets'
 const project = process.argv[2]
+const autoLaunch = process.argv[3]
 const config = (await import(`../projects/${project}.js`)).default as CreateExtensionConfig
 const extensionRoot = `./output/${config.projectFolder}`
 const templatesRoot = `${extensionRoot}/templates`
@@ -20,16 +21,25 @@ const templatesPackageJsonFilePath = path.resolve(`${templatesRoot}/package.json
 // Turning on/off functions
 const f = false
 
-f || (await createQuasarProjects())
+f || (await createExtensionQuasarProject())
+f || (await createTemplatesQuasarProject())
+
+if (config.hasDev) {
+  f || createDevProject()
+}
+
 f || cleanTemplatesProject()
 f || templatesProjectLintingAndFormatting()
 f || finishTemplatesProject()
 f || cleanExtensionProject()
 f || (await extensionProjectLintingAndFormatting())
 f || finishExtensionProject()
-f || launchExtensionProject()
 
-async function createQuasarProjects() {
+if (autoLaunch === '-l') {
+  f || launchExtensionProject()
+}
+
+async function createExtensionQuasarProject() {
   // Create Quasar project for the extension.
 
   console.log(
@@ -37,7 +47,7 @@ async function createQuasarProjects() {
     `Creating Quasar project for \x1b[47m${config.extensionId}\x1b[0m`,
   )
 
-  const extensionAnswersMap: Record<string, string | undefined> = {
+  const answersMap: Record<string, string | undefined> = {
     'What would you like to build?': `${DOWN_KEY}`, // AppExtension (AE) for Quasar CLI
     'Project folder': extensionRoot,
     'Will you use an organization to publish it?': 'y',
@@ -52,18 +62,20 @@ async function createQuasarProjects() {
 
   await cliGhostwriter({
     command: 'yarn create quasar',
-    answersMap: extensionAnswersMap,
+    answersMap: answersMap,
     endingMarker: 'Enjoy! - Quasar Team',
   })
+}
 
-  // Create Quasar project for templates.
+async function createTemplatesQuasarProject() {
+  // Create Quasar project for `templates`.
 
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
     'Creating Quasar project for \x1b[47mtemplates\x1b[0m',
   )
 
-  const templatesAnswersMap: Record<string, string | undefined> = {
+  const answersMap: Record<string, string | undefined> = {
     'What would you like to build?': ACCEPT_DEFAULT, // App with Quasar CLI
     'Project folder': templatesRoot,
     'Pick script type': `${DOWN_KEY}`, // Typescript
@@ -81,9 +93,21 @@ async function createQuasarProjects() {
 
   await cliGhostwriter({
     command: 'yarn create quasar',
-    answersMap: templatesAnswersMap,
+    answersMap: answersMap,
     endingMarker: 'Enjoy! - Quasar Team',
   })
+}
+
+function createDevProject() {
+  if (!config.hasDev) {
+    return
+  }
+
+  execSync(`yarn create-app ${config.hasDev.project}`, {
+    stdio: 'inherit',
+  })
+
+  fs.renameSync('./output/dev', `${extensionRoot}/dev`)
 }
 
 function cleanTemplatesProject() {

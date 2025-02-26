@@ -19,7 +19,9 @@ f || finishProject();
 if (config.initProject) {
     f || initProject();
 }
-f || launchProject();
+if (autoLaunch === '-l') {
+    f || launchProject();
+}
 async function createQuasarProject() {
     // Create Quasar project for the app.
     console.log(' \x1b[32mquasar-generate •\x1b[0m', `Creating Quasar project for \x1b[47m${config.packageName}\x1b[0m...`);
