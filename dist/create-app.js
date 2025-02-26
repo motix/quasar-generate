@@ -6,6 +6,7 @@ import setupFormatLint from './lib/format-lint.js';
 import { extendJsonFile } from './lib/json-helpers.js';
 const globalAssets = './assets';
 const project = process.argv[2];
+const autoLaunch = process.argv[3];
 const config = (await import(`../projects/${project}/project.js`)).default;
 const projectAssets = `./projects/${project}/assets`;
 const appRoot = `./output/${config.projectFolder}`;
