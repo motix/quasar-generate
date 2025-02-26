@@ -17,7 +17,6 @@ import { extendJsonFile } from './lib/json-helpers.js'
 const globalAssets = './assets'
 const project = process.argv[2]
 const config = (await import(`../projects/${project}/project.js`)).default as CreateAppConfig
-const sharedAssets = `./${path.relative(path.resolve('.'), path.resolve(`./projects/${project}`, config.sharedAssets))}`
 const projectAssets = `./projects/${project}/assets`
 const appRoot = `./output/${config.projectFolder}`
 const settingsJson = path.resolve(`${appRoot}/.vscode/settings.json`)
@@ -29,7 +28,11 @@ const f = false
 f || (await createQuasarProject())
 f || setupFormatLint(appRoot)
 f || finishProject()
-f || initProject()
+
+if (config.initProject) {
+  f || initProject()
+}
+
 f || launchProject()
 
 async function createQuasarProject() {
@@ -87,6 +90,12 @@ function finishProject() {
 }
 
 function initProject() {
+  if (!config.initProject) {
+    return
+  }
+
+  const sharedAssets = `./${path.relative(path.resolve('.'), path.resolve(`./projects/${project}`, config.initProject.sharedAssets))}`
+
   // Add `.mnapprc.js`.
 
   fs.copyFileSync(`${projectAssets}/.mnapprc.js`, `${appRoot}/.mnapprc.js`)
