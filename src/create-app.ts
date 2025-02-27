@@ -28,6 +28,7 @@ const f = false
 
 f || (await createQuasarProject())
 f || setupFormatLint(appRoot)
+f || cleanProject()
 f || finishProject()
 
 if (config.initProject) {
@@ -67,6 +68,16 @@ async function createQuasarProject() {
     answersMap,
     endingMarker: 'Enjoy! - Quasar Team',
   })
+}
+
+function cleanProject() {
+  // Disable shim.
+
+  let quasarconfigts = fs.readFileSync(`${appRoot}/quasar.config.ts`, 'utf-8')
+
+  quasarconfigts = quasarconfigts.replace('vueShim: true', 'vueShim: false')
+
+  fs.writeFileSync(`${appRoot}/quasar.config.ts`, quasarconfigts, { encoding: 'utf-8' })
 }
 
 function finishProject() {
