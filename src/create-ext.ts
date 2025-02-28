@@ -434,7 +434,11 @@ function finishExtensionProject() {
   extendJsonFile(extensionPackageJsonFilePath, [
     { path: 'scripts.build', value: 'npx tsc && cd templates && yarn tsc && cd ..' },
     { path: 'scripts.watch', value: 'npx tsc --watch' },
-    { path: 'scripts.buildPaths', value: 'cd ./templates && node ./buildPaths.js && cd ..' },
+    {
+      path: 'scripts.buildPaths',
+      value:
+        'cd ./templates && node ./buildPaths.js && npx prettier --write ./tsconfig-paths.json && cd ..',
+    },
   ])
 
   // Install the extension packages, build and clean code.
