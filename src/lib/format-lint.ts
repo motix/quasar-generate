@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 
-import { extendJsonFile, reduceJsonFileArray } from './json-helpers.js'
+import { extendJsonFile } from './json-helpers.js'
 
 export default function (appRoot: string) {
   const globalAssets = './assets'
@@ -26,16 +26,19 @@ export default function (appRoot: string) {
 
   // Default setting would often lead to Prettier
   // being run after ESLint and ESLint errors still being present.
-  reduceJsonFileArray(settingsJson, [
-    {
-      path: 'editor.codeActionsOnSave',
-      value: 'source.fixAll.eslint',
-    },
-  ])
+  // Calling first ESLint will apply @typescript-eslint/consistent-type-imports
+  // before sorting imports and second ESLint to fix all errors after Prettier.
   extendJsonFile(settingsJson, [
     { path: 'editor.formatOnSave', value: false },
-    { path: 'editor.codeActionsOnSave[]', value: 'source.formatDocument' },
-    { path: 'editor.codeActionsOnSave[]', value: 'source.fixAll.eslint' },
+    {
+      path: 'editor.codeActionsOnSave',
+      value: [
+        'source.fixAll.eslint',
+        'source.organizeImports.sortImports',
+        'source.formatDocument',
+        'source.fixAll.eslint',
+      ],
+    },
   ])
 
   // Modify `.prettierrc.json`
