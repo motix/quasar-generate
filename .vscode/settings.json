@@ -3,7 +3,12 @@
   "editor.guides.bracketPairs": true,
   "editor.formatOnSave": false,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.codeActionsOnSave": ["source.formatDocument", "source.fixAll.eslint"],
+  "editor.codeActionsOnSave": [
+    "source.fixAll.eslint",
+    "source.organizeImports.sortImports",
+    "source.formatDocument",
+    "source.fixAll.eslint"
+  ],
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "vue"],
   "typescript.tsdk": "node_modules/typescript/lib",
   "search.exclude": {
