@@ -216,9 +216,10 @@ name: 'HomePage', path: '', meta: { isNoReturnPage: true }`,
 
   // Add Better Comments settings.
 
+  // Putting `path` in an array to keep it as a single property in JSON file.
   extendJsonFile(settingsJson, [
     {
-      path: 'better-comments.tags',
+      path: ['better-comments.tags'],
       value: [
         {
           tag: '•+',
