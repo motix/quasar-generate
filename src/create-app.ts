@@ -98,7 +98,7 @@ function finishProject() {
   )
 
   fixQuasarAppVite()
-  execSync(`cd ${appRoot} && yarn && yarn clean && cd ../..`, {
+  execSync(`cd ${appRoot} && yarn && yarn clean`, {
     stdio: 'inherit',
   })
 }
@@ -143,7 +143,7 @@ ${fs.readFileSync(`${globalAssets}/.npmrc`, 'utf-8')}`
   console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47mmnapp\x1b[0m...`)
 
   execSync(
-    `cd ${appRoot} && yarn link @motinet/quasar-app-extension-mnapp && node fixQuasarAppVite.js && quasar ext invoke @motinet/mnapp && cd ../..`,
+    `cd ${appRoot} && yarn link @motinet/quasar-app-extension-mnapp && node fixQuasarAppVite.js && quasar ext invoke @motinet/mnapp`,
     {
       stdio: 'inherit',
     },
@@ -313,7 +313,7 @@ name: 'HomePage', path: '', meta: { isNoReturnPage: true }`,
     `Formatting code after \x1b[47mmnapp\x1b[0m installation...`,
   )
 
-  execSync(`cd ${appRoot} && yarn format --log-level warn && cd ../..`, {
+  execSync(`cd ${appRoot} && yarn format --log-level warn`, {
     stdio: 'inherit',
   })
 }
