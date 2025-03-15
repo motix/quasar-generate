@@ -44,7 +44,7 @@ async function createExtensionQuasarProject() {
 
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
-    `Creating Quasar project for \x1b[47m${config.extensionId}\x1b[0m`,
+    `Creating Quasar project for \x1b[47m${config.extensionId}\x1b[0m...`,
   )
 
   const answersMap: Record<string, string | undefined> = {
@@ -72,7 +72,7 @@ async function createTemplatesQuasarProject() {
 
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
-    'Creating Quasar project for \x1b[47mtemplates\x1b[0m',
+    'Creating Quasar project for \x1b[47mtemplates\x1b[0m...',
   )
 
   const answersMap: Record<string, string | undefined> = {
@@ -281,11 +281,11 @@ function finishTemplatesProject() {
 
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
-    'Installing \x1b[47mtemplates\x1b[0m packages and clean code',
+    'Installing \x1b[47mtemplates\x1b[0m packages and clean code...',
   )
 
   fixTemplatesQuasarAppVite()
-  execSync(`cd ${templatesRoot} && yarn && node ./buildPaths.js && yarn clean && cd ../../..`, {
+  execSync(`cd ${templatesRoot} && yarn && node ./buildPaths.js && yarn clean`, {
     stdio: 'inherit',
   })
 }
@@ -397,12 +397,12 @@ async function extensionProjectLintingAndFormatting() {
     {
       path: 'scripts.lint',
       value:
-        'eslint -c ./eslint.config.js "./src/**/*.{ts,js,cjs,mjs,vue}" && cd templates && yarn lint && cd ..',
+        'eslint -c ./eslint.config.js "./src/**/*.{ts,js,cjs,mjs,vue}" && cd templates && yarn lint',
     },
     {
       path: 'scripts.lintf',
       value:
-        'eslint -c ./eslint.config.js "./src/**/*.{ts,js,cjs,mjs,vue}" --fix && cd templates && yarn lint --fix && cd ..',
+        'eslint -c ./eslint.config.js "./src/**/*.{ts,js,cjs,mjs,vue}" --fix && cd templates && yarn lint --fix',
     },
     {
       path: 'scripts.format',
@@ -432,12 +432,11 @@ function finishExtensionProject() {
   // Add build scripts.
 
   extendJsonFile(extensionPackageJsonFilePath, [
-    { path: 'scripts.build', value: 'npx tsc && cd templates && yarn tsc && cd ..' },
+    { path: 'scripts.build', value: 'npx tsc && cd templates && yarn tsc' },
     { path: 'scripts.watch', value: 'npx tsc --watch' },
     {
       path: 'scripts.buildPaths',
-      value:
-        'cd ./templates && node ./buildPaths.js && npx prettier --write ./tsconfig-paths.json && cd ..',
+      value: 'cd ./templates && node ./buildPaths.js && npx prettier --write ./tsconfig-paths.json',
     },
   ])
 
@@ -445,11 +444,11 @@ function finishExtensionProject() {
 
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
-    `Installing \x1b[47m${config.extensionId}\x1b[0m packages, build and clean code`,
+    `Installing \x1b[47m${config.extensionId}\x1b[0m packages, build and clean code...`,
   )
 
   fixExtensionQuasarAppVite()
-  execSync(`cd ${extensionRoot} && yarn && yarn build && yarn clean && cd ../..`, {
+  execSync(`cd ${extensionRoot} && yarn && yarn build && yarn clean`, {
     stdio: 'inherit',
   })
 }
