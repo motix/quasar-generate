@@ -1,5 +1,3 @@
-import type { CreateAppConfig } from './types'
-
 import { execSync } from 'child_process'
 import fs from 'fs'
 import path from 'path'
@@ -13,6 +11,7 @@ import {
 
 import setupFormatLint from './lib/format-lint.js'
 import { extendJsonFile } from './lib/json-helpers.js'
+import type { CreateAppConfig } from './types'
 
 const globalAssets = './assets'
 const project = process.argv[2]

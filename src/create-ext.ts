@@ -1,5 +1,3 @@
-import type { CreateExtensionConfig } from './types'
-
 import { execSync } from 'child_process'
 import fs from 'fs'
 import path from 'path'
@@ -8,6 +6,7 @@ import { ACCEPT_DEFAULT, cliGhostwriter, DOWN_KEY } from '@dreamonkey/cli-ghostw
 
 import setupFormatLint from './lib/format-lint.js'
 import { extendJsonFile, reduceJsonFile } from './lib/json-helpers.js'
+import type { CreateExtensionConfig } from './types'
 
 const globalAssets = './assets'
 const project = process.argv[2]
