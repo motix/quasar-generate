@@ -15,3 +15,16 @@ export interface CreateExtensionConfig {
   author: string
   hasDev: false | { project: string }
 }
+
+export interface CreateFirebaseConfig {
+  projectFolder: string
+  packageName: string
+  firebaseProjectPosition: number
+  authEmulatorPort: number
+  functionsEmulatorPort: number
+  firestoreEmulatorPort: number
+  storageEmulatorPort: number
+  emulatorUiPort: number
+  functionsRegion: string
+  functionsCodebases: string[]
+}
