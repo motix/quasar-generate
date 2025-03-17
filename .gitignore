@@ -15,4 +15,5 @@ yarn-error.log*
 
 /output
 /assets/.npmrc
+/projects
 /projects/**/assets/.env
