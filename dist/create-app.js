@@ -65,7 +65,7 @@ function finishProject() {
     // Install the app packages and clean code.
     console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47m${config.packageName}\x1b[0m packages and clean code...`);
     fixQuasarAppVite();
-    execSync(`cd ${appRoot} && yarn && yarn clean && cd ../..`, {
+    execSync(`cd ${appRoot} && yarn && yarn clean`, {
         stdio: 'inherit',
     });
 }
@@ -225,7 +225,7 @@ name: 'HomePage', path: '', meta: { isNoReturnPage: true }`);
     ]);
     // Format code
     console.log(' \x1b[32mquasar-generate •\x1b[0m', `Formatting code after \x1b[47mmnapp\x1b[0m installation...`);
-    execSync(`cd ${appRoot} && yarn format --log-level warn && cd ../..`, {
+    execSync(`cd ${appRoot} && yarn format --log-level warn`, {
         stdio: 'inherit',
     });
 }
