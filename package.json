@@ -13,6 +13,7 @@
     "watch": "npx tsc --watch",
     "create-app": "node ./dist/create-app.js",
     "create-ext": "node ./dist/create-ext.js",
+    "create-firebase": "node ./dist/create-firebase.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
