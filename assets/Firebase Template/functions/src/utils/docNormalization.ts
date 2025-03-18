@@ -26,7 +26,8 @@ export default async function docNormalization<T>(
   if (changeAfter.exists) {
     if (loggerEnabled) {
       info(
-        `[docNormalization] Normalizing document "${changeAfter.get(nameField)}" in "${collectionPath}"...`,
+        '[docNormalization]',
+        `Normalizing document "${changeAfter.get(nameField)}" in "${collectionPath}"...`,
       );
     }
 
@@ -44,7 +45,8 @@ export default async function docNormalization<T>(
   } else {
     if (loggerEnabled) {
       info(
-        `[docNormalization] Deleting normalized document "${changeBefore.get(fields[0]!)}" in "${collectionPath}"...`,
+        '[docNormalization]',
+        `Deleting normalized document "${changeBefore.get(fields[0]!)}" in "${collectionPath}"...`,
       );
     }
 
