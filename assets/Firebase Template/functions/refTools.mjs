@@ -1,7 +1,7 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
 
-export const refRoot = '../../../MotiWiki 2022 New';
+export const refRoot = '../..';
 
 export const alias = {
   // firebase/firestore
