@@ -1,3 +1,5 @@
+// Copy from @motinet/quasar-app-extension-mnapp-new/utils
+
 export function indexNormalizeString(value: string | undefined | null) {
   value = toAscii(value);
 

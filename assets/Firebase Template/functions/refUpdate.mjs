@@ -1,25 +1,7 @@
-import { execSync } from 'child_process';
-import fs from 'fs';
+import { alias, refFinish, refPrepare } from '../functions/refTools.mjs';
 
-import alias from '../functions/alias.mjs';
+refPrepare();
 
-if (fs.existsSync('./src/ref')) {
-  fs.rmSync('./src/ref', { recursive: true });
-}
+// Import `refRoot` and build local ref.
 
-fs.mkdirSync('./src/ref');
-
-// TSConfig `paths`
-
-const tsconfigJson = JSON.parse(fs.readFileSync('./tsconfig.json', 'utf-8'));
-
-tsconfigJson.compilerOptions.paths = {
-  ...alias,
-};
-
-fs.writeFileSync('./tsconfig.json', JSON.stringify(tsconfigJson, null, 2));
-
-// Format codes
-
-execSync('npx prettier --write tsconfig.json', { stdio: 'inherit' });
-execSync('yarn clean', { stdio: 'inherit' });
+refFinish(alias);

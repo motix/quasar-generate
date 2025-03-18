@@ -87,6 +87,36 @@ function initFirebasePackage() {
     }),
     'utf-8',
   )
+
+  // Create rebuild functions script.
+
+  fs.writeFileSync(
+    `${firebaseRoot}/rebuildFunctions.mjs`,
+    `import { execSync } from 'child_process';
+import fs from 'fs';
+
+const folders = fs.readdirSync('.');
+
+for (const folder of folders) {
+  if (folder.startsWith('functions') && fs.lstatSync(folder).isDirectory()) {
+    console.log(
+      ' \\x1b[32m${config.packageName} •\\x1b[0m',
+      \`Rebuilding codebase in \\x1b[47m\${folder}\\x1b[0m...\`,
+    );
+
+    execSync(\`cd \${folder} && yarn && node refUpdate.mjs && yarn build\`, { stdio: 'inherit' });
+  }
+}
+`,
+    'utf-8',
+  )
+
+  extendJsonFile(firebasePackageJsonFilePath, [
+    {
+      path: 'scripts.rebuildFunctions',
+      value: 'node rebuildFunctions.mjs',
+    },
+  ])
 }
 
 function firebasePackageLintingAndFormatting() {
@@ -233,7 +263,7 @@ setGlobalOptions({
   region: '${config.functionsRegion}',
 });
 
-// Making sure \`group.js\` only starts loading after \`setGlobalOptions\` is called
+// Making sure \`group.js\` only starts loading after \`setGlobalOptions\` was called
 const group = await import('./group.js');
 
 export const app = group;
@@ -248,8 +278,8 @@ export const app = group;
     `${functionsRoot}/refUpdate.mjs`,
   )
   fs.copyFileSync(
-    `${globalAssets}/Firebase Template/functions/alias.mjs`,
-    `${functionsRoot}/alias.mjs`,
+    `${globalAssets}/Firebase Template/functions/refTools.mjs`,
+    `${functionsRoot}/refTools.mjs`,
   )
 
   // Setup `tsc-alias`.
@@ -342,7 +372,7 @@ function createFunctionsCodebases() {
 
     // Trim shared code.
 
-    fs.rmSync(`${codebaseRoot}/alias.mjs`)
+    fs.rmSync(`${codebaseRoot}/refTools.mjs`)
     fs.rmSync(`${codebaseRoot}/src/models`, { recursive: true })
     fs.rmSync(`${codebaseRoot}/src/types`, { recursive: true })
     fs.rmSync(`${codebaseRoot}/src/utils`, { recursive: true })

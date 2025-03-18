@@ -37,7 +37,8 @@ export default async function adapterUpdate<
   if (source) {
     if (loggerEnabled) {
       info(
-        `[adapterUpdate] Transferring document "${sourceChangeAfter.get(nameField)}" from "${sourceChangeAfter.ref.parent.path}" to "${destCollectionPath}"...`,
+        '[adapterUpdate]',
+        `Transferring document "${sourceChangeAfter.get(nameField)}" from "${sourceChangeAfter.ref.parent.path}" to "${destCollectionPath}"...`,
       );
     }
 
@@ -53,7 +54,8 @@ export default async function adapterUpdate<
   } else {
     if (loggerEnabled) {
       info(
-        `[adapterUpdate] Deleting document "${sourceChangeAfter.get(nameField)}" in "${destCollectionPath}" following the related one in "${sourceChangeAfter.ref.parent.path}"...`,
+        '[adapterUpdate]',
+        `Deleting document "${sourceChangeAfter.get(nameField)}" in "${destCollectionPath}" following the related one in "${sourceChangeAfter.ref.parent.path}"...`,
       );
     }
 
