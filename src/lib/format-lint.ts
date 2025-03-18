@@ -50,8 +50,8 @@ export default function (appRoot: string) {
   let eslintConfigJs = fs.readFileSync(`${appRoot}/eslint.config.js`, 'utf-8')
 
   eslintConfigJs = eslintConfigJs.replace(
-    "  ...pluginVue.configs[ 'flat/essential' ],",
-    "  ...pluginVue.configs[ 'flat/recommended' ],",
+    "pluginVue.configs[ 'flat/essential' ],",
+    "pluginVue.configs[ 'flat/recommended' ],",
   )
 
   eslintConfigJs = eslintConfigJs.replace(

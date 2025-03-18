@@ -36,7 +36,7 @@ export default function (appRoot) {
     extendJsonFile(path.resolve(`${appRoot}/.prettierrc.json`), [{ path: 'semi', value: true }]);
     // Modify `eslint.config.js`.
     let eslintConfigJs = fs.readFileSync(`${appRoot}/eslint.config.js`, 'utf-8');
-    eslintConfigJs = eslintConfigJs.replace("  ...pluginVue.configs[ 'flat/essential' ],", "  ...pluginVue.configs[ 'flat/recommended' ],");
+    eslintConfigJs = eslintConfigJs.replace("pluginVue.configs[ 'flat/essential' ],", "pluginVue.configs[ 'flat/recommended' ],");
     eslintConfigJs = eslintConfigJs.replace(`      '@typescript-eslint/consistent-type-imports': [
         'error',
         { prefer: 'type-imports' }
