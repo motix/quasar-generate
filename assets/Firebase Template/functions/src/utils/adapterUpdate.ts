@@ -14,7 +14,7 @@ export default async function adapterUpdate<
   TDest extends DocumentData,
   TGeneratedFields extends keyof TDest,
 >(
-  sourceChangeAfter: DocumentSnapshot<TSource, TSource>,
+  sourceChangeAfter: DocumentSnapshot<TSource>,
   id: string,
   destCollectionPath: string,
   copyFields: (
