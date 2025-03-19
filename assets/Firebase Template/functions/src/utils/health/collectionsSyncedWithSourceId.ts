@@ -1,18 +1,11 @@
-import type {
-  CollectionReference,
-  DocumentData,
-  QueryDocumentSnapshot,
-} from 'firebase-admin/firestore';
+import type { CollectionReference, QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import { getFirestore } from 'firebase-admin/firestore';
 
 import { collectionForeach } from 'utils/queryForeach.js';
 
 import type { HealthCheckResult } from 'models/health/index.js';
 
-export default async function collectionsSyncedWithSourceId<
-  TSource extends DocumentData,
-  TDest extends DocumentData,
->(
+export default async function collectionsSyncedWithSourceId<TSource, TDest>(
   sourceCollectionPath: string,
   destCollectionPath: string,
   sourceOnlyAllowed: boolean,
@@ -37,11 +30,8 @@ export default async function collectionsSyncedWithSourceId<
   const info: string[] = [];
 
   const db = getFirestore();
-  const sourceCollectionRef = db.collection(sourceCollectionPath) as CollectionReference<
-    TSource,
-    TSource
-  >;
-  const destCollectionRef = db.collection(destCollectionPath) as CollectionReference<TDest, TDest>;
+  const sourceCollectionRef = db.collection(sourceCollectionPath) as CollectionReference<TSource>;
+  const destCollectionRef = db.collection(destCollectionPath) as CollectionReference<TDest>;
   const destDocSnapshots = (await destCollectionRef.get()).docs;
 
   let destOnlyDocs = 0;
@@ -63,12 +53,11 @@ export default async function collectionsSyncedWithSourceId<
         if (typeof fieldCompare === 'string') {
           const sourceValue = sourceDoc[fieldCompare];
           const destValue = destDoc[fieldCompare];
-          type SourceFieldType = typeof sourceValue;
 
-          if ((destValue as unknown as SourceFieldType) !== sourceValue) {
+          if (destValue !== sourceValue) {
             hasUnmatchedInfo = true;
             errors.push(
-              `\`${destCollectionPath}/${destDocSnapshot.id}.${fieldCompare}\`'s value \`${destValue}\` not matched with \`${sourceCollectionPath}/${sourceDocSnapshot.id}.${fieldCompare}\`'s value \`${sourceValue}\`. Destination doc: \`${destDoc[nameFieldInDest]}\`.`,
+              `\`${destCollectionPath}/${destDocSnapshot.id}.${fieldCompare}\`'s value \`${String(destValue)}\` not matched with \`${sourceCollectionPath}/${sourceDocSnapshot.id}.${fieldCompare}\`'s value \`${String(sourceValue)}\`. Destination doc: \`${String(destDoc[nameFieldInDest])}\`.`,
             );
           }
         } else {
@@ -76,7 +65,7 @@ export default async function collectionsSyncedWithSourceId<
           if (!result.result) {
             hasUnmatchedInfo = true;
             errors.push(
-              `\`${destCollectionPath}/${destDocSnapshot.id}.${result.fieldName}\`'s value \`${result.destText}\` not matched with \`${sourceCollectionPath}/${sourceDocSnapshot.id}.${result.fieldName}\`'s value \`${result.sourceText}\`. Destination doc: \`${destDoc[nameFieldInDest]}\`.`,
+              `\`${destCollectionPath}/${destDocSnapshot.id}.${result.fieldName}\`'s value \`${result.destText}\` not matched with \`${sourceCollectionPath}/${sourceDocSnapshot.id}.${result.fieldName}\`'s value \`${result.sourceText}\`. Destination doc: \`${String(destDoc[nameFieldInDest])}\`.`,
             );
           }
         }

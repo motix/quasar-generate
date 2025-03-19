@@ -7,11 +7,14 @@ import type {
 } from 'firebase-admin/firestore';
 import { getFirestore } from 'firebase-admin/firestore';
 
-export async function queryForeach<T extends DocumentData = DocumentData>(
-  query: Query<T, T>,
+export async function queryForeach<
+  AppModelType = DocumentData,
+  DbModelType extends DocumentData = DocumentData,
+>(
+  query: Query<AppModelType, DbModelType>,
   callback: (
-    docSnapshot: QueryDocumentSnapshot<T, T>,
-    prevDocSnapshot: QueryDocumentSnapshot<T, T> | undefined,
+    docSnapshot: QueryDocumentSnapshot<AppModelType, DbModelType>,
+    prevDocSnapshot: QueryDocumentSnapshot<AppModelType, DbModelType> | undefined,
   ) => Promise<void>,
   ...orderFieldPaths: string[]
 ) {
@@ -21,11 +24,11 @@ export async function queryForeach<T extends DocumentData = DocumentData>(
     query = query.orderBy(fieldPath);
   }
 
-  let curDocSnapshot: QueryDocumentSnapshot<T, T> | undefined = undefined;
+  let curDocSnapshot: QueryDocumentSnapshot<AppModelType, DbModelType> | undefined = undefined;
 
   await runQuery(query);
 
-  async function runQuery(query: Query<T, T>) {
+  async function runQuery(query: Query<AppModelType, DbModelType>) {
     const querySnapshot = await query.get();
 
     if (!querySnapshot.empty) {
@@ -43,30 +46,42 @@ export async function queryForeach<T extends DocumentData = DocumentData>(
   }
 }
 
-export async function collectionForeach<T extends DocumentData = DocumentData>(
+export async function collectionForeach<
+  AppModelType = DocumentData,
+  DbModelType extends DocumentData = DocumentData,
+>(
   collectionPath: string,
   callback: (
-    docSnapshot: QueryDocumentSnapshot<T, T>,
-    prevDocSnapshot: QueryDocumentSnapshot<T, T> | undefined,
+    docSnapshot: QueryDocumentSnapshot<AppModelType, DbModelType>,
+    prevDocSnapshot: QueryDocumentSnapshot<AppModelType, DbModelType> | undefined,
   ) => Promise<void>,
   ...orderFieldPaths: string[]
 ) {
   const db = getFirestore();
-  const collectionRef = db.collection(collectionPath) as CollectionReference<T, T>;
+  const collectionRef = db.collection(collectionPath) as CollectionReference<
+    AppModelType,
+    DbModelType
+  >;
 
   return queryForeach(collectionRef, callback, ...orderFieldPaths);
 }
 
-export async function collectionGroupForeach<T extends DocumentData = DocumentData>(
+export async function collectionGroupForeach<
+  AppModelType = DocumentData,
+  DbModelType extends DocumentData = DocumentData,
+>(
   collectionId: string,
   callback: (
-    docSnapshot: QueryDocumentSnapshot<T, T>,
-    prevDocSnapshot: QueryDocumentSnapshot<T, T> | undefined,
+    docSnapshot: QueryDocumentSnapshot<AppModelType, DbModelType>,
+    prevDocSnapshot: QueryDocumentSnapshot<AppModelType, DbModelType> | undefined,
   ) => Promise<void>,
   ...orderFieldPaths: string[]
 ) {
   const db = getFirestore();
-  const collectionGroup = db.collectionGroup(collectionId) as CollectionGroup<T, T>;
+  const collectionGroup = db.collectionGroup(collectionId) as CollectionGroup<
+    AppModelType,
+    DbModelType
+  >;
 
   return queryForeach(collectionGroup, callback, ...orderFieldPaths);
 }
