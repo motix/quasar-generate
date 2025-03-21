@@ -331,6 +331,24 @@ function finishFunctionsPackage(codebase) {
     });
 }
 function finishFirebasePackage() {
+    // Add 'serve' and 'indexes' scripts.
+    extendJsonFile(firebasePackageJsonFilePath, [
+        {
+            path: 'serve',
+            value: 'firebase emulators:start --import emulators-data --export-on-exit',
+        },
+        {
+            path: 'indexes',
+            value: 'firebase firestore:indexes > indexes.json',
+        },
+    ]);
+    // Ignore `emulators-data`.
+    let gitignore = fs.readFileSync(`${firebaseRoot}/.gitignore`, 'utf-8');
+    gitignore = `${gitignore}
+# Emulators data
+emulators-data/
+`;
+    fs.writeFileSync(`${firebaseRoot}/.gitignore`, gitignore, 'utf-8');
     // Install Firebase packages and clean code.
     console.log(' \x1b[32mquasar-generate •\x1b[0m', 'Installing \x1b[47mFirebase\x1b[0m packages and clean code...');
     execSync(`cd ${firebaseRoot} && yarn && yarn clean`, {
