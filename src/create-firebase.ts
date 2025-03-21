@@ -441,6 +441,30 @@ function finishFunctionsPackage(codebase: string) {
 }
 
 function finishFirebasePackage() {
+  // Add 'serve' and 'indexes' scripts.
+
+  extendJsonFile(firebasePackageJsonFilePath, [
+    {
+      path: 'serve',
+      value: 'firebase emulators:start --import emulators-data --export-on-exit',
+    },
+    {
+      path: 'indexes',
+      value: 'firebase firestore:indexes > indexes.json',
+    },
+  ])
+
+  // Ignore `emulators-data`.
+
+  let gitignore = fs.readFileSync(`${firebaseRoot}/.gitignore`, 'utf-8')
+
+  gitignore = `${gitignore}
+# Emulators data
+emulators-data/
+`
+
+  fs.writeFileSync(`${firebaseRoot}/.gitignore`, gitignore, 'utf-8')
+
   // Install Firebase packages and clean code.
 
   console.log(
