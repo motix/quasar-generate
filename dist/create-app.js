@@ -49,10 +49,14 @@ async function createQuasarProject() {
     });
 }
 function cleanProject() {
+    // Change to PascalCase.
+    let appvue = fs.readFileSync(`${appRoot}/src/App.vue`, 'utf-8');
+    appvue = appvue.replace('<router-view />', '<RouterView />');
+    fs.writeFileSync(`${appRoot}/src/App.vue`, appvue, 'utf-8');
     // Disable shim.
     let quasarconfigts = fs.readFileSync(`${appRoot}/quasar.config.ts`, 'utf-8');
     quasarconfigts = quasarconfigts.replace('vueShim: true', 'vueShim: false');
-    fs.writeFileSync(`${appRoot}/quasar.config.ts`, quasarconfigts, { encoding: 'utf-8' });
+    fs.writeFileSync(`${appRoot}/quasar.config.ts`, quasarconfigts, 'utf-8');
 }
 function finishProject() {
     // Add build script.
