@@ -121,9 +121,10 @@ function initProject() {
 
   fs.copyFileSync(`${projectAssets}/.mnapprc.js`, `${appRoot}/.mnapprc.js`)
 
-  // Add Font Awesome registry to `.npmrc`.
+  // Add Font Awesome registry to `.npmrc` if the file exists.
 
-  let npmrc = fs.readFileSync(`${appRoot}/.npmrc`, 'utf-8')
+  const npmrcPath = `${appRoot}/.npmrc`
+  let npmrc = fs.existsSync(npmrcPath) ? fs.readFileSync(npmrcPath, 'utf-8') : ''
 
   npmrc = `${npmrc}
 ${fs.readFileSync(`${globalAssets}/.npmrc`, 'utf-8')}`
