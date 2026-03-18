@@ -151,7 +151,7 @@ ${fs.readFileSync(`${globalAssets}/.npmrc`, 'utf-8')}`
   console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47mmnapp\x1b[0m...`)
 
   execSync(
-    `cd ${appRoot} && yarn link @motinet/quasar-app-extension-mnapp && node fixQuasarAppVite.js && quasar ext invoke @motinet/mnapp`,
+    `cd ${appRoot} && yarn link @motinet/quasar-app-extension-mnapp && node fixQuasarAppVite.js && yarn quasar ext invoke @motinet/mnapp`,
     {
       stdio: 'inherit',
     },
