@@ -334,11 +334,11 @@ function finishFirebasePackage() {
     // Add 'serve' and 'indexes' scripts.
     extendJsonFile(firebasePackageJsonFilePath, [
         {
-            path: 'serve',
+            path: 'scripts.serve',
             value: 'firebase emulators:start --import emulators-data --export-on-exit',
         },
         {
-            path: 'indexes',
+            path: 'scripts.indexes',
             value: 'firebase firestore:indexes > indexes.json',
         },
     ]);
