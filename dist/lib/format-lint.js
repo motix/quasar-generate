@@ -9,6 +9,13 @@ export default function (appRoot) {
     // Add `format-imports` to `package.json` and add `import-sorter.json` from `assets`.
     extendJsonFile(appPackageJsonFilePath, [
         { path: 'devDependencies.format-imports', value: '^4.0.7' },
+        /*
+         * TODO: Remove this when format-imports is updated to use a newer version of @vue/compiler-sfc
+         * or switched to a different format imports tool.
+         */
+        // Fix ERR_PACKAGE_PATH_NOT_EXPORTED for entities/decode by forcing
+        // format-imports to use a newer version of @vue/compiler-sfc.
+        { path: 'resolutions.format-imports/@vue/compiler-sfc', value: '^3.5.0' },
     ]);
     fs.copyFileSync(`${globalAssets}/import-sorter.json`, `${appRoot}/import-sorter.json`);
     // Modify .vscode/extensions.json and .vscode/settings.json

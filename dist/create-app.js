@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { ACCEPT_DEFAULT, cliGhostwriter, DOWN_KEY, WHITESPACE_KEY, } from '@dreamonkey/cli-ghostwriter';
 import setupFormatLint from './lib/format-lint.js';
-import { extendJsonFile } from './lib/json-helpers.js';
+import { extendJsonFile, reduceJsonFile } from './lib/json-helpers.js';
 const globalAssets = './assets';
 const project = process.argv[2];
 const autoLaunch = process.argv[3];
@@ -35,7 +35,6 @@ async function createQuasarProject() {
         'Package name': config.packageName,
         'Project product name': config.productName,
         'Project description': config.productDescription,
-        Author: config.author,
         'Pick a Vue component style': ACCEPT_DEFAULT, // Composition API with <script setup>
         'Pick your CSS preprocessor': ACCEPT_DEFAULT, // Sass with SCSS syntax
         'Check the features needed for your project': `${DOWN_KEY}${WHITESPACE_KEY}`, // Linting, Pinia
@@ -49,6 +48,17 @@ async function createQuasarProject() {
     });
 }
 function cleanProject() {
+    // Change version, author
+    extendJsonFile(appPackageJsonFilePath, [
+        {
+            path: 'version',
+            value: config.version,
+        },
+        {
+            path: 'author',
+            value: config.author,
+        },
+    ]);
     // Change to PascalCase.
     let appvue = fs.readFileSync(`${appRoot}/src/App.vue`, 'utf-8');
     appvue = appvue.replace('<router-view />', '<RouterView />');
@@ -66,9 +76,11 @@ function finishProject() {
             value: 'yarn vue-tsc --noEmit --skipLibCheck',
         },
     ]);
+    // TODO: Remove this when upgraded to Yarn 4+.
+    // Remove `engines.pnpm` to avoid warning when using Yarn 1 (Classic).
+    reduceJsonFile(appPackageJsonFilePath, ['engines.pnpm']);
     // Install the app packages and clean code.
     console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47m${config.packageName}\x1b[0m packages and clean code...`);
-    fixQuasarAppVite();
     execSync(`cd ${appRoot} && yarn && yarn clean`, {
         stdio: 'inherit',
     });
@@ -84,7 +96,7 @@ function initProject() {
     const npmrcPath = `${appRoot}/.npmrc`;
     let npmrc = fs.existsSync(npmrcPath) ? fs.readFileSync(npmrcPath, 'utf-8') : '';
     npmrc = `${npmrc}
-${fs.readFileSync(`${globalAssets}/.npmrc`, 'utf-8')}`;
+${fs.readFileSync(`${globalAssets}/.npmrc`, 'utf-8')}`.trimStart();
     fs.writeFileSync(`${appRoot}/.npmrc`, npmrc, {
         encoding: 'utf-8',
     });
@@ -99,7 +111,7 @@ ${fs.readFileSync(`${globalAssets}/.npmrc`, 'utf-8')}`;
     });
     // Install `mnapp`.
     console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47mmnapp\x1b[0m...`);
-    execSync(`cd ${appRoot} && yarn link @motinet/quasar-app-extension-mnapp && node fixQuasarAppVite.js && yarn quasar ext invoke @motinet/mnapp`, {
+    execSync(`cd ${appRoot} && yarn link @motinet/quasar-app-extension-mnapp && yarn quasar ext invoke @motinet/mnapp`, {
         stdio: 'inherit',
     });
     // Add `.env` with Firebase config.
@@ -225,7 +237,7 @@ name: 'HomePage', path: '', meta: { isNoReturnPage: true }`);
     extendJsonFile(appPackageJsonFilePath, [
         {
             path: 'scripts.postinstall',
-            value: 'node fixQuasarAppVite.js && cross-env FIREBASE_ENV=PROD quasar prepare',
+            value: 'cross-env FIREBASE_ENV=PROD quasar prepare',
         },
     ]);
     // Format code
@@ -239,14 +251,4 @@ function launchProject() {
     execSync(`code ${appRoot}`, {
         stdio: 'inherit',
     });
-}
-// TODO: Remove when Quasar fixes this bug
-function fixQuasarAppVite() {
-    fs.copyFileSync('./assets/fixQuasarAppVite.js', `${appRoot}/fixQuasarAppVite.js`);
-    extendJsonFile(appPackageJsonFilePath, [
-        {
-            path: 'scripts.postinstall',
-            value: 'node fixQuasarAppVite.js && quasar prepare',
-        },
-    ]);
 }

@@ -54,7 +54,6 @@ async function createExtensionQuasarProject() {
     'Quasar App Extension ext-id': config.extensionId,
     'Pick AE code format': ACCEPT_DEFAULT, // ESM
     'Project description': config.projectDescription,
-    Author: config.author,
     'License type': ACCEPT_DEFAULT,
     'Pick the needed scripts': 'a',
   }
@@ -82,6 +81,7 @@ async function createTemplatesQuasarProject() {
     'Package name': `${config.extensionId}-templates`,
     'Project product name': `${config.extensionId} Templates`,
     'Project description': `Templates for ${config.extensionId}`,
+    // TODO:
     Author: config.author,
     'Pick a Vue component style': ACCEPT_DEFAULT, // Composition API with <script setup>
     'Pick your CSS preprocessor': ACCEPT_DEFAULT, // Sass with SCSS syntax
@@ -110,6 +110,19 @@ function createDevProject() {
 }
 
 function cleanTemplatesProject() {
+  // Change version, author
+
+  extendJsonFile(templatesPackageJsonFilePath, [
+    {
+      path: 'version',
+      value: config.version,
+    },
+    {
+      path: 'author',
+      value: config.author,
+    },
+  ])
+
   // Delete `templates/public`, `templates/src`,
   // `templates/postcss.config.js`, `templates/README.md`.
 
@@ -276,6 +289,10 @@ function finishTemplatesProject() {
     },
   ])
 
+  // TODO: Remove this when upgraded to Yarn 4+.
+  // Remove `engines.pnpm` to avoid warning when using Yarn 1 (Classic).
+  reduceJsonFile(templatesPackageJsonFilePath, ['engines.pnpm'])
+
   // Install templates packages and clean code.
 
   console.log(
@@ -283,13 +300,25 @@ function finishTemplatesProject() {
     'Installing \x1b[47mtemplates\x1b[0m packages and clean code...',
   )
 
-  fixTemplatesQuasarAppVite()
   execSync(`cd ${templatesRoot} && yarn && node ./buildPaths.js && yarn clean`, {
     stdio: 'inherit',
   })
 }
 
 function cleanExtensionProject() {
+  // Change version, author
+
+  extendJsonFile(extensionPackageJsonFilePath, [
+    {
+      path: 'version',
+      value: config.version,
+    },
+    {
+      path: 'author',
+      value: config.author,
+    },
+  ])
+
   // Delete `src` folder.
 
   fs.rmSync(`${extensionRoot}/src`, { recursive: true })
@@ -439,6 +468,10 @@ function finishExtensionProject() {
     },
   ])
 
+  // TODO: Remove this when upgraded to Yarn 4+.
+  // Remove `engines.pnpm` to avoid warning when using Yarn 1 (Classic).
+  reduceJsonFile(extensionPackageJsonFilePath, ['engines.pnpm'])
+
   // Install the extension packages, build and clean code.
 
   console.log(
@@ -446,7 +479,6 @@ function finishExtensionProject() {
     `Installing \x1b[47m${config.extensionId}\x1b[0m packages, build and clean code...`,
   )
 
-  fixExtensionQuasarAppVite()
   execSync(`cd ${extensionRoot} && yarn && yarn build && yarn clean`, {
     stdio: 'inherit',
   })
@@ -461,20 +493,4 @@ function launchExtensionProject() {
   execSync(`code ${extensionRoot}`, {
     stdio: 'inherit',
   })
-}
-
-// TODO: Remove when Quasar fixes this bug
-function fixExtensionQuasarAppVite() {
-  fs.copyFileSync(`${globalAssets}/fixQuasarAppVite.js`, `${extensionRoot}/fixQuasarAppVite.js`)
-  extendJsonFile(extensionPackageJsonFilePath, [
-    { path: 'scripts.postinstall', value: 'node fixQuasarAppVite.js' },
-  ])
-}
-
-// TODO: Remove when Quasar fixes this bug
-function fixTemplatesQuasarAppVite() {
-  fs.copyFileSync(`${globalAssets}/fixQuasarAppVite.js`, `${templatesRoot}/fixQuasarAppVite.js`)
-  extendJsonFile(templatesPackageJsonFilePath, [
-    { path: 'scripts.postinstall', value: 'node fixQuasarAppVite.js && quasar prepare' },
-  ])
 }
