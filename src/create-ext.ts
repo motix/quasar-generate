@@ -232,20 +232,22 @@ export default defineConfig((/* ctx */) => {
   ])
 
   extendJsonFile(templatesPackageJsonFilePath, [
-    { path: 'dependencies.quasar', value: '^2.17.7' },
-    { path: 'dependencies.vue', value: '^3.5.13' },
-    { path: 'dependencies.vue-router', value: '^4.5.0' },
-    { path: 'devDependencies.@eslint/js', value: '^9.20.0' },
-    { path: 'devDependencies.eslint', value: '^9.20.1' },
-    { path: 'devDependencies.eslint-plugin-vue', value: '^9.32.0' },
-    { path: 'devDependencies.globals', value: '^15.15.0' },
-    { path: 'devDependencies.vue-tsc', value: '^2.2.2' },
-    { path: 'devDependencies.@vue/eslint-config-typescript', value: '^14.4.0' },
+    { path: 'dependencies.quasar', value: '^2.18.7' },
+    { path: 'dependencies.vue', value: '^3.5.30' },
+    { path: 'dependencies.vue-router', value: '^5.0.4' },
+    // TODO: Upgrade `@eslint/js`, `eslint`, `eslint-plugin-vue`
+    { path: 'devDependencies.@eslint/js', value: '^9.39.4' },
+    { path: 'devDependencies.eslint', value: '^9.39.4' },
+    { path: 'devDependencies.eslint-plugin-vue', value: '^9.33.0' },
+    { path: 'devDependencies.globals', value: '^17.4.0' },
+    { path: 'devDependencies.vue-tsc', value: '^3.2.6' },
+    { path: 'devDependencies.@vue/eslint-config-typescript', value: '^14.7.0' },
+    { path: 'devDependencies.vue-eslint-parser', value: '^10.4.0' },
     { path: 'devDependencies.@vue/eslint-config-prettier', value: '^10.2.0' },
-    { path: 'devDependencies.prettier', value: '^3.5.1' },
-    { path: 'devDependencies.@types/node', value: '^20.5.9' },
-    { path: 'devDependencies.@quasar/app-vite', value: '^2.1.0' },
-    { path: 'devDependencies.typescript', value: '^5.7.3' },
+    { path: 'devDependencies.prettier', value: '^3.8.1' },
+    { path: 'devDependencies.@types/node', value: '^25.5.0' },
+    { path: 'devDependencies.@quasar/app-vite', value: '^2.5.1' },
+    { path: 'devDependencies.typescript', value: '^5.9.3' },
   ])
 
   // Create folder `templates/modules` and add default file.
@@ -328,7 +330,7 @@ function cleanExtensionProject() {
   extendJsonFile(extensionPackageJsonFilePath, [
     {
       path: 'devDependencies.lodash-es',
-      value: '^4.17.21',
+      value: '^4.17.23',
     },
     {
       path: 'devDependencies.@types/lodash-es',

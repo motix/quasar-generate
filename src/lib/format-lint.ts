@@ -12,7 +12,7 @@ export default function (appRoot: string) {
   // Add `format-imports` to `package.json` and add `import-sorter.json` from `assets`.
 
   extendJsonFile(appPackageJsonFilePath, [
-    { path: 'devDependencies.format-imports', value: '^4.0.7' },
+    { path: 'devDependencies.format-imports', value: '^4.0.8' },
     /*
      * TODO: Remove this when format-imports is updated to use a newer version of @vue/compiler-sfc
      * or switched to a different format imports tool.

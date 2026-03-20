@@ -102,19 +102,19 @@ function firebasePackageLintingAndFormatting() {
         },
         {
             path: 'devDependencies.@eslint/js',
-            value: '^9.22.0',
+            value: '^9.39.4',
         },
         {
             path: 'devDependencies.eslint',
-            value: '^9.22.0',
+            value: '^9.39.4',
         },
         {
             path: 'devDependencies.globals',
-            value: '^16.0.0',
+            value: '^17.4.0',
         },
         {
             path: 'devDependencies.prettier',
-            value: '^3.5.3',
+            value: '^3.8.1',
         },
     ]);
     // Add `.editorconfig`, `eslint.config.mjs`, `.prettierrc.json`, `.prettierignore` and `.vscode/settings.json`.
@@ -140,15 +140,15 @@ function initFunctionsPackage() {
         },
         {
             path: 'dependencies.firebase-admin',
-            value: '^13.2.0',
+            value: '^13.7.0',
         },
         {
             path: 'dependencies.firebase-functions',
-            value: '^6.3.2',
+            value: '^7.2.2',
         },
         {
             path: 'devDependencies.typescript',
-            value: '^5.8.2',
+            value: '^5.9.3',
         },
         {
             path: 'devDependencies.firebase-functions-test',
@@ -217,7 +217,7 @@ export const app = group;
         },
         {
             path: 'devDependencies.tsc-alias',
-            value: '^1.8.11',
+            value: '^1.8.16',
         },
     ]);
 }
@@ -238,27 +238,27 @@ function functionsPackageLintingAndFormatting() {
         },
         {
             path: 'devDependencies.@eslint/js',
-            value: '^9.22.0',
+            value: '^9.39.4',
         },
         {
             path: 'devDependencies.eslint',
-            value: '^9.22.0',
+            value: '^9.39.4',
         },
         {
             path: 'devDependencies.globals',
-            value: '^16.0.0',
+            value: '^17.4.0',
         },
         {
             path: 'devDependencies.prettier',
-            value: '^3.5.3',
+            value: '^3.8.1',
         },
         {
             path: 'devDependencies.typescript-eslint',
-            value: '^8.26.1',
+            value: '^8.57.1',
         },
         {
             path: 'devDependencies.format-imports',
-            value: '^4.0.7',
+            value: '^4.0.8',
         },
     ]);
     // Add `eslint.config.mjs` and `.vscode/settings.json`.
