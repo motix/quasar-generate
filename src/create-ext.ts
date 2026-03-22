@@ -235,7 +235,6 @@ export default defineConfig((/* ctx */) => {
     { path: 'dependencies.quasar', value: '^2.18.7' },
     { path: 'dependencies.vue', value: '^3.5.30' },
     { path: 'dependencies.vue-router', value: '^5.0.4' },
-    // TODO: Upgrade `@eslint/js`, `eslint`, `eslint-plugin-vue`
     { path: 'devDependencies.@eslint/js', value: '^9.39.4' },
     { path: 'devDependencies.eslint', value: '^9.39.4' },
     { path: 'devDependencies.eslint-plugin-vue', value: '^9.33.0' },
