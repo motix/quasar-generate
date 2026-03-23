@@ -54,8 +54,8 @@ async function createExtensionQuasarProject() {
     'Quasar App Extension ext-id': config.extensionId,
     'Pick AE code format': ACCEPT_DEFAULT, // ESM
     'Project description': config.projectDescription,
-    'License type': ACCEPT_DEFAULT,
-    'Pick the needed scripts': 'a',
+    'License type': ACCEPT_DEFAULT, // MIT
+    'Pick the needed scripts': 'a', // Prompts script, Install script, Uninstall script
   }
 
   await cliGhostwriter({
