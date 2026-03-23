@@ -100,6 +100,7 @@ function firebasePackageLintingAndFormatting() {
             path: 'scripts.clean',
             value: 'yarn format --log-level warn && yarn lint --fix',
         },
+        // TODO: Upgrade `@eslint/js`, `eslint` to version 10
         {
             path: 'devDependencies.@eslint/js',
             value: '^9.39.4',
@@ -236,6 +237,7 @@ function functionsPackageLintingAndFormatting() {
             path: 'scripts.clean',
             value: 'yarn format-imports ./src && yarn format --log-level warn && yarn lint --fix',
         },
+        // TODO: Upgrade `@eslint/js`, `eslint` to version 10
         {
             path: 'devDependencies.@eslint/js',
             value: '^9.39.4',

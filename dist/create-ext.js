@@ -59,8 +59,6 @@ async function createTemplatesQuasarProject() {
         'Package name': `${config.extensionId}-templates`,
         'Project product name': `${config.extensionId} Templates`,
         'Project description': `Templates for ${config.extensionId}`,
-        // TODO:
-        Author: config.author,
         'Pick a Vue component style': ACCEPT_DEFAULT, // Composition API with <script setup>
         'Pick your CSS preprocessor': ACCEPT_DEFAULT, // Sass with SCSS syntax
         'Check the features needed for your project': ACCEPT_DEFAULT, // Linting
@@ -164,7 +162,7 @@ export default defineConfig((/* ctx */) => {
         { path: 'dependencies.quasar', value: '^2.18.7' },
         { path: 'dependencies.vue', value: '^3.5.30' },
         { path: 'dependencies.vue-router', value: '^5.0.4' },
-        // TODO: Upgrade `@eslint/js`, `eslint`, `eslint-plugin-vue`
+        // TODO: Upgrade `@eslint/js`, `eslint`, `eslint-plugin-vue` to version 10
         { path: 'devDependencies.@eslint/js', value: '^9.39.4' },
         { path: 'devDependencies.eslint', value: '^9.39.4' },
         { path: 'devDependencies.eslint-plugin-vue', value: '^9.33.0' },
