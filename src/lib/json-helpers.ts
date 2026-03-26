@@ -11,9 +11,11 @@ export function extendJsonFile(
     for (let { path, value } of pathAdnValues) {
       if (typeof path === 'string' && path.endsWith('[]')) {
         path = path.substring(0, path.length - 2)
-        const currentValue: Array<typeof value> = get(json, path)
+        let currentValue: Array<typeof value> = get(json, path)
 
-        if (!currentValue.includes(value)) {
+        if (currentValue === undefined) {
+          currentValue = []
+        } else if (!currentValue.includes(value)) {
           currentValue.push(value)
         }
 

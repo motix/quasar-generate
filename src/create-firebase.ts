@@ -27,9 +27,9 @@ const f = false
 
 f || (await createFirebasePackage())
 f || initFirebasePackage()
-f || firebasePackageLintingAndFormatting()
+f || firebasePackageFormattingAndLinting()
 f || initFunctionsPackage()
-f || functionsPackageLintingAndFormatting()
+f || functionsPackageFormattingAndLinting()
 f || createFunctionsCodebases()
 f ||
   ['default', ...config.functionsCodebases].forEach((codebase) => finishFunctionsPackage(codebase))
@@ -119,7 +119,7 @@ for (const folder of folders) {
   ])
 }
 
-function firebasePackageLintingAndFormatting() {
+function firebasePackageFormattingAndLinting() {
   // Add dependencies and scripts.
 
   extendJsonFile(firebasePackageJsonFilePath, [
@@ -301,7 +301,7 @@ export const app = group;
   ])
 }
 
-function functionsPackageLintingAndFormatting() {
+function functionsPackageFormattingAndLinting() {
   // Add dependencies and scripts.
 
   extendJsonFile(functionsPackageJsonFilePath, [

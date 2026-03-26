@@ -28,10 +28,10 @@ if (config.hasDev) {
 }
 
 f || cleanTemplatesProject()
-f || templatesProjectLintingAndFormatting()
+f || templatesProjectFormattingAndLinting()
 f || finishTemplatesProject()
 f || cleanExtensionProject()
-f || (await extensionProjectLintingAndFormatting())
+f || (await extensionProjectFormattingAndLinting())
 f || finishExtensionProject()
 
 if (autoLaunch === '-l') {
@@ -162,7 +162,7 @@ export default defineConfig((/* ctx */) => {
     { encoding: 'utf-8' },
   )
 
-  // Add `src` and sub folders from global `assets`.
+  // Add `templates` from global `assets`.
 
   fs.cpSync(
     `${globalAssets}/Multi-module Extension Template/templates`,
@@ -226,6 +226,7 @@ export default defineConfig((/* ctx */) => {
   reduceJsonFile(templatesPackageJsonFilePath, [
     'dependencies.@quasar/extras',
     'devDependencies.vite-plugin-checker',
+    'devDependencies.@types/node',
     'devDependencies.autoprefixer',
   ])
 
@@ -243,8 +244,7 @@ export default defineConfig((/* ctx */) => {
     { path: 'devDependencies.vue-eslint-parser', value: '^10.4.0' },
     { path: 'devDependencies.@vue/eslint-config-prettier', value: '^10.2.0' },
     { path: 'devDependencies.prettier', value: '^3.8.1' },
-    { path: 'devDependencies.@types/node', value: '^25.5.0' },
-    { path: 'devDependencies.@quasar/app-vite', value: '^2.5.1' },
+    { path: 'devDependencies.@quasar/app-vite', value: '^2.5.2' },
     { path: 'devDependencies.typescript', value: '^5.9.3' },
   ])
 
@@ -261,7 +261,7 @@ export default defineConfig((/* ctx */) => {
   )
 }
 
-function templatesProjectLintingAndFormatting() {
+function templatesProjectFormattingAndLinting() {
   setupFormatLint(templatesRoot)
 
   // Modify `templates/package.json` `lint` and `clean` script,
@@ -343,7 +343,7 @@ function cleanExtensionProject() {
   })
 }
 
-async function extensionProjectLintingAndFormatting() {
+async function extensionProjectFormattingAndLinting() {
   // Copy `.vscode`, `.editorconfig`, `.prettierrc.json`, `eslint.config.js`,
   // `import-sorter.json` from `templates` to root.
 
@@ -353,7 +353,16 @@ async function extensionProjectLintingAndFormatting() {
   fs.copyFileSync(`${templatesRoot}/eslint.config.js`, `${extensionRoot}/eslint.config.js`)
   fs.copyFileSync(`${templatesRoot}/import-sorter.json`, `${extensionRoot}/import-sorter.json`)
 
-  // Comment out `.vscode` in `.gitignore`.
+  // Add `.prettierignore` file to ignore `dist`.
+
+  fs.writeFileSync(
+    `${extensionRoot}/.prettierignore`,
+    `/dist
+`,
+    { encoding: 'utf-8' },
+  )
+
+  // Unignore `.vscode`.
 
   let gitignore = fs.readFileSync(`${extensionRoot}/.gitignore`, 'utf-8')
 
@@ -410,15 +419,6 @@ async function extensionProjectLintingAndFormatting() {
     },
   ])
 
-  // Add `.prettierignore` file to ignore `dist`.
-
-  fs.writeFileSync(
-    `${extensionRoot}/.prettierignore`,
-    `/dist
-`,
-    { encoding: 'utf-8' },
-  )
-
   // Add `lint`, `format` and `clean` scripts to `package.json`.
 
   extendJsonFile(extensionPackageJsonFilePath, [
@@ -448,11 +448,16 @@ async function extensionProjectLintingAndFormatting() {
 function finishExtensionProject() {
   // Exclude `dist` from search and `node_modules`, `.git` from compare.
 
-  const settingsJson = path.resolve(`${extensionRoot}/.vscode/settings.json`)
+  const extensionsJsonFilePath = path.resolve(`${extensionRoot}/.vscode/extensions.json`)
+  const settingsJsonFilePath = path.resolve(`${extensionRoot}/.vscode/settings.json`)
+
+  extendJsonFile(extensionsJsonFilePath, [
+    { path: 'recommendations[]', value: 'moshfeu.compare-folders' },
+  ])
 
   // Putting `path` in an array to keep it as a single property in JSON file.
-  extendJsonFile(settingsJson, [{ path: ['search.exclude'], value: { dist: true } }])
-  extendJsonFile(settingsJson, [
+  extendJsonFile(settingsJsonFilePath, [{ path: ['search.exclude'], value: { dist: true } }])
+  extendJsonFile(settingsJsonFilePath, [
     { path: ['compareFolders.excludeFilter'], value: ['node_modules', '.git'] },
     { path: ['compareFolders.ignoreFileNameCase'], value: false },
   ])
