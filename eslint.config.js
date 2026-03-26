@@ -19,7 +19,7 @@ export default [
      */
     // ignores: []
 
-    ignores: ['assets/*'],
+    ignores: ['assets/*', 'assetsn/*'],
   },
 
   ...pluginQuasar.configs.recommended(),
