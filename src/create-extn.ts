@@ -2,7 +2,12 @@ import { execSync } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 
-import { ACCEPT_DEFAULT, cliGhostwriter, DOWN_KEY } from '@dreamonkey/cli-ghostwriter'
+import {
+  ACCEPT_DEFAULT,
+  cliGhostwriter,
+  DOWN_KEY,
+  WHITESPACE_KEY,
+} from '@dreamonkey/cli-ghostwriter'
 
 import setupFormatLint from './lib/format-lintn.js'
 import { extendJsonFile, reduceJsonFile } from './lib/json-helpers.js'
@@ -14,7 +19,7 @@ const project = process.argv[2]
 const runYarn = process.argv[3] === '-y' || process.argv[4] === '-y'
 const autoLaunch = process.argv[3] === '-l' || process.argv[4] === '-l'
 const config = (await import(`../projects/${project}.js`)).default as CreateExtensionConfig
-const extensionRoot = `../../../../../Temp/output/${config.projectFolder}`
+const extensionRoot = `./output/${config.projectFolder}`
 const templatesRoot = `${extensionRoot}/templates`
 const devRoot = `${extensionRoot}/dev`
 const extensionPackageJsonFilePath = path.resolve(`${extensionRoot}/package.json`)
@@ -128,7 +133,7 @@ async function createDevQuasarProject() {
     'Project description': `Dev for ${config.extensionId}`,
     'Pick a Vue component style': ACCEPT_DEFAULT, // Composition API with <script setup>
     'Pick your CSS preprocessor': ACCEPT_DEFAULT, // Sass with SCSS syntax
-    'Check the features needed for your project': ACCEPT_DEFAULT, // Linting
+    'Check the features needed for your project': `${DOWN_KEY}${WHITESPACE_KEY}`, // Linting, Pinia
     'Add Prettier for code formatting?': ACCEPT_DEFAULT, // Y
     'Install project dependencies?': `${DOWN_KEY}`, // No
   }

@@ -28,7 +28,12 @@ export default async function (api: InstallAPI) {
     scripts,
   })
 
-  console.log(` \x1b[32m${packageName} •\x1b[0m`, 'Installing', modules.length, 'modules...')
+  console.log(
+    ` \x1b[32m${packageName} •\x1b[0m`,
+    'Running install scripts for',
+    modules.length,
+    'modules...',
+  )
 
   for (const module of modules) {
     console.log(

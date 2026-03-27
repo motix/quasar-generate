@@ -10,7 +10,12 @@ export default async function (api: UninstallAPI) {
 
   const packageName = getPackageName()
 
-  console.log(` \x1b[32m${packageName} •\x1b[0m`, 'Uninstalling', modules.length, 'modules...')
+  console.log(
+    ` \x1b[32m${packageName} •\x1b[0m`,
+    'Running uninstall scripts for',
+    modules.length,
+    'modules...',
+  )
 
   for (const module of modules) {
     console.log(
