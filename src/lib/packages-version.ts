@@ -4,7 +4,7 @@ export default {
   '@trivago/prettier-plugin-sort-imports':
     'patch:@trivago/prettier-plugin-sort-imports@npm%3A6.0.2#~/.yarn/patches/@trivago-prettier-plugin-sort-imports-npm-6.0.2-88f9e213cd.patch',
   '@types/lodash-es': '^4.17.12',
-  '@vue/compiler-sfc': '^3.5.30',
+  '@vue/compiler-sfc': '^3.5.31',
   '@vue/eslint-config-prettier': '^10.2.0',
   '@vue/eslint-config-typescript': '^14.7.0',
   eslint: '^10.1.0',
@@ -17,7 +17,7 @@ export default {
   // Latest is 6.0.2 but it doesn't satisfy @vue/eslint-config-typescript dependencies request
   typescript: '^5.9.3',
   vite: '^8.0.3',
-  vue: '^3.5.30',
+  vue: '^3.5.31',
   'vue-eslint-parser': '^10.4.0',
   'vue-router': '^5.0.4',
   'vue-tsc': '^3.2.6',

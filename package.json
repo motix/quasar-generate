@@ -23,7 +23,7 @@
     "lodash-es": "^4.17.23",
     "@types/lodash-es": "^4.17.12",
     "quasar": "^2.18.7",
-    "vue": "^3.5.30",
+    "vue": "^3.5.31",
     "vue-router": "^5.0.4",
     "@eslint/js": "^9.39.4",
     "eslint": "^9.39.4",

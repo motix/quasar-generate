@@ -232,7 +232,7 @@ export default defineConfig((/* ctx */) => {
 
   extendJsonFile(templatesPackageJsonFilePath, [
     { path: 'dependencies.quasar', value: '^2.18.7' },
-    { path: 'dependencies.vue', value: '^3.5.30' },
+    { path: 'dependencies.vue', value: '^3.5.31' },
     { path: 'dependencies.vue-router', value: '^5.0.4' },
     // TODO: Upgrade `@eslint/js`, `eslint`, `eslint-plugin-vue` to version 10
     { path: 'devDependencies.@eslint/js', value: '^9.39.4' },

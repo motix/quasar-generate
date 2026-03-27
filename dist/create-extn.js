@@ -214,7 +214,8 @@ index 27a775515049aa60f23c2778632b86d2db6d3513..28dbef5303639bea2d53e5cc8727dece
             value: 'yarn dlx @yarnpkg/sdks vscode',
         },
     ]);
-    // Remove `typescript.tsdk` settings in `dev` workspace as it will be added to root workspace.
+    // Remove `typescript.tsdk` settings in `dev` workspace as it will be added to root workspace
+    // after the `yarn dlx @yarnpkg/sdks vscode` call.
     const settingsJsonPath = path.resolve(`${devRoot}/.vscode/settings.json`);
     reduceJsonFile(settingsJsonPath, ['typescript.tsdk']);
     // Unignore `.vscode` to persist settings for editor SDKs.
