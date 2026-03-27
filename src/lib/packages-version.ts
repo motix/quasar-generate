@@ -16,7 +16,7 @@ export default {
   quasar: '^2.19.1',
   // Latest is 6.0.2 but it doesn't satisfy @vue/eslint-config-typescript dependencies request
   typescript: '^5.9.3',
-  vite: '^8.0.2',
+  vite: '^8.0.3',
   vue: '^3.5.30',
   'vue-eslint-parser': '^10.4.0',
   'vue-router': '^5.0.4',
