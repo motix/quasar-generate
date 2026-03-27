@@ -1,6 +1,6 @@
 export default {
   '@eslint/js': '^10.0.1',
-  '@quasar/app-vite': '^2.5.4',
+  '@quasar/app-vite': '^2.5.2', // TODO: 2.5.4
   '@trivago/prettier-plugin-sort-imports':
     'patch:@trivago/prettier-plugin-sort-imports@npm%3A6.0.2#~/.yarn/patches/@trivago-prettier-plugin-sort-imports-npm-6.0.2-88f9e213cd.patch',
   '@types/lodash-es': '^4.17.12',
@@ -14,8 +14,7 @@ export default {
   postcss: '^8.5.8',
   prettier: '^3.8.1',
   quasar: '^2.19.1',
-  // Latest is 6.0.2 but it doesn't satisfy @vue/eslint-config-typescript dependencies request
-  typescript: '^5.9.3',
+  typescript: '^5.9.3', // Latest is 6.0.2 but it doesn't satisfy @vue/eslint-config-typescript dependencies request
   vite: '^8.0.3',
   vue: '^3.5.31',
   'vue-eslint-parser': '^10.4.0',
