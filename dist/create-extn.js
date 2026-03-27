@@ -24,6 +24,7 @@ f || createTemplatesWorkspace();
 f || (await createDevQuasarProject());
 f || prepareWorkspaces();
 // Fix Yarn PnP for Quasar `dev` and `build`
+// After this fix, Quasar `dev` and `build` will always work with no error in `dev` workspace.
 f || fixCompileTimeYarnPnP();
 // Workspaces formatting and linting
 f || rootWorkspaceFormattingAndLinting();
@@ -255,6 +256,22 @@ function rootWorkspaceFormattingAndLinting() {
         path: `devDependencies.${item}`,
         value: packagesVersion[item],
     })));
+    // Since `eslint.config.js` was moved from Quasar project in `dev`,
+    // setting `projectService` is needed because the default detection
+    // of sibling `tsconfig.json` in `dev` workspace is no longer available.
+    let eslintConfigJs = fs.readFileSync(`${extensionRoot}/eslint.config.js`, 'utf-8');
+    eslintConfigJs = eslintConfigJs.replace("pluginVue.configs[ 'flat/essential' ],", `pluginVue.configs[ 'flat/essential' ],
+
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+      },
+    },
+  },`);
+    fs.writeFileSync(`${extensionRoot}/eslint.config.js`, eslintConfigJs, {
+        encoding: 'utf-8',
+    });
     // Setup formatting and linting.
     setupFormatLint(extensionRoot);
     // Commit code.
@@ -300,7 +317,13 @@ function devWorkspaceFormattingAndLinting() {
         'vue-eslint-parser',
     ];
     reduceJsonFile(devPackageJsonFilePath, packages.map((item) => `devDependencies.${item}`));
-    // Modify `lint` script using `eslint.config.js` in root workspace.
+    // Update `quasar.config.ts` using `eslint.config.js` in root workspace.
+    let quasarConfigTs = fs.readFileSync(`${devRoot}/quasar.config.ts`, 'utf-8');
+    quasarConfigTs = quasarConfigTs.replace('eslint -c ./eslint.config.js "./src*/**/*.{ts,js,mjs,cjs,vue}"', 'eslint -c ../eslint.config.js "./src*/**/*.{ts,js,mjs,cjs,vue}"');
+    fs.writeFileSync(`${devRoot}/quasar.config.ts`, quasarConfigTs, {
+        encoding: 'utf-8',
+    });
+    // Update `lint` script using `eslint.config.js` in root workspace.
     extendJsonFile(devPackageJsonFilePath, [
         {
             path: 'scripts.lint',
@@ -488,12 +511,12 @@ function finishAllAndLaunch() {
     // Install root workspace packages, build and clean code.
     console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47m${config.extensionId}\x1b[0m packages, build and clean code...`);
     if (runYarn) {
-        execSync(`cd ${extensionRoot} && yarn && yarn buildPaths && yarn build && yarn clean`, {
+        execSync(`cd ${extensionRoot} && yarn && yarn buildPaths && yarn build && yarn clean && cd dev && yarn i-mnapp && yarn dev`, {
             stdio: 'inherit',
         });
     }
     else {
-        console.log(`                   Run \x1b[47mcd ${extensionRoot} && yarn && yarn buildPaths && yarn build && yarn clean\x1b[0m manually.`);
+        console.log(`                   Run \x1b[47mcd ${extensionRoot} && yarn && yarn buildPaths && yarn build && yarn clean && cd dev && yarn i-mnapp && yarn dev\x1b[0m manually.`);
     }
     // Auto launch
     if (autoLaunch) {
