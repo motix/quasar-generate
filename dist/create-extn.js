@@ -10,7 +10,7 @@ const project = process.argv[2];
 const runYarn = process.argv[3] === '-y' || process.argv[4] === '-y';
 const autoLaunch = process.argv[3] === '-l' || process.argv[4] === '-l';
 const config = (await import(`../projects/${project}.js`)).default;
-const extensionRoot = `./output/${config.projectFolder}`;
+const extensionRoot = `../quasar-generate-output/${config.projectFolder}`;
 const templatesRoot = `${extensionRoot}/templates`;
 const devRoot = `${extensionRoot}/dev`;
 const extensionPackageJsonFilePath = path.resolve(`${extensionRoot}/package.json`);

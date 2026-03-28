@@ -13,8 +13,10 @@ yarn-error.log*
 *.njsproj
 *.sln
 
+# local .env files
+.env.local*
+
 /output
 /assets/.npmrc
-/assets/.yarnrc.yml
 /projects
 /projects/**/assets/.env
