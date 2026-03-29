@@ -520,6 +520,7 @@ function templatesWorkspaceFormattingAndLinting() {
     'eslint-plugin-vue',
     '@quasar/app-vite',
     'quasar', // Peer dependency of `@quasar/app-vite`
+    'vue', // Peer dependency of `@quasar/app-vite`
     'vue-router', // Peer dependency of `@quasar/app-vite`
     '@vue/eslint-config-typescript',
     '@vue/eslint-config-prettier',
