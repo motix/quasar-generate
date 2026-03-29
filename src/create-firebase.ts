@@ -1,42 +1,42 @@
-import { execSync } from 'child_process'
-import fs from 'fs'
-import { repeat } from 'lodash-es'
-import path from 'path'
+import { execSync } from 'child_process';
+import fs from 'fs';
+import { repeat } from 'lodash-es';
+import path from 'path';
 
 import {
   ACCEPT_DEFAULT,
   cliGhostwriter,
   DOWN_KEY,
   WHITESPACE_KEY,
-} from '@dreamonkey/cli-ghostwriter'
+} from '@dreamonkey/cli-ghostwriter';
 
-import { extendJsonFile } from './lib/json-helpers.js'
-import type { CreateFirebaseConfig } from './types'
+import { extendJsonFile } from './lib/json-helpers.js';
+import type { CreateFirebaseConfig } from './types';
 
-const globalAssets = './assets'
-const project = process.argv[2]
-const autoLaunch = process.argv[3]
-const config = (await import(`../projects/${project}/project.js`)).default as CreateFirebaseConfig
-const firebaseRoot = `./output/${config.projectFolder}`
-const functionsRoot = `${firebaseRoot}/functions`
-const firebasePackageJsonFilePath = path.resolve(`${firebaseRoot}/package.json`)
-const functionsPackageJsonFilePath = path.resolve(`${functionsRoot}/package.json`)
+const globalAssets = './assets';
+const project = process.argv[2];
+const autoLaunch = process.argv[3];
+const config = (await import(`../projects/${project}/project.js`)).default as CreateFirebaseConfig;
+const firebaseRoot = `./output/${config.projectFolder}`;
+const functionsRoot = `${firebaseRoot}/functions`;
+const firebasePackageJsonFilePath = path.resolve(`${firebaseRoot}/package.json`);
+const functionsPackageJsonFilePath = path.resolve(`${functionsRoot}/package.json`);
 
 // Turning on/off functions
-const f = false
+const f = false;
 
-f || (await createFirebasePackage())
-f || initFirebasePackage()
-f || firebasePackageFormattingAndLinting()
-f || initFunctionsPackage()
-f || functionsPackageFormattingAndLinting()
-f || createFunctionsCodebases()
+f || (await createFirebasePackage());
+f || initFirebasePackage();
+f || firebasePackageFormattingAndLinting();
+f || initFunctionsPackage();
+f || functionsPackageFormattingAndLinting();
+f || createFunctionsCodebases();
 f ||
-  ['default', ...config.functionsCodebases].forEach((codebase) => finishFunctionsPackage(codebase))
-f || finishFirebasePackage()
+  ['default', ...config.functionsCodebases].forEach((codebase) => finishFunctionsPackage(codebase));
+f || finishFirebasePackage();
 
 if (autoLaunch === '-l') {
-  f || launchFirebasePackage()
+  f || launchFirebasePackage();
 }
 
 async function createFirebasePackage() {
@@ -45,9 +45,9 @@ async function createFirebasePackage() {
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
     `Creating Firebase package for \x1b[47m${config.packageName}\x1b[0m...`,
-  )
+  );
 
-  execSync(`mkdir ${firebaseRoot}`)
+  execSync(`mkdir ${firebaseRoot}`);
 
   const answersMap: Record<string, string | undefined> = {
     'Which Firebase features do you want to set up for this directory?': `${DOWN_KEY}${WHITESPACE_KEY}${DOWN_KEY}${DOWN_KEY}${WHITESPACE_KEY}${DOWN_KEY}${DOWN_KEY}${DOWN_KEY}${WHITESPACE_KEY}${DOWN_KEY}${WHITESPACE_KEY}`, // Firestore, Functions, Storage, Emulators
@@ -67,13 +67,13 @@ async function createFirebasePackage() {
     'Would you like to enable the Emulator UI?': ACCEPT_DEFAULT, // Y
     'Which port do you want to use for the Emulator UI': `${config.emulatorUiPort}`,
     'Would you like to download the emulators now?': ACCEPT_DEFAULT, // Y
-  }
+  };
 
   await cliGhostwriter({
     command: `cd ${firebaseRoot} && firebase init`,
     answersMap,
     endingMarker: 'Firebase initialization complete!',
-  })
+  });
 }
 
 function initFirebasePackage() {
@@ -86,7 +86,7 @@ function initFirebasePackage() {
       private: true,
     }),
     'utf-8',
-  )
+  );
 
   // Create rebuild functions script.
 
@@ -109,14 +109,14 @@ for (const folder of folders) {
 }
 `,
     'utf-8',
-  )
+  );
 
   extendJsonFile(firebasePackageJsonFilePath, [
     {
       path: 'scripts.rebuildFunctions',
       value: 'node rebuildFunctions.mjs',
     },
-  ])
+  ]);
 }
 
 function firebasePackageFormattingAndLinting() {
@@ -153,32 +153,32 @@ function firebasePackageFormattingAndLinting() {
       path: 'devDependencies.prettier',
       value: '^3.8.1',
     },
-  ])
+  ]);
 
   // Add `.editorconfig`, `eslint.config.mjs`, `.prettierrc.json`, `.prettierignore` and `.vscode/settings.json`.
 
-  fs.copyFileSync(`${globalAssets}/.editorconfig`, `${firebaseRoot}/.editorconfig`)
+  fs.copyFileSync(`${globalAssets}/.editorconfig`, `${firebaseRoot}/.editorconfig`);
   fs.copyFileSync(
     `${globalAssets}/Firebase Template/eslint.config.mjs`,
     `${firebaseRoot}/eslint.config.mjs`,
-  )
+  );
   fs.copyFileSync(
     `${globalAssets}/Firebase Template/.prettierrc.json`,
     `${firebaseRoot}/.prettierrc.json`,
-  )
+  );
   fs.copyFileSync(
     `${globalAssets}/Firebase Template/.prettierignore`,
     `${firebaseRoot}/.prettierignore`,
-  )
-  fs.mkdirSync(`${firebaseRoot}/.vscode`)
+  );
+  fs.mkdirSync(`${firebaseRoot}/.vscode`);
   fs.copyFileSync(
     `${globalAssets}/Firebase Template/.vscode/settings.json`,
     `${firebaseRoot}/.vscode/settings.json`,
-  )
+  );
 
   // Add `import-sorter.json`.
 
-  fs.copyFileSync(`${globalAssets}/import-sorter.json`, `${firebaseRoot}/import-sorter.json`)
+  fs.copyFileSync(`${globalAssets}/import-sorter.json`, `${firebaseRoot}/import-sorter.json`);
 }
 
 function initFunctionsPackage() {
@@ -209,7 +209,7 @@ function initFunctionsPackage() {
       path: 'devDependencies.firebase-functions-test',
       value: '^3.4.1',
     },
-  ])
+  ]);
 
   // Set `compilerOptions`.
 
@@ -234,15 +234,15 @@ function initFunctionsPackage() {
       path: 'compilerOptions.noUncheckedIndexedAccess',
       value: true,
     },
-  ])
+  ]);
 
   // Setup module.
 
   // `src`
-  fs.rmSync(`${functionsRoot}/src`, { recursive: true })
+  fs.rmSync(`${functionsRoot}/src`, { recursive: true });
   fs.cpSync(`${globalAssets}/Firebase Template/functions/src`, `${functionsRoot}/src`, {
     recursive: true,
-  })
+  });
 
   // `group.ts`
   fs.writeFileSync(
@@ -250,7 +250,7 @@ function initFunctionsPackage() {
     `// export * from ...
 `,
     'utf-8',
-  )
+  );
 
   // `index.ts`
   fs.writeFileSync(
@@ -270,18 +270,18 @@ const group = await import('./group.js');
 export const app = group;
 `,
     'utf-8',
-  )
+  );
 
   // Setup `refUpdate`.
 
   fs.copyFileSync(
     `${globalAssets}/Firebase Template/functions/refUpdate.mjs`,
     `${functionsRoot}/refUpdate.mjs`,
-  )
+  );
   fs.copyFileSync(
     `${globalAssets}/Firebase Template/functions/refTools.mjs`,
     `${functionsRoot}/refTools.mjs`,
-  )
+  );
 
   // Setup `tsc-alias`.
 
@@ -298,7 +298,7 @@ export const app = group;
       path: 'devDependencies.tsc-alias',
       value: '^1.8.16',
     },
-  ])
+  ]);
 }
 
 function functionsPackageFormattingAndLinting() {
@@ -342,19 +342,19 @@ function functionsPackageFormattingAndLinting() {
       path: 'devDependencies.format-imports',
       value: '^4.0.8',
     },
-  ])
+  ]);
 
   // Add `eslint.config.mjs` and `.vscode/settings.json`.
 
   fs.copyFileSync(
     `${globalAssets}/Firebase Template/functions/eslint.config.mjs`,
     `${functionsRoot}/eslint.config.mjs`,
-  )
-  fs.mkdirSync(`${functionsRoot}/.vscode`)
+  );
+  fs.mkdirSync(`${functionsRoot}/.vscode`);
   fs.copyFileSync(
     `${globalAssets}/Firebase Template/functions/.vscode/settings.json`,
     `${functionsRoot}/.vscode/settings.json`,
-  )
+  );
 
   // Add lint to `predeploy` script.
 
@@ -363,21 +363,21 @@ function functionsPackageFormattingAndLinting() {
       path: 'functions[0].predeploy',
       value: ['npm --prefix "$RESOURCE_DIR" run lint', 'npm --prefix "$RESOURCE_DIR" run build'],
     },
-  ])
+  ]);
 }
 
 function createFunctionsCodebases() {
   for (const codebase of config.functionsCodebases) {
-    const codebaseRoot = `${functionsRoot}-${codebase}`
+    const codebaseRoot = `${functionsRoot}-${codebase}`;
 
-    fs.cpSync(functionsRoot, codebaseRoot, { recursive: true })
+    fs.cpSync(functionsRoot, codebaseRoot, { recursive: true });
 
     // Trim shared code.
 
-    fs.rmSync(`${codebaseRoot}/refTools.mjs`)
-    fs.rmSync(`${codebaseRoot}/src/models`, { recursive: true })
-    fs.rmSync(`${codebaseRoot}/src/types`, { recursive: true })
-    fs.rmSync(`${codebaseRoot}/src/utils`, { recursive: true })
+    fs.rmSync(`${codebaseRoot}/refTools.mjs`);
+    fs.rmSync(`${codebaseRoot}/src/models`, { recursive: true });
+    fs.rmSync(`${codebaseRoot}/src/types`, { recursive: true });
+    fs.rmSync(`${codebaseRoot}/src/utils`, { recursive: true });
 
     // Modify `package.json`.
 
@@ -394,7 +394,7 @@ function createFunctionsCodebases() {
         path: 'main',
         value: `lib/functions-${codebase}/src/index.js`,
       },
-    ])
+    ]);
 
     // Modify `firebase.json`.
 
@@ -411,35 +411,35 @@ function createFunctionsCodebases() {
           ],
         },
       },
-    ])
+    ]);
 
     // Modify `.prettierignore`.
 
-    let prettierignore = fs.readFileSync(`${firebaseRoot}/.prettierignore`, { encoding: 'utf-8' })
-    prettierignore += `\n/functions-${codebase}/lib`
-    fs.writeFileSync(`${firebaseRoot}/.prettierignore`, prettierignore, { encoding: 'utf-8' })
+    let prettierignore = fs.readFileSync(`${firebaseRoot}/.prettierignore`, { encoding: 'utf-8' });
+    prettierignore += `\n/functions-${codebase}/lib`;
+    fs.writeFileSync(`${firebaseRoot}/.prettierignore`, prettierignore, { encoding: 'utf-8' });
 
     // Modify `index.ts`.
 
-    let indexts = fs.readFileSync(`${codebaseRoot}/src/index.ts`, { encoding: 'utf-8' })
-    indexts = indexts.replace('export const app = group;', `export const ${codebase} = group;`)
-    fs.writeFileSync(`${codebaseRoot}/src/index.ts`, indexts, { encoding: 'utf-8' })
+    let indexts = fs.readFileSync(`${codebaseRoot}/src/index.ts`, { encoding: 'utf-8' });
+    indexts = indexts.replace('export const app = group;', `export const ${codebase} = group;`);
+    fs.writeFileSync(`${codebaseRoot}/src/index.ts`, indexts, { encoding: 'utf-8' });
   }
 }
 
 function finishFunctionsPackage(codebase: string) {
-  const root = codebase === 'default' ? functionsRoot : `${functionsRoot}-${codebase}`
+  const root = codebase === 'default' ? functionsRoot : `${functionsRoot}-${codebase}`;
 
   // Install functions packages and clean code.
 
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
     `Installing \x1b[47m${codebase}\x1b[0m codebase \x1b[47mfunctions\x1b[0m packages and clean code...`,
-  )
+  );
 
   execSync(`cd ${root} && yarn && node refUpdate.mjs`, {
     stdio: 'inherit',
-  })
+  });
 }
 
 function finishFirebasePackage() {
@@ -454,38 +454,38 @@ function finishFirebasePackage() {
       path: 'scripts.indexes',
       value: 'firebase firestore:indexes > indexes.json',
     },
-  ])
+  ]);
 
   // Ignore `emulators-data`.
 
-  let gitignore = fs.readFileSync(`${firebaseRoot}/.gitignore`, 'utf-8')
+  let gitignore = fs.readFileSync(`${firebaseRoot}/.gitignore`, 'utf-8');
 
   gitignore = `${gitignore}
 # Emulators data
 emulators-data/
-`
+`;
 
-  fs.writeFileSync(`${firebaseRoot}/.gitignore`, gitignore, 'utf-8')
+  fs.writeFileSync(`${firebaseRoot}/.gitignore`, gitignore, 'utf-8');
 
   // Install Firebase packages and clean code.
 
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
     'Installing \x1b[47mFirebase\x1b[0m packages and clean code...',
-  )
+  );
 
   execSync(`cd ${firebaseRoot} && yarn && yarn clean`, {
     stdio: 'inherit',
-  })
+  });
 }
 
 function launchFirebasePackage() {
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
     `Launching \x1b[47m${config.packageName}\x1b[0m in Visual Studio Code...`,
-  )
+  );
 
   execSync(`code ${firebaseRoot}`, {
     stdio: 'inherit',
-  })
+  });
 }

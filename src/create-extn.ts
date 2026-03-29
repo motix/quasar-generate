@@ -1,61 +1,61 @@
-import { execSync } from 'child_process'
-import fs from 'fs'
-import path from 'path'
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
 import {
   ACCEPT_DEFAULT,
   cliGhostwriter,
   DOWN_KEY,
   WHITESPACE_KEY,
-} from '@dreamonkey/cli-ghostwriter'
+} from '@dreamonkey/cli-ghostwriter';
 
-import setupFormatLint from './lib/format-lintn.js'
-import { extendJsonFile, reduceJsonFile } from './lib/json-helpers.js'
-import type { CreateExtensionConfig } from './types'
-import packagesVersion from './lib/packages-version.js'
+import setupFormatLint from './lib/format-lintn.js';
+import { extendJsonFile, reduceJsonFile } from './lib/json-helpers.js';
+import packagesVersion from './lib/packages-version.js';
+import type { CreateExtensionConfig } from './types';
 
-const globalAssets = './assetsn'
-const project = process.argv[2]
-const runYarn = process.argv[3] === '-y' || process.argv[4] === '-y'
-const autoLaunch = process.argv[3] === '-l' || process.argv[4] === '-l'
-const config = (await import(`../projects/${project}.js`)).default as CreateExtensionConfig
-const extensionRoot = `../quasar-generate-output/${config.projectFolder}`
-const templatesRoot = `${extensionRoot}/templates`
-const devRoot = `${extensionRoot}/dev`
-const extensionPackageJsonFilePath = path.resolve(`${extensionRoot}/package.json`)
-const templatesPackageJsonFilePath = path.resolve(`${templatesRoot}/package.json`)
-const devPackageJsonFilePath = path.resolve(`${devRoot}/package.json`)
+const globalAssets = './assetsn';
+const project = process.argv[2];
+const runYarn = process.argv[3] === '-y' || process.argv[4] === '-y';
+const autoLaunch = process.argv[3] === '-l' || process.argv[4] === '-l';
+const config = (await import(`../projects/${project}.js`)).default as CreateExtensionConfig;
+const extensionRoot = `../quasar-generate-output/${config.projectFolder}`;
+const templatesRoot = `${extensionRoot}/templates`;
+const devRoot = `${extensionRoot}/dev`;
+const extensionPackageJsonFilePath = path.resolve(`${extensionRoot}/package.json`);
+const templatesPackageJsonFilePath = path.resolve(`${templatesRoot}/package.json`);
+const devPackageJsonFilePath = path.resolve(`${devRoot}/package.json`);
 
 // Turning on/off functions
-const f = false
+const f = false;
 
 // Create workspaces
-f || (await createExtensionQuasarProject())
-f || createTemplatesWorkspace()
-f || (await createDevQuasarProject())
-f || prepareWorkspaces()
+f || (await createExtensionQuasarProject());
+f || createTemplatesWorkspace();
+f || (await createDevQuasarProject());
+f || prepareWorkspaces();
 
 // Fix Yarn PnP for Quasar `dev` and `build`
 // After this fix, Quasar `dev` and `build` will always work with no error in `dev` workspace.
-f || fixCompileTimeYarnPnP()
+f || fixCompileTimeYarnPnP();
 
 // Workspaces formatting and linting
-f || rootWorkspaceFormattingAndLinting()
-f || templatesWorkspaceFormattingAndLinting()
-f || devWorkspaceFormattingAndLinting()
-f || rootWorkspaceFormattingAndLintingScrips()
+f || rootWorkspaceFormattingAndLinting();
+f || templatesWorkspaceFormattingAndLinting();
+f || devWorkspaceFormattingAndLinting();
+f || rootWorkspaceFormattingAndLintingScrips();
 
 // Workspaces base source code
-f || rootWorkspaceSrc()
-f || templatesWorkspaceSrc()
+f || rootWorkspaceSrc();
+f || templatesWorkspaceSrc();
 
 // Finish workspaces
-f || finishRootWorkspace()
-f || finishTemplatesWorkspace()
-f || finishDevWorkspace()
+f || finishRootWorkspace();
+f || finishTemplatesWorkspace();
+f || finishDevWorkspace();
 
 // Finish all and launch
-f || finishAllAndLaunch()
+f || finishAllAndLaunch();
 
 // Create workspaces
 
@@ -65,7 +65,7 @@ async function createExtensionQuasarProject() {
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
     `Creating Quasar project for \x1b[47m${config.extensionId}\x1b[0m...`,
-  )
+  );
 
   const answersMap: Record<string, string | undefined> = {
     'What would you like to build?': `${DOWN_KEY}`, // AppExtension (AE) for Quasar CLI
@@ -77,19 +77,19 @@ async function createExtensionQuasarProject() {
     'Project description': config.projectDescription,
     'License type': ACCEPT_DEFAULT, // MIT
     'Pick the needed scripts': 'a', // Prompts script, Install script, Uninstall script
-  }
+  };
 
   await cliGhostwriter({
     command: 'yarn create quasar',
     answersMap: answersMap,
     endingMarker: 'Enjoy! - Quasar Team',
-  })
+  });
 }
 
 function createTemplatesWorkspace() {
   // Create initial `templates` workspace.
 
-  fs.mkdirSync(`${templatesRoot}/modules`, { recursive: true })
+  fs.mkdirSync(`${templatesRoot}/modules`, { recursive: true });
 
   fs.writeFileSync(
     `${templatesRoot}/modules/index.ts`,
@@ -97,7 +97,7 @@ function createTemplatesWorkspace() {
 // Remove this file if any code was added.
 `,
     { encoding: 'utf-8' },
-  )
+  );
 
   fs.writeFileSync(
     `${templatesRoot}/package.json`,
@@ -108,11 +108,11 @@ function createTemplatesWorkspace() {
 }
 `,
     { encoding: 'utf-8' },
-  )
+  );
 
   // Commit code.
 
-  commitCode('\\`createTemplatesWorkspace()\\`')
+  commitCode('\\`createTemplatesWorkspace()\\`');
 }
 
 async function createDevQuasarProject() {
@@ -121,7 +121,7 @@ async function createDevQuasarProject() {
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
     'Creating Quasar project for \x1b[47mdev\x1b[0m...',
-  )
+  );
 
   const answersMap: Record<string, string | undefined> = {
     'What would you like to build?': ACCEPT_DEFAULT, // App with Quasar CLI
@@ -136,17 +136,17 @@ async function createDevQuasarProject() {
     'Check the features needed for your project': `${DOWN_KEY}${WHITESPACE_KEY}`, // Linting, Pinia
     'Add Prettier for code formatting?': ACCEPT_DEFAULT, // Y
     'Install project dependencies?': `${DOWN_KEY}`, // No
-  }
+  };
 
   await cliGhostwriter({
     command: 'yarn create quasar',
     answersMap: answersMap,
     endingMarker: 'Enjoy! - Quasar Team',
-  })
+  });
 
   // Commit code.
 
-  commitCode('\\`createDevQuasarProject()\\`')
+  commitCode('\\`createDevQuasarProject()\\`');
 }
 
 function prepareWorkspaces() {
@@ -157,7 +157,7 @@ function prepareWorkspaces() {
       path: 'workspaces',
       value: ['dev', 'templates'],
     },
-  ])
+  ]);
 
   // Add root workspace as a dependency in `dev` workspace.
 
@@ -166,28 +166,28 @@ function prepareWorkspaces() {
       path: `devDependencies.@${config.organizationName}/quasar-app-extension-${config.extensionId}`,
       value: 'workspace:*',
     },
-  ])
+  ]);
 
   // Commit code.
 
-  commitCode('\\`prepareWorkspaces()\\`')
+  commitCode('\\`prepareWorkspaces()\\`');
 }
 
 // Fix Yarn PnP for Quasar `dev` and `build`
 
 function fixCompileTimeYarnPnP() {
-  let packages: (keyof typeof packagesVersion)[]
+  let packages: (keyof typeof packagesVersion)[];
 
   // Add missing peer dependencies.
 
-  packages = ['postcss', 'vite']
+  packages = ['postcss', 'vite'];
   extendJsonFile(
     devPackageJsonFilePath,
     packages.map((item) => ({
       path: `devDependencies.${item}`,
       value: packagesVersion[item],
     })),
-  )
+  );
 
   // Patch and unplug `vite-plugin-checker`.
 
@@ -198,9 +198,9 @@ function fixCompileTimeYarnPnP() {
       value:
         'patch:vite-plugin-checker@npm%3A0.12.0#~/.yarn/patches/vite-plugin-checker-npm-0.12.0-20cc09e28e.patch',
     },
-  ])
+  ]);
 
-  fs.mkdirSync(`${extensionRoot}/.yarn/patches`, { recursive: true })
+  fs.mkdirSync(`${extensionRoot}/.yarn/patches`, { recursive: true });
 
   fs.writeFileSync(
     `${extensionRoot}/.yarn/patches/vite-plugin-checker-npm-0.12.0-20cc09e28e.patch`,
@@ -248,7 +248,7 @@ index 27a775515049aa60f23c2778632b86d2db6d3513..28dbef5303639bea2d53e5cc8727dece
        }
 `,
     { encoding: 'utf-8' },
-  )
+  );
 
   // This will solve the error
   // `EROFS: read-only filesystem, rm '/node_modules/vite-plugin-checker/dist/checkers/vueTsc/typescript-vue-tsc'`
@@ -262,7 +262,7 @@ index 27a775515049aa60f23c2778632b86d2db6d3513..28dbef5303639bea2d53e5cc8727dece
         },
       },
     },
-  ])
+  ]);
 
   // Fix `vue-tsc` error with Quasar `$q` object.
 
@@ -271,12 +271,12 @@ index 27a775515049aa60f23c2778632b86d2db6d3513..28dbef5303639bea2d53e5cc8727dece
       path: 'devDependencies.vue',
       value: packagesVersion.vue,
     },
-  ])
+  ]);
 
   // Install Yarn editor SDKs.
 
   // Adding packages at root workspace to support editor SDKs
-  packages = ['eslint', 'prettier', 'typescript']
+  packages = ['eslint', 'prettier', 'typescript'];
   extendJsonFile(extensionPackageJsonFilePath, [
     ...packages.map((item) => ({
       path: `devDependencies.${item}`,
@@ -287,22 +287,22 @@ index 27a775515049aa60f23c2778632b86d2db6d3513..28dbef5303639bea2d53e5cc8727dece
       path: 'scripts.postinstall',
       value: 'yarn dlx @yarnpkg/sdks vscode',
     },
-  ])
+  ]);
 
   // Remove `typescript.tsdk` settings in `dev` workspace as it will be added to root workspace
   // after the `yarn dlx @yarnpkg/sdks vscode` call.
 
-  const settingsJsonPath = path.resolve(`${devRoot}/.vscode/settings.json`)
-  reduceJsonFile(settingsJsonPath, ['typescript.tsdk'])
+  const settingsJsonPath = path.resolve(`${devRoot}/.vscode/settings.json`);
+  reduceJsonFile(settingsJsonPath, ['typescript.tsdk']);
 
   // Unignore `.vscode` to persist settings for editor SDKs.
 
-  let gitignore = fs.readFileSync(`${extensionRoot}/.gitignore`, 'utf-8')
+  let gitignore = fs.readFileSync(`${extensionRoot}/.gitignore`, 'utf-8');
 
-  gitignore = gitignore.replace('.vscode', '# .vscode')
+  gitignore = gitignore.replace('.vscode', '# .vscode');
   fs.writeFileSync(`${extensionRoot}/.gitignore`, gitignore, {
     encoding: 'utf-8',
-  })
+  });
 
   // Commit code.
 
@@ -311,7 +311,7 @@ index 27a775515049aa60f23c2778632b86d2db6d3513..28dbef5303639bea2d53e5cc8727dece
     {
       stdio: 'inherit',
     },
-  )
+  );
 }
 
 // Workspaces formatting and linting
@@ -320,10 +320,10 @@ function rootWorkspaceFormattingAndLinting() {
   // Move `.vscode`, `.editorconfig`, `prettier.config.js` and `eslint.config.js`
   // from `dev` workspace to root workspace.
 
-  fs.renameSync(`${devRoot}/.vscode`, `${extensionRoot}/.vscode`)
-  fs.renameSync(`${devRoot}/.editorconfig`, `${extensionRoot}/.editorconfig`)
-  fs.renameSync(`${devRoot}/.prettierrc.json`, `${extensionRoot}/.prettierrc.json`)
-  fs.renameSync(`${devRoot}/eslint.config.js`, `${extensionRoot}/eslint.config.js`)
+  fs.renameSync(`${devRoot}/.vscode`, `${extensionRoot}/.vscode`);
+  fs.renameSync(`${devRoot}/.editorconfig`, `${extensionRoot}/.editorconfig`);
+  fs.renameSync(`${devRoot}/.prettierrc.json`, `${extensionRoot}/.prettierrc.json`);
+  fs.renameSync(`${devRoot}/eslint.config.js`, `${extensionRoot}/eslint.config.js`);
 
   // Add `.prettierignore` to ignore `.yarn` and `dist`.
 
@@ -333,7 +333,7 @@ function rootWorkspaceFormattingAndLinting() {
 /dist
 `,
     { encoding: 'utf-8' },
-  )
+  );
 
   // Add `eslint.config.js` specific dependencies.
 
@@ -347,20 +347,20 @@ function rootWorkspaceFormattingAndLinting() {
     '@vue/eslint-config-typescript',
     '@vue/eslint-config-prettier',
     'vue-eslint-parser',
-  ]
+  ];
   extendJsonFile(
     extensionPackageJsonFilePath,
     packages.map((item) => ({
       path: `devDependencies.${item}`,
       value: packagesVersion[item],
     })),
-  )
+  );
 
   // Since `eslint.config.js` was moved from Quasar project in `dev`,
   // setting `projectService` is needed because the default detection
   // of sibling `tsconfig.json` in `dev` workspace is no longer available.
 
-  let eslintConfigJs = fs.readFileSync(`${extensionRoot}/eslint.config.js`, 'utf-8')
+  let eslintConfigJs = fs.readFileSync(`${extensionRoot}/eslint.config.js`, 'utf-8');
 
   eslintConfigJs = eslintConfigJs.replace(
     "pluginVue.configs[ 'flat/essential' ],",
@@ -373,31 +373,31 @@ function rootWorkspaceFormattingAndLinting() {
       },
     },
   },`,
-  )
+  );
 
   fs.writeFileSync(`${extensionRoot}/eslint.config.js`, eslintConfigJs, {
     encoding: 'utf-8',
-  })
+  });
 
   // Setup formatting and linting.
 
-  setupFormatLint(extensionRoot)
+  setupFormatLint(extensionRoot);
 
   // Commit code.
 
-  commitCode('\\`rootWorkspaceFormattingAndLinting()\\`')
+  commitCode('\\`rootWorkspaceFormattingAndLinting()\\`');
 }
 
 function templatesWorkspaceFormattingAndLinting() {
   // Add dependencies for formatting and linting.
 
-  const packages: (keyof typeof packagesVersion)[] = ['eslint', 'prettier']
+  const packages: (keyof typeof packagesVersion)[] = ['eslint', 'prettier'];
   extendJsonFile(templatesPackageJsonFilePath, [
     ...packages.map((item) => ({
       path: `devDependencies.${item}`,
       value: packagesVersion[item],
     })),
-  ])
+  ]);
 
   // Add `lint`, `format` and `clean` scripts.
 
@@ -415,11 +415,11 @@ function templatesWorkspaceFormattingAndLinting() {
       path: 'scripts.clean',
       value: 'yarn format --log-level warn && yarn lint --fix',
     },
-  ])
+  ]);
 
   // Commit code.
 
-  commitCode('\\`templatesWorkspaceFormattingAndLinting()\\`')
+  commitCode('\\`templatesWorkspaceFormattingAndLinting()\\`');
 }
 
 function devWorkspaceFormattingAndLinting() {
@@ -435,24 +435,24 @@ function devWorkspaceFormattingAndLinting() {
     '@vue/eslint-config-typescript',
     '@vue/eslint-config-prettier',
     'vue-eslint-parser',
-  ]
+  ];
   reduceJsonFile(
     devPackageJsonFilePath,
     packages.map((item) => `devDependencies.${item}`),
-  )
+  );
 
   // Update `quasar.config.ts` using `eslint.config.js` in root workspace.
 
-  let quasarConfigTs = fs.readFileSync(`${devRoot}/quasar.config.ts`, 'utf-8')
+  let quasarConfigTs = fs.readFileSync(`${devRoot}/quasar.config.ts`, 'utf-8');
 
   quasarConfigTs = quasarConfigTs.replace(
     'eslint -c ./eslint.config.js "./src*/**/*.{ts,js,mjs,cjs,vue}"',
     'eslint -c ../eslint.config.js "./src*/**/*.{ts,js,mjs,cjs,vue}"',
-  )
+  );
 
   fs.writeFileSync(`${devRoot}/quasar.config.ts`, quasarConfigTs, {
     encoding: 'utf-8',
-  })
+  });
 
   // Update `lint` script using `eslint.config.js` in root workspace.
 
@@ -461,7 +461,7 @@ function devWorkspaceFormattingAndLinting() {
       path: 'scripts.lint',
       value: 'eslint -c ../eslint.config.js "./src*/**/*.{ts,js,cjs,mjs,vue}"',
     },
-  ])
+  ]);
 
   // Add `clean` script.
 
@@ -470,17 +470,17 @@ function devWorkspaceFormattingAndLinting() {
       path: 'scripts.clean',
       value: 'yarn format --log-level warn && yarn lint --fix',
     },
-  ])
+  ]);
 
   // Commit code.
 
-  commitCode('\\`devWorkspaceFormattingAndLinting()\\`')
+  commitCode('\\`devWorkspaceFormattingAndLinting()\\`');
 }
 
 function rootWorkspaceFormattingAndLintingScrips() {
   // Add `lint`, `lintf`, `format` and `clean` scripts.
 
-  reduceJsonFile(extensionPackageJsonFilePath, ['scripts.clean'])
+  reduceJsonFile(extensionPackageJsonFilePath, ['scripts.clean']);
   extendJsonFile(extensionPackageJsonFilePath, [
     {
       path: 'scripts.lint',
@@ -501,11 +501,11 @@ function rootWorkspaceFormattingAndLintingScrips() {
       path: 'scripts.clean',
       value: 'yarn format --log-level warn && yarn lintf',
     },
-  ])
+  ]);
 
   // Commit code.
 
-  commitCode('\\`rootWorkspaceFormattingAndLintingScrips()\\`')
+  commitCode('\\`rootWorkspaceFormattingAndLintingScrips()\\`');
 }
 
 // Workspaces base source code
@@ -530,28 +530,28 @@ function rootWorkspaceSrc() {
     {
       encoding: 'utf-8',
     },
-  )
+  );
 
   // Add `src` specific dependencies.
 
-  const packages: (keyof typeof packagesVersion)[] = ['lodash-es', '@types/lodash-es']
+  const packages: (keyof typeof packagesVersion)[] = ['lodash-es', '@types/lodash-es'];
   extendJsonFile(
     extensionPackageJsonFilePath,
     packages.map((item) => ({
       path: `devDependencies.${item}`,
       value: packagesVersion[item],
     })),
-  )
+  );
 
   // Delete `src` folder.
 
-  fs.rmSync(`${extensionRoot}/src`, { recursive: true })
+  fs.rmSync(`${extensionRoot}/src`, { recursive: true });
 
   // Add `src` from global `assets`.
 
   fs.cpSync(`${globalAssets}/Multi-module Extension Template/src`, `${extensionRoot}/src`, {
     recursive: true,
-  })
+  });
 
   // Patch `@quasar/app-vite` to gain access to `@quasar/app-vite/lib/app-extension/api-classes/InstallAPI.js`
   // and `@quasar/app-vite/lib/utils/get-caller-path.js`.
@@ -562,9 +562,9 @@ function rootWorkspaceSrc() {
       value:
         'patch:@quasar/app-vite@npm%3A2.5.2#~/.yarn/patches/@quasar-app-vite-npm-2.5.2-129f3acda8.patch',
     },
-  ])
+  ]);
 
-  fs.mkdirSync(`${extensionRoot}/.yarn/patches`, { recursive: true })
+  fs.mkdirSync(`${extensionRoot}/.yarn/patches`, { recursive: true });
 
   fs.writeFileSync(
     `${extensionRoot}/.yarn/patches/@quasar-app-vite-npm-2.5.2-129f3acda8.patch`,
@@ -587,11 +587,11 @@ index 1323ca347f470900c9b791a63862186489e323bf..049101b1db6b2aeb076f3c0839cee3f7
    "keywords": [
 `,
     { encoding: 'utf-8' },
-  )
+  );
 
   // Commit code.
 
-  commitCode('\\`rootWorkspaceSrc()\\`')
+  commitCode('\\`rootWorkspaceSrc()\\`');
 }
 
 function templatesWorkspaceSrc() {
@@ -607,7 +607,7 @@ function templatesWorkspaceSrc() {
     {
       encoding: 'utf-8',
     },
-  )
+  );
 
   // Add `templates` from global `assets`.
 
@@ -617,11 +617,11 @@ function templatesWorkspaceSrc() {
     {
       recursive: true,
     },
-  )
+  );
 
   // Commit code.
 
-  commitCode('\\`templatesWorkspaceSrc()\\`')
+  commitCode('\\`templatesWorkspaceSrc()\\`');
 }
 
 // Finish workspaces
@@ -629,22 +629,22 @@ function templatesWorkspaceSrc() {
 function finishRootWorkspace() {
   // Exclude `.yarn`, `dist` from search and `node_modules`, `.git` from compare.
 
-  const extensionsJsonFilePath = path.resolve(`${extensionRoot}/.vscode/extensions.json`)
-  const settingsJsonFilePath = path.resolve(`${extensionRoot}/.vscode/settings.json`)
+  const extensionsJsonFilePath = path.resolve(`${extensionRoot}/.vscode/extensions.json`);
+  const settingsJsonFilePath = path.resolve(`${extensionRoot}/.vscode/settings.json`);
 
   extendJsonFile(extensionsJsonFilePath, [
     { path: 'recommendations[]', value: 'moshfeu.compare-folders' },
-  ])
+  ]);
 
   // Putting `path` in an array to keep it as a single property in JSON file.
   extendJsonFile(settingsJsonFilePath, [
     { path: ['search.exclude', '.yarn'], value: true },
     { path: ['search.exclude', 'dist'], value: true },
-  ])
+  ]);
   extendJsonFile(settingsJsonFilePath, [
     { path: ['compareFolders.excludeFilter'], value: ['node_modules', '.git'] },
     { path: ['compareFolders.ignoreFileNameCase'], value: false },
-  ])
+  ]);
 
   // Add build scripts.
 
@@ -659,11 +659,11 @@ function finishRootWorkspace() {
       value:
         'cd ./templates && node ./buildPaths.js && yarn prettier --write ./tsconfig-paths.json',
     },
-  ])
+  ]);
 
   // Commit code.
 
-  commitCode('\\`finishRootWorkspace()\\`')
+  commitCode('\\`finishRootWorkspace()\\`');
 }
 
 function finishTemplatesWorkspace() {
@@ -672,14 +672,14 @@ function finishTemplatesWorkspace() {
   const packages: (keyof typeof packagesVersion)[] = [
     'vue-tsc',
     'typescript', // Peer dependency of `vue-tsc`
-  ]
+  ];
   extendJsonFile(
     templatesPackageJsonFilePath,
     packages.map((item) => ({
       path: `devDependencies.${item}`,
       value: packagesVersion[item],
     })),
-  )
+  );
 
   // Add build script.
 
@@ -688,11 +688,11 @@ function finishTemplatesWorkspace() {
       path: 'scripts.tsc',
       value: 'yarn vue-tsc --noEmit --skipLibCheck',
     },
-  ])
+  ]);
 
   // Commit code.
 
-  commitCode('\\`finishTemplatesWorkspace()\\`')
+  commitCode('\\`finishTemplatesWorkspace()\\`');
 }
 
 function finishDevWorkspace() {
@@ -707,11 +707,11 @@ function finishDevWorkspace() {
       path: `scripts.i-${config.extensionId}`,
       value: `quasar ext invoke @${config.organizationName}/${config.extensionId} && yarn format --log-level warn`,
     },
-  ])
+  ]);
 
   // Commit code.
 
-  commitCode('\\`finishDevWorkspace()\\`')
+  commitCode('\\`finishDevWorkspace()\\`');
 }
 
 // Finish all and launch
@@ -722,7 +722,7 @@ function finishAllAndLaunch() {
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
     `Installing \x1b[47m${config.extensionId}\x1b[0m packages, build and clean code...`,
-  )
+  );
 
   if (runYarn) {
     execSync(
@@ -730,11 +730,11 @@ function finishAllAndLaunch() {
       {
         stdio: 'inherit',
       },
-    )
+    );
   } else {
     console.log(
       `                   Run \x1b[47mcd ${extensionRoot} && yarn && yarn buildPaths && yarn build && yarn clean && cd dev && yarn i-mnapp && yarn dev\x1b[0m manually.`,
-    )
+    );
   }
 
   // Auto launch
@@ -743,11 +743,11 @@ function finishAllAndLaunch() {
     console.log(
       ' \x1b[32mquasar-generate •\x1b[0m',
       `Launching \x1b[47m${config.extensionId}\x1b[0m in Visual Studio Code...`,
-    )
+    );
 
     execSync(`code ${extensionRoot}`, {
       stdio: 'inherit',
-    })
+    });
   }
 }
 
@@ -756,5 +756,5 @@ function finishAllAndLaunch() {
 function commitCode(message: string) {
   execSync(`cd ${extensionRoot} && git add . && git commit -q -m "${message}"`, {
     stdio: 'inherit',
-  })
+  });
 }

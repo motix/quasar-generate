@@ -1,20 +1,20 @@
-import fs from 'fs'
-import path from 'path'
+import fs from 'fs';
+import path from 'path';
 
-import { extendJsonFile } from './json-helpers.js'
-import packagesVersion from './packages-version.js'
+import { extendJsonFile } from './json-helpers.js';
+import packagesVersion from './packages-version.js';
 
 export default function (appRoot: string) {
-  const extensionsJsonFilePath = path.resolve(`${appRoot}/.vscode/extensions.json`)
-  const settingsJsonFilePath = path.resolve(`${appRoot}/.vscode/settings.json`)
-  const appPackageJsonFilePath = path.resolve(`${appRoot}/package.json`)
-  const prettierrcJsonFilePath = path.resolve(`${appRoot}/.prettierrc.json`)
+  const extensionsJsonFilePath = path.resolve(`${appRoot}/.vscode/extensions.json`);
+  const settingsJsonFilePath = path.resolve(`${appRoot}/.vscode/settings.json`);
+  const appPackageJsonFilePath = path.resolve(`${appRoot}/package.json`);
+  const prettierrcJsonFilePath = path.resolve(`${appRoot}/.prettierrc.json`);
 
   // Add IDE extension recommendation and modify formatting settings.
 
   extendJsonFile(extensionsJsonFilePath, [
     { path: 'recommendations[]', value: 'rohit-gohri.format-code-action' },
-  ])
+  ]);
 
   // Default setting would often lead to Prettier
   // being run after ESLint and ESLint errors still being present.
@@ -27,11 +27,11 @@ export default function (appRoot: string) {
       path: 'editor.codeActionsOnSave',
       value: ['source.fixAll.eslint', 'source.formatDocument', 'source.fixAll.eslint'],
     },
-  ])
+  ]);
 
   // Add Prettier semi rule.
 
-  extendJsonFile(prettierrcJsonFilePath, [{ path: 'semi', value: true }])
+  extendJsonFile(prettierrcJsonFilePath, [{ path: 'semi', value: true }]);
 
   // Setup Prettier plugin for sorting imports.
 
@@ -41,7 +41,7 @@ export default function (appRoot: string) {
       path: 'devDependencies.@trivago/prettier-plugin-sort-imports',
       value: packagesVersion['@trivago/prettier-plugin-sort-imports'],
     },
-  ])
+  ]);
 
   // Add plugin settings
   extendJsonFile(prettierrcJsonFilePath, [
@@ -75,19 +75,19 @@ export default function (appRoot: string) {
     },
     { path: 'importOrderSeparation', value: true },
     { path: 'importOrderSortSpecifiers', value: true },
-  ])
+  ]);
 
   // Fix Prettier plugin Yarn PnP
-  fixPrettierPluginYarnPnP(appRoot, appPackageJsonFilePath)
+  fixPrettierPluginYarnPnP(appRoot, appPackageJsonFilePath);
 
   // Modify `eslint.config.js`.
 
-  let eslintConfigJs = fs.readFileSync(`${appRoot}/eslint.config.js`, 'utf-8')
+  let eslintConfigJs = fs.readFileSync(`${appRoot}/eslint.config.js`, 'utf-8');
 
   eslintConfigJs = eslintConfigJs.replace(
     "pluginVue.configs[ 'flat/essential' ],",
     "pluginVue.configs[ 'flat/recommended' ],",
-  )
+  );
 
   eslintConfigJs = eslintConfigJs.replace(
     `      '@typescript-eslint/consistent-type-imports': [
@@ -102,7 +102,7 @@ export default function (appRoot: string) {
         'error',
         { allowShortCircuit: true, allowTernary: true },
       ],`,
-  )
+  );
 
   eslintConfigJs = eslintConfigJs.replace(
     "      'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'",
@@ -110,11 +110,11 @@ export default function (appRoot: string) {
 
       // alphabetical
       'vue/attributes-order': ['warn', { alphabetical: true }]`,
-  )
+  );
 
   fs.writeFileSync(`${appRoot}/eslint.config.js`, eslintConfigJs, {
     encoding: 'utf-8',
-  })
+  });
 
   // Add `clean` script.
 
@@ -123,7 +123,7 @@ export default function (appRoot: string) {
       path: 'scripts.clean',
       value: 'yarn format --log-level warn && yarn lint --fix',
     },
-  ])
+  ]);
 }
 
 function fixPrettierPluginYarnPnP(appRoot: string, appPackageJsonFilePath: string) {
@@ -134,7 +134,7 @@ function fixPrettierPluginYarnPnP(appRoot: string, appPackageJsonFilePath: strin
       path: 'devDependencies.@vue/compiler-sfc',
       value: packagesVersion['@vue/compiler-sfc'],
     },
-  ])
+  ]);
 
   // Unplug `@trivago/prettier-plugin-sort-imports` and its dependencies.
 
@@ -156,11 +156,11 @@ function fixPrettierPluginYarnPnP(appRoot: string, appPackageJsonFilePath: strin
       path: `dependenciesMeta.${item}`,
       value: { unplugged: true },
     })),
-  )
+  );
 
   // Patch @trivago/prettier-plugin-sort-imports.
 
-  fs.mkdirSync(`${appRoot}/.yarn/patches`, { recursive: true })
+  fs.mkdirSync(`${appRoot}/.yarn/patches`, { recursive: true });
 
   fs.writeFileSync(
     `${appRoot}/.yarn/patches/@trivago-prettier-plugin-sort-imports-npm-6.0.2-88f9e213cd.patch`,
@@ -181,7 +181,7 @@ index 41b5bc94b0fb8406f74a952e2b9afb01510da617..bae2dffc50c8afc4b1c856e7cd832f4d
      // Do not error because the dependency is optional.
 `,
     { encoding: 'utf-8' },
-  )
+  );
 
   // Convert `.prettierrc.json` to `.prettierrc.js` and use `require`.
 
@@ -221,8 +221,8 @@ export default {
   importOrderSeparation: true,
   importOrderSortSpecifiers: true,
 };
-`
+`;
 
-  fs.writeFileSync(`${appRoot}/prettier.config.js`, prettierConfigJs, { encoding: 'utf-8' })
-  fs.rmSync(`${appRoot}/.prettierrc.json`)
+  fs.writeFileSync(`${appRoot}/prettier.config.js`, prettierConfigJs, { encoding: 'utf-8' });
+  fs.rmSync(`${appRoot}/.prettierrc.json`);
 }

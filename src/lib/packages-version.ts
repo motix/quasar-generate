@@ -20,4 +20,4 @@ export default {
   'vue-eslint-parser': '^10.4.0',
   'vue-router': '^5.0.4',
   'vue-tsc': '^3.2.6',
-}
+};

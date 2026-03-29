@@ -1,41 +1,41 @@
-import { execSync } from 'child_process'
-import fs from 'fs'
-import path from 'path'
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
-import { ACCEPT_DEFAULT, cliGhostwriter, DOWN_KEY } from '@dreamonkey/cli-ghostwriter'
+import { ACCEPT_DEFAULT, cliGhostwriter, DOWN_KEY } from '@dreamonkey/cli-ghostwriter';
 
-import setupFormatLint from './lib/format-lint.js'
-import { extendJsonFile, reduceJsonFile } from './lib/json-helpers.js'
-import type { CreateExtensionConfig } from './types'
+import setupFormatLint from './lib/format-lint.js';
+import { extendJsonFile, reduceJsonFile } from './lib/json-helpers.js';
+import type { CreateExtensionConfig } from './types';
 
-const globalAssets = './assets'
-const project = process.argv[2]
-const autoLaunch = process.argv[3]
-const config = (await import(`../projects/${project}.js`)).default as CreateExtensionConfig
-const extensionRoot = `./output/${config.projectFolder}`
-const templatesRoot = `${extensionRoot}/templates`
-const extensionPackageJsonFilePath = path.resolve(`${extensionRoot}/package.json`)
-const templatesPackageJsonFilePath = path.resolve(`${templatesRoot}/package.json`)
+const globalAssets = './assets';
+const project = process.argv[2];
+const autoLaunch = process.argv[3];
+const config = (await import(`../projects/${project}.js`)).default as CreateExtensionConfig;
+const extensionRoot = `./output/${config.projectFolder}`;
+const templatesRoot = `${extensionRoot}/templates`;
+const extensionPackageJsonFilePath = path.resolve(`${extensionRoot}/package.json`);
+const templatesPackageJsonFilePath = path.resolve(`${templatesRoot}/package.json`);
 
 // Turning on/off functions
-const f = false
+const f = false;
 
-f || (await createExtensionQuasarProject())
-f || (await createTemplatesQuasarProject())
+f || (await createExtensionQuasarProject());
+f || (await createTemplatesQuasarProject());
 
 if (config.hasDev) {
-  f || createDevProject()
+  f || createDevProject();
 }
 
-f || cleanTemplatesProject()
-f || templatesProjectFormattingAndLinting()
-f || finishTemplatesProject()
-f || cleanExtensionProject()
-f || (await extensionProjectFormattingAndLinting())
-f || finishExtensionProject()
+f || cleanTemplatesProject();
+f || templatesProjectFormattingAndLinting();
+f || finishTemplatesProject();
+f || cleanExtensionProject();
+f || (await extensionProjectFormattingAndLinting());
+f || finishExtensionProject();
 
 if (autoLaunch === '-l') {
-  f || launchExtensionProject()
+  f || launchExtensionProject();
 }
 
 async function createExtensionQuasarProject() {
@@ -44,7 +44,7 @@ async function createExtensionQuasarProject() {
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
     `Creating Quasar project for \x1b[47m${config.extensionId}\x1b[0m...`,
-  )
+  );
 
   const answersMap: Record<string, string | undefined> = {
     'What would you like to build?': `${DOWN_KEY}`, // AppExtension (AE) for Quasar CLI
@@ -56,13 +56,13 @@ async function createExtensionQuasarProject() {
     'Project description': config.projectDescription,
     'License type': ACCEPT_DEFAULT, // MIT
     'Pick the needed scripts': 'a', // Prompts script, Install script, Uninstall script
-  }
+  };
 
   await cliGhostwriter({
     command: 'yarn create quasar',
     answersMap: answersMap,
     endingMarker: 'Enjoy! - Quasar Team',
-  })
+  });
 }
 
 async function createTemplatesQuasarProject() {
@@ -71,7 +71,7 @@ async function createTemplatesQuasarProject() {
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
     'Creating Quasar project for \x1b[47mtemplates\x1b[0m...',
-  )
+  );
 
   const answersMap: Record<string, string | undefined> = {
     'What would you like to build?': ACCEPT_DEFAULT, // App with Quasar CLI
@@ -86,25 +86,25 @@ async function createTemplatesQuasarProject() {
     'Check the features needed for your project': ACCEPT_DEFAULT, // Linting
     'Add Prettier for code formatting?': ACCEPT_DEFAULT, // Y
     'Install project dependencies?': `${DOWN_KEY}`, // No
-  }
+  };
 
   await cliGhostwriter({
     command: 'yarn create quasar',
     answersMap: answersMap,
     endingMarker: 'Enjoy! - Quasar Team',
-  })
+  });
 }
 
 function createDevProject() {
   if (!config.hasDev) {
-    return
+    return;
   }
 
   execSync(`yarn create-app ${config.hasDev.project}`, {
     stdio: 'inherit',
-  })
+  });
 
-  fs.renameSync('./output/dev', `${extensionRoot}/dev`)
+  fs.renameSync('./output/dev', `${extensionRoot}/dev`);
 }
 
 function cleanTemplatesProject() {
@@ -119,15 +119,15 @@ function cleanTemplatesProject() {
       path: 'author',
       value: config.author,
     },
-  ])
+  ]);
 
   // Delete `templates/public`, `templates/src`,
   // `templates/postcss.config.js`, `templates/README.md`.
 
-  fs.rmSync(`${templatesRoot}/public`, { recursive: true })
-  fs.rmSync(`${templatesRoot}/src`, { recursive: true })
-  fs.rmSync(`${templatesRoot}/postcss.config.js`)
-  fs.rmSync(`${templatesRoot}/README.md`)
+  fs.rmSync(`${templatesRoot}/public`, { recursive: true });
+  fs.rmSync(`${templatesRoot}/src`, { recursive: true });
+  fs.rmSync(`${templatesRoot}/postcss.config.js`);
+  fs.rmSync(`${templatesRoot}/README.md`);
 
   // Modify `templates/index.html` content.
 
@@ -138,7 +138,7 @@ function cleanTemplatesProject() {
 <!-- quasar:entry-point -->
 `,
     { encoding: 'utf-8' },
-  )
+  );
 
   // Modify `templates/quasar.config.ts` content.
 
@@ -160,7 +160,7 @@ export default defineConfig((/* ctx */) => {
 })
 `,
     { encoding: 'utf-8' },
-  )
+  );
 
   // Add `templates` from global `assets`.
 
@@ -170,10 +170,10 @@ export default defineConfig((/* ctx */) => {
     {
       recursive: true,
     },
-  )
+  );
 
-  fs.mkdirSync(`${templatesRoot}/src/layouts`, { recursive: true })
-  fs.mkdirSync(`${templatesRoot}/src/pages`)
+  fs.mkdirSync(`${templatesRoot}/src/layouts`, { recursive: true });
+  fs.mkdirSync(`${templatesRoot}/src/pages`);
 
   // Add `MainLayout.vue`.
 
@@ -188,7 +188,7 @@ export default defineConfig((/* ctx */) => {
 </script>
 `,
     { encoding: 'utf-8' },
-  )
+  );
 
   // Add `IndexPage.vue`.
 
@@ -203,7 +203,7 @@ export default defineConfig((/* ctx */) => {
 </script>
 `,
     { encoding: 'utf-8' },
-  )
+  );
 
   // Modify `tsconfig.json` to use `tsconfig-paths.json`.
 
@@ -214,11 +214,11 @@ export default defineConfig((/* ctx */) => {
   "include": ["../dev/**/*.d.ts", "./.quasar/**/*.d.ts", "./**/*"]
 }
 `,
-  )
+  );
 
   // Remove `dev` and `build` scripts.
 
-  reduceJsonFile(templatesPackageJsonFilePath, ['scripts.dev', 'scripts.build'])
+  reduceJsonFile(templatesPackageJsonFilePath, ['scripts.dev', 'scripts.build']);
 
   // Uninstall packages: `@quasar/extras`, `vite-plugin-checker`,
   // `@types/node`, `autoprefixer` and upgrade all remaining packages to latest.
@@ -228,7 +228,7 @@ export default defineConfig((/* ctx */) => {
     'devDependencies.vite-plugin-checker',
     'devDependencies.@types/node',
     'devDependencies.autoprefixer',
-  ])
+  ]);
 
   extendJsonFile(templatesPackageJsonFilePath, [
     { path: 'dependencies.quasar', value: '^2.18.7' },
@@ -246,11 +246,11 @@ export default defineConfig((/* ctx */) => {
     { path: 'devDependencies.prettier', value: '^3.8.1' },
     { path: 'devDependencies.@quasar/app-vite', value: '^2.5.2' },
     { path: 'devDependencies.typescript', value: '^5.9.3' },
-  ])
+  ]);
 
   // Create folder `templates/modules` and add default file.
 
-  fs.mkdirSync(`${templatesRoot}/modules`, { recursive: true })
+  fs.mkdirSync(`${templatesRoot}/modules`, { recursive: true });
 
   fs.writeFileSync(
     `${templatesRoot}/modules/index.ts`,
@@ -258,11 +258,11 @@ export default defineConfig((/* ctx */) => {
 // Remove this file if any code was added.
 `,
     { encoding: 'utf-8' },
-  )
+  );
 }
 
 function templatesProjectFormattingAndLinting() {
-  setupFormatLint(templatesRoot)
+  setupFormatLint(templatesRoot);
 
   // Modify `templates/package.json` `lint` and `clean` script,
   // changing `src*` and `src` to `modules`.
@@ -276,7 +276,7 @@ function templatesProjectFormattingAndLinting() {
       path: 'scripts.clean',
       value: 'yarn format-imports modules && yarn format --log-level warn && yarn lint --fix',
     },
-  ])
+  ]);
 }
 
 function finishTemplatesProject() {
@@ -287,22 +287,22 @@ function finishTemplatesProject() {
       path: 'scripts.tsc',
       value: 'yarn vue-tsc --noEmit --skipLibCheck',
     },
-  ])
+  ]);
 
   // TODO: Remove this when upgraded to Yarn 4+.
   // Remove `engines.pnpm` to avoid warning when using Yarn 1 (Classic).
-  reduceJsonFile(templatesPackageJsonFilePath, ['engines.pnpm'])
+  reduceJsonFile(templatesPackageJsonFilePath, ['engines.pnpm']);
 
   // Install templates packages and clean code.
 
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
     'Installing \x1b[47mtemplates\x1b[0m packages and clean code...',
-  )
+  );
 
   execSync(`cd ${templatesRoot} && yarn && node ./buildPaths.js && yarn clean`, {
     stdio: 'inherit',
-  })
+  });
 }
 
 function cleanExtensionProject() {
@@ -317,11 +317,11 @@ function cleanExtensionProject() {
       path: 'author',
       value: config.author,
     },
-  ])
+  ]);
 
   // Delete `src` folder.
 
-  fs.rmSync(`${extensionRoot}/src`, { recursive: true })
+  fs.rmSync(`${extensionRoot}/src`, { recursive: true });
 
   // Add `lodash-es` and `@types/lodash-es` to `package.json`.
 
@@ -334,24 +334,24 @@ function cleanExtensionProject() {
       path: 'devDependencies.@types/lodash-es',
       value: '^4.17.12',
     },
-  ])
+  ]);
 
   // Add `src` from global `assets`.
 
   fs.cpSync(`${globalAssets}/Multi-module Extension Template/src`, `${extensionRoot}/src`, {
     recursive: true,
-  })
+  });
 }
 
 async function extensionProjectFormattingAndLinting() {
   // Copy `.vscode`, `.editorconfig`, `.prettierrc.json`, `eslint.config.js`,
   // `import-sorter.json` from `templates` to root.
 
-  fs.cpSync(`${templatesRoot}/.vscode`, `${extensionRoot}/.vscode`, { recursive: true })
-  fs.copyFileSync(`${templatesRoot}/.editorconfig`, `${extensionRoot}/.editorconfig`)
-  fs.copyFileSync(`${templatesRoot}/.prettierrc.json`, `${extensionRoot}/.prettierrc.json`)
-  fs.copyFileSync(`${templatesRoot}/eslint.config.js`, `${extensionRoot}/eslint.config.js`)
-  fs.copyFileSync(`${templatesRoot}/import-sorter.json`, `${extensionRoot}/import-sorter.json`)
+  fs.cpSync(`${templatesRoot}/.vscode`, `${extensionRoot}/.vscode`, { recursive: true });
+  fs.copyFileSync(`${templatesRoot}/.editorconfig`, `${extensionRoot}/.editorconfig`);
+  fs.copyFileSync(`${templatesRoot}/.prettierrc.json`, `${extensionRoot}/.prettierrc.json`);
+  fs.copyFileSync(`${templatesRoot}/eslint.config.js`, `${extensionRoot}/eslint.config.js`);
+  fs.copyFileSync(`${templatesRoot}/import-sorter.json`, `${extensionRoot}/import-sorter.json`);
 
   // Add `.prettierignore` file to ignore `dist`.
 
@@ -360,16 +360,16 @@ async function extensionProjectFormattingAndLinting() {
     `/dist
 `,
     { encoding: 'utf-8' },
-  )
+  );
 
   // Unignore `.vscode`.
 
-  let gitignore = fs.readFileSync(`${extensionRoot}/.gitignore`, 'utf-8')
+  let gitignore = fs.readFileSync(`${extensionRoot}/.gitignore`, 'utf-8');
 
-  gitignore = gitignore.replace('.vscode', '# .vscode')
+  gitignore = gitignore.replace('.vscode', '# .vscode');
   fs.writeFileSync(`${extensionRoot}/.gitignore`, gitignore, {
     encoding: 'utf-8',
-  })
+  });
 
   // Add `tsconfig.json`.
 
@@ -390,25 +390,25 @@ async function extensionProjectFormattingAndLinting() {
     {
       encoding: 'utf-8',
     },
-  )
+  );
 
   // Add all packages under `dependencies` and `devDependencies` from
   // `templates/package.json` to `package.json` under `devDependencies`.
 
   const templatesPackageJson = (
     await import(templatesPackageJsonFilePath, { with: { type: 'json' } })
-  ).default
+  ).default;
   const dependencies = {
     ...templatesPackageJson.dependencies,
     ...templatesPackageJson.devDependencies,
-  }
-  const dependenciesAsArray = []
+  };
+  const dependenciesAsArray = [];
 
   for (const prop in dependencies) {
-    dependenciesAsArray.push({ path: `devDependencies.${prop}`, value: dependencies[prop] })
+    dependenciesAsArray.push({ path: `devDependencies.${prop}`, value: dependencies[prop] });
   }
 
-  extendJsonFile(extensionPackageJsonFilePath, dependenciesAsArray)
+  extendJsonFile(extensionPackageJsonFilePath, dependenciesAsArray);
 
   // Modify `import-sorter.json` file to ignore `dist`.
 
@@ -417,7 +417,7 @@ async function extensionProjectFormattingAndLinting() {
       path: 'excludeGlob',
       value: [`**/${config.projectFolder}/dist/**`],
     },
-  ])
+  ]);
 
   // Add `lint`, `format` and `clean` scripts to `package.json`.
 
@@ -442,25 +442,25 @@ async function extensionProjectFormattingAndLinting() {
       value:
         'yarn format-imports src && yarn format-imports templates/modules && yarn format --log-level warn && yarn lintf',
     },
-  ])
+  ]);
 }
 
 function finishExtensionProject() {
   // Exclude `dist` from search and `node_modules`, `.git` from compare.
 
-  const extensionsJsonFilePath = path.resolve(`${extensionRoot}/.vscode/extensions.json`)
-  const settingsJsonFilePath = path.resolve(`${extensionRoot}/.vscode/settings.json`)
+  const extensionsJsonFilePath = path.resolve(`${extensionRoot}/.vscode/extensions.json`);
+  const settingsJsonFilePath = path.resolve(`${extensionRoot}/.vscode/settings.json`);
 
   extendJsonFile(extensionsJsonFilePath, [
     { path: 'recommendations[]', value: 'moshfeu.compare-folders' },
-  ])
+  ]);
 
   // Putting `path` in an array to keep it as a single property in JSON file.
-  extendJsonFile(settingsJsonFilePath, [{ path: ['search.exclude'], value: { dist: true } }])
+  extendJsonFile(settingsJsonFilePath, [{ path: ['search.exclude'], value: { dist: true } }]);
   extendJsonFile(settingsJsonFilePath, [
     { path: ['compareFolders.excludeFilter'], value: ['node_modules', '.git'] },
     { path: ['compareFolders.ignoreFileNameCase'], value: false },
-  ])
+  ]);
 
   // Add build scripts.
 
@@ -471,31 +471,31 @@ function finishExtensionProject() {
       path: 'scripts.buildPaths',
       value: 'cd ./templates && node ./buildPaths.js && npx prettier --write ./tsconfig-paths.json',
     },
-  ])
+  ]);
 
   // TODO: Remove this when upgraded to Yarn 4+.
   // Remove `engines.pnpm` to avoid warning when using Yarn 1 (Classic).
-  reduceJsonFile(extensionPackageJsonFilePath, ['engines.pnpm'])
+  reduceJsonFile(extensionPackageJsonFilePath, ['engines.pnpm']);
 
   // Install the extension packages, build and clean code.
 
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
     `Installing \x1b[47m${config.extensionId}\x1b[0m packages, build and clean code...`,
-  )
+  );
 
   execSync(`cd ${extensionRoot} && yarn && yarn build && yarn clean`, {
     stdio: 'inherit',
-  })
+  });
 }
 
 function launchExtensionProject() {
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
     `Launching \x1b[47m${config.extensionId}\x1b[0m in Visual Studio Code...`,
-  )
+  );
 
   execSync(`code ${extensionRoot}`, {
     stdio: 'inherit',
-  })
+  });
 }
