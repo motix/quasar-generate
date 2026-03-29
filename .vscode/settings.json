@@ -5,13 +5,20 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": [
     "source.fixAll.eslint",
-    "source.organizeImports.sortImports",
     "source.formatDocument",
     "source.fixAll.eslint"
   ],
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "vue"],
-  "typescript.tsdk": "node_modules/typescript/lib",
   "search.exclude": {
-    "dist": true
-  }
+    ".yarn": true,
+    "dist": true,
+    "**/.yarn": true,
+    "**/.pnp.*": true
+  },
+  "compareFolders.excludeFilter": ["node_modules", ".git"],
+  "compareFolders.ignoreFileNameCase": false,
+  "eslint.nodePath": ".yarn/sdks",
+  "prettier.prettierPath": ".yarn/sdks/prettier/index.cjs",
+  "typescript.tsdk": ".yarn/sdks/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
 }

@@ -1,4 +1,5 @@
 import fs from 'fs';
+
 import { get, isArray, set, unset } from 'lodash-es';
 
 export function extendJsonFile(

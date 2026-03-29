@@ -4,9 +4,9 @@ import path from 'path';
 
 import {
   ACCEPT_DEFAULT,
-  cliGhostwriter,
   DOWN_KEY,
   WHITESPACE_KEY,
+  cliGhostwriter,
 } from '@dreamonkey/cli-ghostwriter';
 
 import setupFormatLint from './lib/format-lintn.js';

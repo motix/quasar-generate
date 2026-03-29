@@ -6,7 +6,8 @@
     "vue.volar",
     "wayou.vscode-todo-highlight",
     "rohit-gohri.format-code-action",
-    "dozerg.tsimportsorter"
+    "dozerg.tsimportsorter",
+    "arcanis.vscode-zipfs"
   ],
   "unwantedRecommendations": [
     "octref.vetur",

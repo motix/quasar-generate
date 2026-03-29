@@ -6,38 +6,75 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "yarn dlx @yarnpkg/sdks vscode",
     "lint": "eslint -c ./eslint.config.js \"./src/**/*.{ts,js,cjs,mjs,vue}\"",
-    "format": "prettier --write \"./src/**/*.{js,ts,vue,scss,html,md,json}\"",
-    "clean": "yarn format-imports src && yarn format --log-level warn && yarn lint --fix",
-    "build": "npx tsc",
-    "watch": "npx tsc --watch",
+    "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore  --ignore-path .prettierignore",
+    "clean": "yarn format --log-level warn && yarn lint --fix",
+    "build": "yarn tsc",
+    "watch": "yarn tsc --watch",
     "create-app": "node ./dist/create-app.js",
     "create-ext": "node ./dist/create-ext.js",
     "create-extn": "node ./dist/create-extn.js",
-    "create-firebase": "node ./dist/create-firebase.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "create-firebase": "node ./dist/create-firebase.js"
   },
   "devDependencies": {
     "@dreamonkey/cli-ghostwriter": "^0.2.0",
-    "@types/node": "^25.5.0",
-    "lodash-es": "^4.17.23",
-    "@types/lodash-es": "^4.17.12",
-    "quasar": "^2.18.7",
-    "vue": "^3.5.31",
-    "vue-router": "^5.0.4",
-    "@eslint/js": "^9.39.4",
-    "eslint": "^9.39.4",
-    "eslint-plugin-vue": "^9.33.0",
-    "globals": "^17.4.0",
-    "@vue/eslint-config-typescript": "^14.7.0",
-    "@vue/eslint-config-prettier": "^10.2.0",
-    "prettier": "^3.8.1",
+    "@eslint/js": "^10.0.1",
     "@quasar/app-vite": "^2.5.2",
+    "@trivago/prettier-plugin-sort-imports": "patch:@trivago/prettier-plugin-sort-imports@npm%3A6.0.2#~/.yarn/patches/@trivago-prettier-plugin-sort-imports-npm-6.0.2-88f9e213cd.patch",
+    "@types/lodash-es": "^4.17.12",
+    "@types/node": "^25.5.0",
+    "@vue/compiler-sfc": "^3.5.31",
+    "@vue/eslint-config-prettier": "^10.2.0",
+    "@vue/eslint-config-typescript": "^14.7.0",
+    "dotenv": "^17.3.1",
+    "eslint": "^10.1.0",
+    "eslint-plugin-vue": "^10.8.0",
+    "firebase": "^12.11.0",
+    "globals": "^17.4.0",
+    "lodash-es": "^4.17.23",
+    "prettier": "^3.8.1",
+    "quasar": "^2.19.1",
     "typescript": "^5.9.3",
-    "format-imports": "^4.0.8"
+    "vue": "^3.5.31",
+    "vue-eslint-parser": "^10.4.0",
+    "vue-router": "^5.0.4"
   },
-  "resolutions": {
-    "format-imports/@vue/compiler-sfc": "^3.5.0"
+  "dependenciesMeta": {
+    "@babel/generator": {
+      "unplugged": true
+    },
+    "@babel/parser": {
+      "unplugged": true
+    },
+    "@babel/traverse": {
+      "unplugged": true
+    },
+    "@babel/types": {
+      "unplugged": true
+    },
+    "@trivago/prettier-plugin-sort-imports": {
+      "unplugged": true
+    },
+    "brace-expansion": {
+      "unplugged": true
+    },
+    "javascript-natural-sort": {
+      "unplugged": true
+    },
+    "lodash-es": {
+      "unplugged": true
+    },
+    "minimatch": {
+      "unplugged": true
+    },
+    "parse-imports-exports": {
+      "unplugged": true
+    },
+    "parse-statements": {
+      "unplugged": true
+    }
   },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  "packageManager": "yarn@4.13.0+sha512.5c20ba010c99815433e5c8453112165e673f1c7948d8d2b267f4b5e52097538658388ebc9f9580656d9b75c5cc996f990f611f99304a2197d4c56d21eea370e7"
 }

@@ -1,8 +1,8 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
-import { repeat } from 'lodash-es';
 import path from 'path';
-import { ACCEPT_DEFAULT, cliGhostwriter, DOWN_KEY, WHITESPACE_KEY, } from '@dreamonkey/cli-ghostwriter';
+import { repeat } from 'lodash-es';
+import { ACCEPT_DEFAULT, DOWN_KEY, WHITESPACE_KEY, cliGhostwriter, } from '@dreamonkey/cli-ghostwriter';
 import { extendJsonFile } from './lib/json-helpers.js';
 const globalAssets = './assets';
 const project = process.argv[2];

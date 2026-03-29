@@ -2,7 +2,7 @@ import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
-import { ACCEPT_DEFAULT, cliGhostwriter, DOWN_KEY } from '@dreamonkey/cli-ghostwriter';
+import { ACCEPT_DEFAULT, DOWN_KEY, cliGhostwriter } from '@dreamonkey/cli-ghostwriter';
 
 import setupFormatLint from './lib/format-lint.js';
 import { extendJsonFile, reduceJsonFile } from './lib/json-helpers.js';
