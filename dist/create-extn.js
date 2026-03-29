@@ -239,6 +239,7 @@ function rootWorkspaceFormattingAndLinting() {
     // Add `.prettierignore` to ignore `.yarn` and `dist`.
     fs.writeFileSync(`${extensionRoot}/.prettierignore`, `/.yarn
 /dist
+.pnp.*
 `, { encoding: 'utf-8' });
     // Add `eslint.config.js` specific dependencies.
     const packages = [

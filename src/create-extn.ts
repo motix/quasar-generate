@@ -330,6 +330,7 @@ function rootWorkspaceFormattingAndLinting() {
     `${extensionRoot}/.prettierignore`,
     `/.yarn
 /dist
+.pnp.*
 `,
     { encoding: 'utf-8' },
   );
