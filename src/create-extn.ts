@@ -342,8 +342,8 @@ function rootWorkspaceFormattingAndLinting() {
     'globals',
     'eslint-plugin-vue',
     '@quasar/app-vite',
-    'quasar', // Peer dependencies of `@quasar/app-vite`
-    'vue-router', // Peer dependencies of `@quasar/app-vite`
+    'quasar', // Peer dependency of `@quasar/app-vite`
+    'vue-router', // Peer dependency of `@quasar/app-vite`
     '@vue/eslint-config-typescript',
     '@vue/eslint-config-prettier',
     'vue-eslint-parser',
@@ -671,7 +671,7 @@ function finishTemplatesWorkspace() {
 
   const packages: (keyof typeof packagesVersion)[] = [
     'vue-tsc',
-    'typescript', // Peer dependencies of `vue-tsc`
+    'typescript', // Peer dependency of `vue-tsc`
   ]
   extendJsonFile(
     templatesPackageJsonFilePath,
