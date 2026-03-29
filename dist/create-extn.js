@@ -28,8 +28,8 @@ f || prepareWorkspaces();
 f || fixCompileTimeYarnPnP();
 // Workspaces formatting and linting
 f || rootWorkspaceFormattingAndLinting();
-f || templatesWorkspaceFormattingAndLinting();
 f || devWorkspaceFormattingAndLinting();
+f || templatesWorkspaceFormattingAndLinting();
 f || rootWorkspaceFormattingAndLintingScrips();
 // Workspaces base source code
 f || rootWorkspaceSrc();
@@ -231,18 +231,136 @@ index 27a775515049aa60f23c2778632b86d2db6d3513..28dbef5303639bea2d53e5cc8727dece
 }
 // Workspaces formatting and linting
 function rootWorkspaceFormattingAndLinting() {
-    // Move `.vscode`, `.editorconfig`, `prettier.config.js` and `eslint.config.js`
-    // from `dev` workspace to root workspace.
-    fs.renameSync(`${devRoot}/.vscode`, `${extensionRoot}/.vscode`);
-    fs.renameSync(`${devRoot}/.editorconfig`, `${extensionRoot}/.editorconfig`);
-    fs.renameSync(`${devRoot}/.prettierrc.json`, `${extensionRoot}/.prettierrc.json`);
-    fs.renameSync(`${devRoot}/eslint.config.js`, `${extensionRoot}/eslint.config.js`);
+    // Copy `.vscode`, `.editorconfig`, `prettier.config.js` and `eslint.config.js` from `dev` workspace.
+    fs.cpSync(`${devRoot}/.vscode`, `${extensionRoot}/.vscode`, { recursive: true });
+    fs.copyFileSync(`${devRoot}/.editorconfig`, `${extensionRoot}/.editorconfig`);
+    fs.copyFileSync(`${devRoot}/.prettierrc.json`, `${extensionRoot}/.prettierrc.json`);
+    fs.copyFileSync(`${devRoot}/eslint.config.js`, `${extensionRoot}/eslint.config.js`);
     // Add `.prettierignore` to ignore `.yarn` and `dist`.
     fs.writeFileSync(`${extensionRoot}/.prettierignore`, `/.yarn
 /dist
 `, { encoding: 'utf-8' });
     // Add `eslint.config.js` specific dependencies.
     const packages = [
+        '@eslint/js',
+        'globals',
+        'eslint-plugin-vue',
+        '@vue/eslint-config-typescript',
+        '@vue/eslint-config-prettier',
+        'vue-eslint-parser',
+    ];
+    extendJsonFile(extensionPackageJsonFilePath, packages.map((item) => ({
+        path: `devDependencies.${item}`,
+        value: packagesVersion[item],
+    })));
+    // Setup formatting and linting.
+    setupFormatLint(extensionRoot);
+    // Since there are multiple `eslint.config.js` and `tsconfig.json` files in the project,
+    // we need to set `tsconfigRootDir` for each `eslint.config.js` to avoid
+    // Parsing error: No tsconfigRootDir was set, and multiple candidate TSConfigRootDirs are present.
+    // Trimming some vue specific configurations too.
+    let eslintConfigJs = fs.readFileSync(`${extensionRoot}/eslint.config.js`, 'utf-8');
+    eslintConfigJs = eslintConfigJs.replace(`import pluginVue from 'eslint-plugin-vue'
+import pluginQuasar from '@quasar/app-vite/eslint'
+`, '');
+    eslintConfigJs = eslintConfigJs.replace(`/**
+     * Ignore the following files.
+     * Please note that pluginQuasar.configs.recommended() already ignores
+     * the "node_modules" folder for you (and all other Quasar project
+     * relevant folders and files).
+     *
+     * ESLint requires "ignores" key to be the only one in this object
+     */
+    // ignores: []`, `ignores: ['.yarn/*', 'dist/*', 'templates/*', 'dev/*', '.pnp.*'],`);
+    eslintConfigJs = eslintConfigJs.replace(`  pluginQuasar.configs.recommended(),
+`, '');
+    eslintConfigJs = eslintConfigJs.replace(`  /**
+   * https://eslint.vuejs.org
+   *
+   * pluginVue.configs.base
+   *   -> Settings and rules to enable correct ESLint parsing.
+   * pluginVue.configs[ 'flat/essential']
+   *   -> base, plus rules to prevent errors or unintended behavior.
+   * pluginVue.configs["flat/strongly-recommended"]
+   *   -> Above, plus rules to considerably improve code readability and/or dev experience.
+   * pluginVue.configs["flat/recommended"]
+   *   -> Above, plus rules to enforce subjective community defaults to ensure consistency.
+   */
+  pluginVue.configs[ 'flat/recommended' ],`, `{
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },`);
+    eslintConfigJs = eslintConfigJs.replace("files: ['**/*.ts', '**/*.vue'],", "files: ['**/*.ts'],");
+    eslintConfigJs = eslintConfigJs.replace(`
+      // alphabetical
+      'vue/attributes-order': ['warn', { alphabetical: true }]
+`, '');
+    eslintConfigJs = eslintConfigJs.replace(`
+  {
+    files: [ 'src-pwa/custom-service-worker.ts' ],
+    languageOptions: {
+      globals: {
+        ...globals.serviceworker
+      }
+    }
+  },
+`, '');
+    fs.writeFileSync(`${extensionRoot}/eslint.config.js`, eslintConfigJs, {
+        encoding: 'utf-8',
+    });
+    // Commit code.
+    commitCode('\\`rootWorkspaceFormattingAndLinting()\\`');
+}
+function devWorkspaceFormattingAndLinting() {
+    // Setup formatting and linting.
+    setupFormatLint(devRoot);
+    // All formatting and some lingting tools were coppied to root workspace, remove them here.
+    fs.rmSync(`${devRoot}/.vscode`, { recursive: true });
+    fs.rmSync(`${devRoot}/.editorconfig`);
+    fs.rmSync(`${devRoot}/prettier.config.js`);
+    // Remove unplugged settings and Prettier plugin with its patch.
+    reduceJsonFile(devPackageJsonFilePath, [
+        'dependenciesMeta',
+        'devDependencies.@trivago/prettier-plugin-sort-imports',
+    ]);
+    fs.rmSync(`${devRoot}/.yarn`, { recursive: true });
+    // Since there are multiple `eslint.config.js` and `tsconfig.json` files in the project,
+    // we need to set `tsconfigRootDir` for each `eslint.config.js` to avoid
+    // Parsing error: No tsconfigRootDir was set, and multiple candidate TSConfigRootDirs are present.
+    let eslintConfigJs = fs.readFileSync(`${devRoot}/eslint.config.js`, 'utf-8');
+    eslintConfigJs = eslintConfigJs.replace("pluginVue.configs[ 'flat/recommended' ],", `pluginVue.configs[ 'flat/recommended' ],
+
+  {
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },`);
+    fs.writeFileSync(`${devRoot}/eslint.config.js`, eslintConfigJs, {
+        encoding: 'utf-8',
+    });
+    // Add `clean` script.
+    extendJsonFile(devPackageJsonFilePath, [
+        {
+            path: 'scripts.clean',
+            value: 'yarn format --log-level warn && yarn lint --fix',
+        },
+    ]);
+    // Commit code.
+    commitCode('\\`devWorkspaceFormattingAndLinting()\\`');
+}
+function templatesWorkspaceFormattingAndLinting() {
+    // Copy `eslint.config.js` from `dev` workspace.
+    fs.copyFileSync(`${devRoot}/eslint.config.js`, `${templatesRoot}/eslint.config.js`);
+    // Add dependencies for formatting and linting.
+    const packages = [
+        'eslint',
+        'prettier',
+        // `eslint.config.js` specific dependencies
         '@eslint/js',
         'globals',
         'eslint-plugin-vue',
@@ -253,45 +371,15 @@ function rootWorkspaceFormattingAndLinting() {
         '@vue/eslint-config-prettier',
         'vue-eslint-parser',
     ];
-    extendJsonFile(extensionPackageJsonFilePath, packages.map((item) => ({
+    extendJsonFile(templatesPackageJsonFilePath, packages.map((item) => ({
         path: `devDependencies.${item}`,
         value: packagesVersion[item],
     })));
-    // Since `eslint.config.js` was moved from Quasar project in `dev`,
-    // setting `projectService` is needed because the default detection
-    // of sibling `tsconfig.json` in `dev` workspace is no longer available.
-    let eslintConfigJs = fs.readFileSync(`${extensionRoot}/eslint.config.js`, 'utf-8');
-    eslintConfigJs = eslintConfigJs.replace("pluginVue.configs[ 'flat/essential' ],", `pluginVue.configs[ 'flat/essential' ],
-
-  {
-    languageOptions: {
-      parserOptions: {
-        projectService: true,
-      },
-    },
-  },`);
-    fs.writeFileSync(`${extensionRoot}/eslint.config.js`, eslintConfigJs, {
-        encoding: 'utf-8',
-    });
-    // Setup formatting and linting.
-    setupFormatLint(extensionRoot);
-    // Commit code.
-    commitCode('\\`rootWorkspaceFormattingAndLinting()\\`');
-}
-function templatesWorkspaceFormattingAndLinting() {
-    // Add dependencies for formatting and linting.
-    const packages = ['eslint', 'prettier'];
-    extendJsonFile(templatesPackageJsonFilePath, [
-        ...packages.map((item) => ({
-            path: `devDependencies.${item}`,
-            value: packagesVersion[item],
-        })),
-    ]);
     // Add `lint`, `format` and `clean` scripts.
     extendJsonFile(templatesPackageJsonFilePath, [
         {
             path: 'scripts.lint',
-            value: 'eslint -c ../eslint.config.js "./modules/**/*.{ts,js,cjs,mjs,vue}"',
+            value: 'eslint -c ./eslint.config.js "./modules/**/*.{ts,js,cjs,mjs,vue}"',
         },
         {
             path: 'scripts.format',
@@ -304,42 +392,6 @@ function templatesWorkspaceFormattingAndLinting() {
     ]);
     // Commit code.
     commitCode('\\`templatesWorkspaceFormattingAndLinting()\\`');
-}
-function devWorkspaceFormattingAndLinting() {
-    // Linting and formatting tools were moved to root workspace.
-    // Do the clean up in `dev` workspace.
-    // Remove formating and lingting dependencies that were moved to root workspace.
-    const packages = [
-        '@eslint/js',
-        'globals',
-        'eslint-plugin-vue',
-        '@vue/eslint-config-typescript',
-        '@vue/eslint-config-prettier',
-        'vue-eslint-parser',
-    ];
-    reduceJsonFile(devPackageJsonFilePath, packages.map((item) => `devDependencies.${item}`));
-    // Update `quasar.config.ts` using `eslint.config.js` in root workspace.
-    let quasarConfigTs = fs.readFileSync(`${devRoot}/quasar.config.ts`, 'utf-8');
-    quasarConfigTs = quasarConfigTs.replace('eslint -c ./eslint.config.js "./src*/**/*.{ts,js,mjs,cjs,vue}"', 'eslint -c ../eslint.config.js "./src*/**/*.{ts,js,mjs,cjs,vue}"');
-    fs.writeFileSync(`${devRoot}/quasar.config.ts`, quasarConfigTs, {
-        encoding: 'utf-8',
-    });
-    // Update `lint` script using `eslint.config.js` in root workspace.
-    extendJsonFile(devPackageJsonFilePath, [
-        {
-            path: 'scripts.lint',
-            value: 'eslint -c ../eslint.config.js "./src*/**/*.{ts,js,cjs,mjs,vue}"',
-        },
-    ]);
-    // Add `clean` script.
-    extendJsonFile(devPackageJsonFilePath, [
-        {
-            path: 'scripts.clean',
-            value: 'yarn format --log-level warn && yarn lint --fix',
-        },
-    ]);
-    // Commit code.
-    commitCode('\\`devWorkspaceFormattingAndLinting()\\`');
 }
 function rootWorkspaceFormattingAndLintingScrips() {
     // Add `lint`, `lintf`, `format` and `clean` scripts.
@@ -383,7 +435,13 @@ function rootWorkspaceSrc() {
         encoding: 'utf-8',
     });
     // Add `src` specific dependencies.
-    const packages = ['lodash-es', '@types/lodash-es'];
+    const packages = [
+        '@quasar/app-vite',
+        'quasar', // Peer dependency of `@quasar/app-vite`
+        'vue-router', // Peer dependency of `@quasar/app-vite`
+        'lodash-es',
+        '@types/lodash-es',
+    ];
     extendJsonFile(extensionPackageJsonFilePath, packages.map((item) => ({
         path: `devDependencies.${item}`,
         value: packagesVersion[item],
