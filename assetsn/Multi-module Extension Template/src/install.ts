@@ -19,8 +19,9 @@ export default async function (api: InstallAPI) {
   scripts[`i-${packageName}`] =
     `quasar ext invoke ${organizationName}/${packageName} && yarn format --log-level warn`;
   scripts[`u-${packageName}`] =
-    `quasar ext uninvoke ${organizationName}/${packageName} && yarn format --log-level warn`;
-  scripts[`r-${packageName}`] = `yarn u-${packageName} && yarn i-${packageName} && yarn clean`;
+    `quasar ext uninvoke ${organizationName}/${packageName} && yarn && yarn format --log-level warn`;
+  scripts[`r-${packageName}`] =
+    `quasar ext uninvoke ${organizationName}/${packageName} && quasar ext invoke ${organizationName}/${packageName} && yarn clean`;
 
   // Remove current i- to keep i-, u- and r- together
   reduceJsonFile(api, 'package.json', [`scripts.i-${packageName}`]);
