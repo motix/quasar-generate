@@ -18,7 +18,8 @@ const globalAssets = './assetsn';
 const project = process.argv[2];
 const runYarn = process.argv[3] === '-y' || process.argv[4] === '-y';
 const autoLaunch = process.argv[3] === '-l' || process.argv[4] === '-l';
-const config = (await import(`../projects/${project}.js`)).default as CreateExtensionConfig;
+const config = (await import(`../projects/${project}/project.js`)).default as CreateExtensionConfig;
+const projectAssets = `./projects/${project}/assets`;
 const extensionRoot = `../quasar-generate-output/${config.projectFolder}`;
 const templatesRoot = `${extensionRoot}/templates`;
 const devRoot = `${extensionRoot}/dev`;
@@ -42,12 +43,13 @@ f || fixCompileTimeYarnPnP();
 // Workspaces formatting and linting
 f || rootWorkspaceFormattingAndLinting();
 f || devWorkspaceFormattingAndLinting();
-f || templatesWorkspaceFormattingAndLinting();
+f || templatesWorkspaceFormattingAndLinting(); // `templates` workspace is copying files from `dev` workspace, so it needs to be called after `dev` workspace.
 f || rootWorkspaceFormattingAndLintingScrips();
 
 // Workspaces base source code
 f || rootWorkspaceSrc();
 f || templatesWorkspaceSrc();
+f || devWorkspaceSrc();
 
 // Finish workspaces
 f || finishRootWorkspace();
@@ -675,6 +677,19 @@ index 1323ca347f470900c9b791a63862186489e323bf..049101b1db6b2aeb076f3c0839cee3f7
     { encoding: 'utf-8' },
   );
 
+  // Add workspace template.
+
+  const extensionAssets = `${projectAssets}/templates/root`;
+
+  if (fs.existsSync(extensionAssets)) {
+    fs.readdirSync(extensionAssets).forEach((file) => {
+      fs.cpSync(path.join(extensionAssets, file), path.join(extensionRoot, file), {
+        recursive: true,
+        force: true,
+      });
+    });
+  }
+
   // Commit code.
 
   commitCode('\\`rootWorkspaceSrc()\\`');
@@ -705,9 +720,52 @@ function templatesWorkspaceSrc() {
     },
   );
 
+  // Add workspace template.
+
+  const templatesAssets = `${projectAssets}/templates/templates`;
+
+  if (fs.existsSync(templatesAssets)) {
+    fs.readdirSync(templatesAssets).forEach((file) => {
+      fs.cpSync(path.join(templatesAssets, file), path.join(templatesRoot, file), {
+        recursive: true,
+        force: true,
+      });
+    });
+  }
+
   // Commit code.
 
   commitCode('\\`templatesWorkspaceSrc()\\`');
+}
+
+function devWorkspaceSrc() {
+  // Add extension config file.
+
+  fs.writeFileSync(
+    `${devRoot}/.${config.extensionId.replace(/-/g, '')}rc.js`,
+    `export default {
+  modules: {},
+};
+`,
+    { encoding: 'utf-8' },
+  );
+
+  // Add workspace template.
+
+  const devAssets = `${projectAssets}/templates/dev`;
+
+  if (fs.existsSync(devAssets)) {
+    fs.readdirSync(devAssets).forEach((file) => {
+      fs.cpSync(path.join(devAssets, file), path.join(devRoot, file), {
+        recursive: true,
+        force: true,
+      });
+    });
+  }
+
+  // Commit code.
+
+  commitCode('\\`devWorkspaceSrc()\\`');
 }
 
 // Finish workspaces
@@ -812,14 +870,14 @@ function finishAllAndLaunch() {
 
   if (runYarn) {
     execSync(
-      `cd ${extensionRoot} && yarn && yarn buildPaths && yarn build && yarn clean && cd dev && yarn i-mnapp && yarn dev`,
+      `cd ${extensionRoot} && yarn && cd dev && yarn postinstall && cd .. && yarn buildPaths && yarn build && yarn clean && cd dev && yarn i-${config.extensionId} && yarn dev`,
       {
         stdio: 'inherit',
       },
     );
   } else {
     console.log(
-      `                   Run \x1b[47mcd ${extensionRoot} && yarn && yarn buildPaths && yarn build && yarn clean && cd dev && yarn i-mnapp && yarn dev\x1b[0m manually.`,
+      `                   Run \x1b[47mcd ${extensionRoot} && yarn && cd dev && yarn postinstall && cd .. && yarn buildPaths && yarn build && yarn clean && cd dev && yarn i-${config.extensionId} && yarn dev\x1b[0m manually.`,
     );
   }
 
