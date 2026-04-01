@@ -3,7 +3,7 @@ import path from 'path';
 
 import { extendJsonFile } from './json-helpers.js';
 
-export default function (appRoot: string) {
+export default function formatLint(appRoot: string) {
   const globalAssets = './assets';
   const extensionsJsonFilePath = path.resolve(`${appRoot}/.vscode/extensions.json`);
   const settingsJsonFilePath = path.resolve(`${appRoot}/.vscode/settings.json`);

@@ -2,11 +2,12 @@ import fs from 'fs';
 import path from 'path';
 import { extendJsonFile } from './json-helpers.js';
 import packagesVersion from './packages-version.js';
-export default function (appRoot) {
-    const extensionsJsonFilePath = path.resolve(`${appRoot}/.vscode/extensions.json`);
-    const settingsJsonFilePath = path.resolve(`${appRoot}/.vscode/settings.json`);
-    const appPackageJsonFilePath = path.resolve(`${appRoot}/package.json`);
-    const prettierrcJsonFilePath = path.resolve(`${appRoot}/.prettierrc.json`);
+import patchTrivagoPrettierPluginSortImports from './patches/patch-trivago-prettier-plugin-sort-imports.js';
+export default function formatLint(workspaceFolder) {
+    const extensionsJsonFilePath = path.resolve(`${workspaceFolder}/.vscode/extensions.json`);
+    const settingsJsonFilePath = path.resolve(`${workspaceFolder}/.vscode/settings.json`);
+    const appPackageJsonFilePath = path.resolve(`${workspaceFolder}/package.json`);
+    const prettierrcJsonFilePath = path.resolve(`${workspaceFolder}/.prettierrc.json`);
     // Add IDE extension recommendation and modify formatting settings.
     extendJsonFile(extensionsJsonFilePath, [
         { path: 'recommendations[]', value: 'rohit-gohri.format-code-action' },
@@ -67,9 +68,9 @@ export default function (appRoot) {
         { path: 'importOrderSortSpecifiers', value: true },
     ]);
     // Fix Prettier plugin Yarn PnP
-    fixPrettierPluginYarnPnP(appRoot, appPackageJsonFilePath);
+    fixPrettierPluginYarnPnP(workspaceFolder, appPackageJsonFilePath);
     // Modify `eslint.config.js`.
-    let eslintConfigJs = fs.readFileSync(`${appRoot}/eslint.config.js`, 'utf-8');
+    let eslintConfigJs = fs.readFileSync(`${workspaceFolder}/eslint.config.js`, 'utf-8');
     eslintConfigJs = eslintConfigJs.replace("pluginVue.configs[ 'flat/essential' ],", "pluginVue.configs[ 'flat/recommended' ],");
     eslintConfigJs = eslintConfigJs.replace(`      '@typescript-eslint/consistent-type-imports': [
         'error',
@@ -86,7 +87,7 @@ export default function (appRoot) {
 
       // alphabetical
       'vue/attributes-order': ['warn', { alphabetical: true }]`);
-    fs.writeFileSync(`${appRoot}/eslint.config.js`, eslintConfigJs, {
+    fs.writeFileSync(`${workspaceFolder}/eslint.config.js`, eslintConfigJs, {
         encoding: 'utf-8',
     });
     // Add `clean` script.
@@ -123,23 +124,7 @@ function fixPrettierPluginYarnPnP(appRoot, appPackageJsonFilePath) {
         value: { unplugged: true },
     })));
     // Patch @trivago/prettier-plugin-sort-imports.
-    fs.mkdirSync(`${appRoot}/.yarn/patches`, { recursive: true });
-    fs.writeFileSync(`${appRoot}/.yarn/patches/@trivago-prettier-plugin-sort-imports-npm-6.0.2-88f9e213cd.patch`, `diff --git a/lib/src/preprocessors/vue-preprocessor.js b/lib/src/preprocessors/vue-preprocessor.js
-index 41b5bc94b0fb8406f74a952e2b9afb01510da617..bae2dffc50c8afc4b1c856e7cd832f4d02dc7f20 100644
---- a/lib/src/preprocessors/vue-preprocessor.js
-+++ b/lib/src/preprocessors/vue-preprocessor.js
-@@ -1,7 +1,9 @@
-+import { createRequire } from 'module';
-+const require = createRequire(import.meta.url);
- import { preprocessor } from './preprocessor.js';
- let vueCompilerSfc;
- try {
--    vueCompilerSfc = await import('@vue/compiler-sfc');
-+    vueCompilerSfc = require('@vue/compiler-sfc');
- }
- catch {
-     // Do not error because the dependency is optional.
-`, { encoding: 'utf-8' });
+    patchTrivagoPrettierPluginSortImports(appRoot, appPackageJsonFilePath);
     // Convert `.prettierrc.json` to `.prettierrc.js` and use `require`.
     const prettierConfigJs = `import { createRequire } from 'module';
 

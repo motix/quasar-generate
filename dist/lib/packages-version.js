@@ -1,7 +1,7 @@
 export default {
     '@eslint/js': '^10.0.1',
-    '@quasar/app-vite': '^2.5.2', // TODO: 2.5.4
-    '@trivago/prettier-plugin-sort-imports': 'patch:@trivago/prettier-plugin-sort-imports@npm%3A6.0.2#~/.yarn/patches/@trivago-prettier-plugin-sort-imports-npm-6.0.2-88f9e213cd.patch',
+    '@quasar/app-vite': '^2.5.4',
+    '@trivago/prettier-plugin-sort-imports': '^6.0.2',
     '@types/lodash-es': '^4.17.12',
     '@vue/compiler-sfc': '^3.5.31',
     '@vue/eslint-config-prettier': '^10.2.0',

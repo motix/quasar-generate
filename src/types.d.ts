@@ -5,7 +5,8 @@ export interface CreateAppConfig {
   productName: string;
   productDescription: string;
   author: string;
-  initProject: false | { sharedAssets: string };
+  sharedAssets: string;
+  initProject: false | { sharedAssets: string }; // TODO: Remove
 }
 
 export interface CreateExtensionConfig {
@@ -15,7 +16,7 @@ export interface CreateExtensionConfig {
   version: string;
   projectDescription: string;
   author: string;
-  hasDev: false | { project: string };
+  hasDev: false | { project: string }; // TODO: Remove
 }
 
 export interface CreateFirebaseConfig {

@@ -19,8 +19,8 @@ const autoLaunch = process.argv[3];
 const config = (await import(`../projects/${project}/project.js`)).default as CreateAppConfig;
 const projectAssets = `./projects/${project}/assets`;
 const appRoot = `./output/${config.projectFolder}`;
-const settingsJson = path.resolve(`${appRoot}/.vscode/settings.json`);
-const appPackageJsonFilePath = path.resolve(`${appRoot}/package.json`);
+const packageJsonFilePath = path.resolve(`${appRoot}/package.json`);
+const settingsJsonFilePath = path.resolve(`${appRoot}/.vscode/settings.json`);
 
 // Turning on/off functions
 const f = false;
@@ -71,7 +71,7 @@ async function createQuasarProject() {
 function cleanProject() {
   // Change version, author
 
-  extendJsonFile(appPackageJsonFilePath, [
+  extendJsonFile(packageJsonFilePath, [
     {
       path: 'version',
       value: config.version,
@@ -102,16 +102,15 @@ function cleanProject() {
 function finishProject() {
   // Add build script.
 
-  extendJsonFile(appPackageJsonFilePath, [
+  extendJsonFile(packageJsonFilePath, [
     {
       path: 'scripts.tsc',
       value: 'yarn vue-tsc --noEmit --skipLibCheck',
     },
   ]);
 
-  // TODO: Remove this when upgraded to Yarn 4+.
   // Remove `engines.pnpm` to avoid warning when using Yarn 1 (Classic).
-  reduceJsonFile(appPackageJsonFilePath, ['engines.pnpm']);
+  reduceJsonFile(packageJsonFilePath, ['engines.pnpm']);
 
   // Install the app packages and clean code.
 
@@ -240,7 +239,7 @@ name: 'HomePage', path: '', meta: { isNoReturnPage: true }`,
   // Add Better Comments settings.
 
   // Putting `path` in an array to keep it as a single property in JSON file.
-  extendJsonFile(settingsJson, [
+  extendJsonFile(settingsJsonFilePath, [
     {
       path: ['better-comments.tags'],
       value: [
@@ -322,7 +321,7 @@ name: 'HomePage', path: '', meta: { isNoReturnPage: true }`,
 
   // Update `postinstall` script.
 
-  extendJsonFile(appPackageJsonFilePath, [
+  extendJsonFile(packageJsonFilePath, [
     {
       path: 'scripts.postinstall',
       value: 'cross-env FIREBASE_ENV=PROD quasar prepare',

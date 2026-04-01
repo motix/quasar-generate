@@ -90,7 +90,7 @@ function firebasePackageFormattingAndLinting() {
     extendJsonFile(firebasePackageJsonFilePath, [
         {
             path: 'scripts.format',
-            value: 'prettier --write "**/*.{*js,ts,md,json}" --ignore-path .gitignore  --ignore-path .prettierignore',
+            value: 'prettier --write "**/*.{*js,ts,md,json}" --ignore-path .gitignore --ignore-path .prettierignore',
         },
         {
             path: 'scripts.lint',

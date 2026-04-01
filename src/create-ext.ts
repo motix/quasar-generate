@@ -244,7 +244,7 @@ export default defineConfig((/* ctx */) => {
     { path: 'devDependencies.vue-eslint-parser', value: '^10.4.0' },
     { path: 'devDependencies.@vue/eslint-config-prettier', value: '^10.2.0' },
     { path: 'devDependencies.prettier', value: '^3.8.1' },
-    { path: 'devDependencies.@quasar/app-vite', value: '^2.5.2' },
+    { path: 'devDependencies.@quasar/app-vite', value: '^2.5.4' },
     { path: 'devDependencies.typescript', value: '^5.9.3' },
   ]);
 
@@ -435,7 +435,7 @@ async function extensionProjectFormattingAndLinting() {
     {
       path: 'scripts.format',
       value:
-        'prettier --write "**/*.{js,ts,vue,scss,html,md,json}" --ignore-path templates/.gitignore  --ignore-path .prettierignore',
+        'prettier --write "**/*.{js,ts,vue,scss,html,md,json}" --ignore-path templates/.gitignore --ignore-path .prettierignore',
     },
     {
       path: 'scripts.clean',
