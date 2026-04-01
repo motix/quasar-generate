@@ -613,6 +613,25 @@ function devWorkspaceSrc() {
     });
   }
 
+  // Add dependency and add invoke script if `@motinet/quasar-app-extension-mnapp` is detected
+  // and the project is not `@motinet/quasar-app-extension-mnapp` itself.
+
+  if (
+    !(config.organizationName === 'motinet' && config.extensionId === 'mnapp') &&
+    fs.existsSync(path.resolve(`${devRoot}/.mnapprc.js`))
+  ) {
+    extendJsonFile(devPackageJsonFilePath, [
+      {
+        path: 'scripts.i-mnapp',
+        value: 'quasar ext invoke @motinet/mnapp && yarn format --log-level warn',
+      },
+      {
+        path: 'devDependencies.@motinet/quasar-app-extension-mnapp',
+        value: config.mnappLocation || packagesVersion['@motinet/quasar-app-extension-mnapp'],
+      },
+    ]);
+  }
+
   // Commit code.
 
   commitCode(extensionRoot, '\\`devWorkspaceSrc()\\`');
@@ -720,14 +739,14 @@ function finishAllAndLaunch() {
 
   if (runYarn) {
     execSync(
-      `cd ${extensionRoot} && yarn && cd dev && yarn postinstall && cd .. && yarn buildPaths && yarn build && yarn clean && cd dev && yarn i-${config.extensionId} && yarn dev`,
+      `cd ${extensionRoot.replaceAll(' ', '\\ ')} && yarn && cd dev && yarn postinstall && cd .. && yarn buildPaths && yarn build && yarn clean && cd dev && yarn i-${config.extensionId} && yarn dev`,
       {
         stdio: 'inherit',
       },
     );
   } else {
     console.log(
-      `                   Run \x1b[47mcd ${extensionRoot} && yarn && cd dev && yarn postinstall && cd .. && yarn buildPaths && yarn build && yarn clean && cd dev && yarn i-${config.extensionId} && yarn dev\x1b[0m manually.`,
+      `                   Run \x1b[47mcd ${extensionRoot.replaceAll(' ', '\\ ')} && yarn && cd dev && yarn postinstall && cd .. && yarn buildPaths && yarn build && yarn clean && cd dev && yarn i-${config.extensionId} && yarn dev\x1b[0m manually.`,
     );
   }
 

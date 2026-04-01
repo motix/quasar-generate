@@ -50,7 +50,7 @@ async function createFirebasePackage() {
         'Would you like to download the emulators now?': ACCEPT_DEFAULT, // Y
     };
     await cliGhostwriter({
-        command: `cd ${firebaseRoot} && firebase init`,
+        command: `cd ${firebaseRoot.replaceAll(' ', '\\ ')} && firebase init`,
         answersMap,
         endingMarker: 'Firebase initialization complete!',
     });
@@ -328,7 +328,7 @@ function finishFunctionsPackage(codebase) {
     const root = codebase === 'default' ? functionsRoot : `${functionsRoot}-${codebase}`;
     // Install functions packages and clean code.
     console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47m${codebase}\x1b[0m codebase \x1b[47mfunctions\x1b[0m packages and clean code...`);
-    execSync(`cd ${root} && yarn && node refUpdate.mjs`, {
+    execSync(`cd ${root.replaceAll(' ', '\\ ')} && yarn && node refUpdate.mjs`, {
         stdio: 'inherit',
     });
 }
@@ -353,13 +353,13 @@ emulators-data/
     fs.writeFileSync(`${firebaseRoot}/.gitignore`, gitignore, 'utf-8');
     // Install Firebase packages and clean code.
     console.log(' \x1b[32mquasar-generate •\x1b[0m', 'Installing \x1b[47mFirebase\x1b[0m packages and clean code...');
-    execSync(`cd ${firebaseRoot} && yarn && yarn clean`, {
+    execSync(`cd ${firebaseRoot.replaceAll(' ', '\\ ')} && yarn && yarn clean`, {
         stdio: 'inherit',
     });
 }
 function launchFirebasePackage() {
     console.log(' \x1b[32mquasar-generate •\x1b[0m', `Launching \x1b[47m${config.packageName}\x1b[0m in Visual Studio Code...`);
-    execSync(`code ${firebaseRoot}`, {
+    execSync(`code ${firebaseRoot.replaceAll(' ', '\\ ')}`, {
         stdio: 'inherit',
     });
 }

@@ -119,7 +119,7 @@ function finishProject() {
     `Installing \x1b[47m${config.packageName}\x1b[0m packages and clean code...`,
   );
 
-  execSync(`cd ${appRoot} && yarn && yarn clean`, {
+  execSync(`cd ${appRoot.replaceAll(' ', '\\ ')} && yarn && yarn clean`, {
     stdio: 'inherit',
   });
 }
@@ -165,7 +165,7 @@ ${fs.readFileSync(`${globalAssets}/.npmrc`, 'utf-8')}`.trimStart();
   console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47mmnapp\x1b[0m...`);
 
   execSync(
-    `cd ${appRoot} && yarn link @motinet/quasar-app-extension-mnapp && yarn quasar ext invoke @motinet/mnapp`,
+    `cd ${appRoot.replaceAll(' ', '\\ ')} && yarn link @motinet/quasar-app-extension-mnapp && yarn quasar ext invoke @motinet/mnapp`,
     {
       stdio: 'inherit',
     },
@@ -335,7 +335,7 @@ name: 'HomePage', path: '', meta: { isNoReturnPage: true }`,
     `Formatting code after \x1b[47mmnapp\x1b[0m installation...`,
   );
 
-  execSync(`cd ${appRoot} && yarn format --log-level warn`, {
+  execSync(`cd ${appRoot.replaceAll(' ', '\\ ')} && yarn format --log-level warn`, {
     stdio: 'inherit',
   });
 }

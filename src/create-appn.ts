@@ -15,6 +15,7 @@ import fixCompileTimeYarnPnP from './lib/fix-compile-time-yarn-pnp.js';
 import setupFormatLint from './lib/format-lintn.js';
 // import { extendJsonFile, reduceJsonFile } from './lib/json-helpers.js';
 import { extendJsonFile } from './lib/json-helpers.js';
+import packagesVersion from './lib/packages-version.js';
 import patchQuasarAppVite from './lib/patches/patch-quasar-app-vite.js';
 import type { CreateAppConfig } from './types';
 
@@ -163,8 +164,7 @@ function projectSrc() {
     });
   }
 
-  // Patch `@quasar/app-vite` and add invoke script if `@motinet/mnapp` detected.
-  // Still need to add dependency manually.
+  // Patch `@quasar/app-vite`, add dependency and add invoke script if `@motinet/quasar-app-extension-mnapp` is detected.
 
   if (fs.existsSync(path.resolve(`${appRoot}/.mnapprc.js`))) {
     patchQuasarAppVite(appRoot, packageJsonFilePath);
@@ -173,6 +173,10 @@ function projectSrc() {
       {
         path: 'scripts.i-mnapp',
         value: 'quasar ext invoke @motinet/mnapp && yarn format --log-level warn',
+      },
+      {
+        path: 'devDependencies.@motinet/quasar-app-extension-mnapp',
+        value: config.mnappLocation || packagesVersion['@motinet/quasar-app-extension-mnapp'],
       },
     ]);
   }

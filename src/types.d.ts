@@ -6,6 +6,7 @@ export interface CreateAppConfig {
   productDescription: string;
   author: string;
   sharedAssets: string;
+  mnappLocation?: string;
   initProject: false | { sharedAssets: string }; // TODO: Remove
 }
 
@@ -16,6 +17,7 @@ export interface CreateExtensionConfig {
   version: string;
   projectDescription: string;
   author: string;
+  mnappLocation?: string;
   hasDev: false | { project: string }; // TODO: Remove
 }
 

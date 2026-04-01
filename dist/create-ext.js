@@ -210,7 +210,7 @@ function finishTemplatesProject() {
     reduceJsonFile(templatesPackageJsonFilePath, ['engines.pnpm']);
     // Install templates packages and clean code.
     console.log(' \x1b[32mquasar-generate •\x1b[0m', 'Installing \x1b[47mtemplates\x1b[0m packages and clean code...');
-    execSync(`cd ${templatesRoot} && yarn && node ./buildPaths.js && yarn clean`, {
+    execSync(`cd ${templatesRoot.replaceAll(' ', '\\ ')} && yarn && node ./buildPaths.js && yarn clean`, {
         stdio: 'inherit',
     });
 }
@@ -342,13 +342,13 @@ function finishExtensionProject() {
     reduceJsonFile(extensionPackageJsonFilePath, ['engines.pnpm']);
     // Install the extension packages, build and clean code.
     console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47m${config.extensionId}\x1b[0m packages, build and clean code...`);
-    execSync(`cd ${extensionRoot} && yarn && yarn build && yarn clean`, {
+    execSync(`cd ${extensionRoot.replaceAll(' ', '\\ ')} && yarn && yarn build && yarn clean`, {
         stdio: 'inherit',
     });
 }
 function launchExtensionProject() {
     console.log(' \x1b[32mquasar-generate •\x1b[0m', `Launching \x1b[47m${config.extensionId}\x1b[0m in Visual Studio Code...`);
-    execSync(`code ${extensionRoot}`, {
+    execSync(`code ${extensionRoot.replaceAll(' ', '\\ ')}`, {
         stdio: 'inherit',
     });
 }

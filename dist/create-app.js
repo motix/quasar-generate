@@ -80,7 +80,7 @@ function finishProject() {
     reduceJsonFile(packageJsonFilePath, ['engines.pnpm']);
     // Install the app packages and clean code.
     console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47m${config.packageName}\x1b[0m packages and clean code...`);
-    execSync(`cd ${appRoot} && yarn && yarn clean`, {
+    execSync(`cd ${appRoot.replaceAll(' ', '\\ ')} && yarn && yarn clean`, {
         stdio: 'inherit',
     });
 }
@@ -110,7 +110,7 @@ ${fs.readFileSync(`${globalAssets}/.npmrc`, 'utf-8')}`.trimStart();
     });
     // Install `mnapp`.
     console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47mmnapp\x1b[0m...`);
-    execSync(`cd ${appRoot} && yarn link @motinet/quasar-app-extension-mnapp && yarn quasar ext invoke @motinet/mnapp`, {
+    execSync(`cd ${appRoot.replaceAll(' ', '\\ ')} && yarn link @motinet/quasar-app-extension-mnapp && yarn quasar ext invoke @motinet/mnapp`, {
         stdio: 'inherit',
     });
     // Add `.env` with Firebase config.
@@ -241,7 +241,7 @@ name: 'HomePage', path: '', meta: { isNoReturnPage: true }`);
     ]);
     // Format code
     console.log(' \x1b[32mquasar-generate •\x1b[0m', `Formatting code after \x1b[47mmnapp\x1b[0m installation...`);
-    execSync(`cd ${appRoot} && yarn format --log-level warn`, {
+    execSync(`cd ${appRoot.replaceAll(' ', '\\ ')} && yarn format --log-level warn`, {
         stdio: 'inherit',
     });
 }
