@@ -29,8 +29,7 @@ f || (await createDevQuasarProject());
 f || setPackagesInfo();
 f || prepareWorkspaces();
 // Fix Yarn PnP for Quasar `dev` and `build`
-// After this fix, Quasar `dev` and `build` will always work with no error in `dev` workspace.
-f || fixCompileTimeYarnPnP(extensionRoot, devRoot, true);
+f || fixCompileTimeYarnPnP(extensionRoot, devRoot, false, true);
 // Workspaces formatting and linting
 f || rootWorkspaceFormattingAndLinting();
 f || devWorkspaceFormattingAndLinting();
@@ -44,8 +43,8 @@ f || devWorkspaceSrc();
 f || finishRootWorkspace();
 f || finishTemplatesWorkspace();
 f || finishDevWorkspace();
-// Finish all and launch
-f || finishAllAndLaunch();
+// Install and launch
+f || installAndLaunch();
 // Create workspaces
 async function createExtensionQuasarProject() {
     // Create Quasar project for the extension.
@@ -229,7 +228,7 @@ import pluginQuasar from '@quasar/app-vite/eslint'
 function devWorkspaceFormattingAndLinting() {
     // Setup formatting and linting.
     setupFormatLint(devRoot);
-    // All formatting and some lingting tools were coppied to root workspace, remove them here.
+    // All formatting and some lingting tools were available in root workspace, remove them here.
     fs.rmSync(`${devRoot}/.vscode`, { recursive: true });
     fs.rmSync(`${devRoot}/.editorconfig`);
     fs.rmSync(`${devRoot}/prettier.config.js`);
@@ -507,8 +506,8 @@ function finishDevWorkspace() {
     // Commit code.
     commitCode(extensionRoot, '\\`finishDevWorkspace()\\`');
 }
-// Finish all and launch
-function finishAllAndLaunch() {
+// Install and launch
+function installAndLaunch() {
     // Install root workspace packages, build and clean code.
     console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47m${config.extensionId}\x1b[0m packages, build and clean code...`);
     if (runYarn) {

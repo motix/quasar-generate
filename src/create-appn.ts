@@ -10,17 +10,15 @@ import {
 } from '@dreamonkey/cli-ghostwriter';
 
 import commitCode from './lib/commit-code.js';
-// import packagesVersion from './lib/packages-version.js';
 import fixCompileTimeYarnPnP from './lib/fix-compile-time-yarn-pnp.js';
 import setupFormatLint from './lib/format-lintn.js';
-// import { extendJsonFile, reduceJsonFile } from './lib/json-helpers.js';
 import { extendJsonFile } from './lib/json-helpers.js';
 import packagesVersion from './lib/packages-version.js';
 import patchQuasarAppVite from './lib/patches/patch-quasar-app-vite.js';
 import type { CreateAppConfig } from './types';
 
-// const globalAssets = './assetsn';
 const project = process.argv[2];
+// TODO
 // const runYarn = process.argv[3] === '-y' || process.argv[4] === '-y';
 // const autoLaunch = process.argv[3] === '-l' || process.argv[4] === '-l';
 const config = (await import(`../projects/${project}/project.js`)).default as CreateAppConfig;
@@ -35,10 +33,7 @@ const f = false;
 
 f || (await createQuasarProject());
 f || setPackageInfo();
-
-// After this fix, Quasar `dev` and `build` will always work with no error in `dev` workspace.
-f || fixCompileTimeYarnPnP(appRoot, appRoot, true);
-
+f || fixCompileTimeYarnPnP(appRoot, appRoot, false, true);
 f || formattingAndLinting();
 f || projectSrc();
 f || finishProject();

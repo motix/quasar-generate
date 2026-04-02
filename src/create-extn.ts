@@ -41,8 +41,7 @@ f || setPackagesInfo();
 f || prepareWorkspaces();
 
 // Fix Yarn PnP for Quasar `dev` and `build`
-// After this fix, Quasar `dev` and `build` will always work with no error in `dev` workspace.
-f || fixCompileTimeYarnPnP(extensionRoot, devRoot, true);
+f || fixCompileTimeYarnPnP(extensionRoot, devRoot, false, true);
 
 // Workspaces formatting and linting
 f || rootWorkspaceFormattingAndLinting();
@@ -60,8 +59,8 @@ f || finishRootWorkspace();
 f || finishTemplatesWorkspace();
 f || finishDevWorkspace();
 
-// Finish all and launch
-f || finishAllAndLaunch();
+// Install and launch
+f || installAndLaunch();
 
 // Create workspaces
 
@@ -335,7 +334,7 @@ function devWorkspaceFormattingAndLinting() {
 
   setupFormatLint(devRoot);
 
-  // All formatting and some lingting tools were coppied to root workspace, remove them here.
+  // All formatting and some lingting tools were available in root workspace, remove them here.
 
   fs.rmSync(`${devRoot}/.vscode`, { recursive: true });
   fs.rmSync(`${devRoot}/.editorconfig`);
@@ -727,9 +726,9 @@ function finishDevWorkspace() {
   commitCode(extensionRoot, '\\`finishDevWorkspace()\\`');
 }
 
-// Finish all and launch
+// Install and launch
 
-function finishAllAndLaunch() {
+function installAndLaunch() {
   // Install root workspace packages, build and clean code.
 
   console.log(
