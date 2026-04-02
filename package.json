@@ -12,13 +12,7 @@
     "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore --ignore-path .prettierignore",
     "clean": "yarn format --log-level warn && yarn lint --fix",
     "build": "yarn tsc",
-    "watch": "yarn tsc --watch",
-    "create-app": "node ./dist/create-app.js",
-    "create-appn": "node ./dist/create-appn.js",
-    "create-ext": "node ./dist/create-ext.js",
-    "create-extn": "node ./dist/create-extn.js",
-    "create-ext-app": "node ./dist/create-ext-app.js",
-    "create-firebase": "node ./dist/create-firebase.js"
+    "watch": "yarn tsc --watch"
   },
   "devDependencies": {
     "@dreamonkey/cli-ghostwriter": "^0.2.0",
