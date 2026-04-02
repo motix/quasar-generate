@@ -428,12 +428,12 @@ async function extensionProjectFormattingAndLinting() {
     {
       path: 'scripts.lint',
       value:
-        'eslint -c ./eslint.config.js "./src/**/*.{ts,js,cjs,mjs,vue}" && cd templates && yarn lint',
+        'eslint -c ./eslint.config.js "./src/**/*.{ts,js,cjs,mjs,vue}" && cd ./templates && yarn lint',
     },
     {
       path: 'scripts.lintf',
       value:
-        'eslint -c ./eslint.config.js "./src/**/*.{ts,js,cjs,mjs,vue}" --fix && cd templates && yarn lint --fix',
+        'eslint -c ./eslint.config.js "./src/**/*.{ts,js,cjs,mjs,vue}" --fix && cd ./templates && yarn lint --fix',
     },
     {
       path: 'scripts.format',
@@ -468,7 +468,7 @@ function finishExtensionProject() {
   // Add build scripts.
 
   extendJsonFile(extensionPackageJsonFilePath, [
-    { path: 'scripts.build', value: 'npx tsc && cd templates && yarn tsc' },
+    { path: 'scripts.build', value: 'npx tsc && cd ./templates && yarn tsc' },
     { path: 'scripts.watch', value: 'npx tsc --watch' },
     {
       path: 'scripts.buildPaths',

@@ -312,11 +312,11 @@ function rootWorkspaceFormattingAndLintingScrips() {
     extendJsonFile(extensionPackageJsonFilePath, [
         {
             path: 'scripts.lint',
-            value: 'eslint -c ./eslint.config.js "./src/**/*.{ts,js,cjs,mjs,vue}" && cd templates && yarn lint && cd ../dev && yarn lint',
+            value: 'eslint -c ./eslint.config.js "./src/**/*.{ts,js,cjs,mjs,vue}" && cd ./templates && yarn lint && cd ../dev && yarn lint',
         },
         {
             path: 'scripts.lintf',
-            value: 'eslint -c ./eslint.config.js "./src/**/*.{ts,js,cjs,mjs,vue}" --fix && cd templates && yarn lint --fix && cd ../dev && yarn lint --fix',
+            value: 'eslint -c ./eslint.config.js "./src/**/*.{ts,js,cjs,mjs,vue}" --fix && cd ./templates && yarn lint --fix && cd ../dev && yarn lint --fix',
         },
         {
             path: 'scripts.format',
@@ -512,12 +512,12 @@ function finishAllAndLaunch() {
     // Install root workspace packages, build and clean code.
     console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47m${config.extensionId}\x1b[0m packages, build and clean code...`);
     if (runYarn) {
-        execSync(`cd ${extensionRoot.replaceAll(' ', '\\ ')} && yarn && cd dev && yarn postinstall && cd .. && yarn buildPaths && yarn build && yarn clean && cd dev && yarn i-${config.extensionId} && yarn dev`, {
+        execSync(`cd ${extensionRoot.replaceAll(' ', '\\ ')} && yarn && cd ./dev && yarn postinstall && cd .. && yarn buildPaths && yarn build && yarn clean && cd ./dev && yarn i-${config.extensionId} && yarn dev`, {
             stdio: 'inherit',
         });
     }
     else {
-        console.log(`                   Run \x1b[47mcd ${extensionRoot.replaceAll(' ', '\\ ')} && yarn && cd dev && yarn postinstall && cd .. && yarn buildPaths && yarn build && yarn clean && cd dev && yarn i-${config.extensionId} && yarn dev\x1b[0m manually.`);
+        console.log(`                   Run \x1b[47mcd ${extensionRoot.replaceAll(' ', '\\ ')} && yarn && cd ./dev && yarn postinstall && cd .. && yarn buildPaths && yarn build && yarn clean && cd ./dev && yarn i-${config.extensionId} && yarn dev\x1b[0m manually.`);
     }
     // Auto launch
     if (autoLaunch) {

@@ -449,12 +449,12 @@ function rootWorkspaceFormattingAndLintingScrips() {
     {
       path: 'scripts.lint',
       value:
-        'eslint -c ./eslint.config.js "./src/**/*.{ts,js,cjs,mjs,vue}" && cd templates && yarn lint && cd ../dev && yarn lint',
+        'eslint -c ./eslint.config.js "./src/**/*.{ts,js,cjs,mjs,vue}" && cd ./templates && yarn lint && cd ../dev && yarn lint',
     },
     {
       path: 'scripts.lintf',
       value:
-        'eslint -c ./eslint.config.js "./src/**/*.{ts,js,cjs,mjs,vue}" --fix && cd templates && yarn lint --fix && cd ../dev && yarn lint --fix',
+        'eslint -c ./eslint.config.js "./src/**/*.{ts,js,cjs,mjs,vue}" --fix && cd ./templates && yarn lint --fix && cd ../dev && yarn lint --fix',
     },
     {
       path: 'scripts.format',
@@ -739,14 +739,14 @@ function finishAllAndLaunch() {
 
   if (runYarn) {
     execSync(
-      `cd ${extensionRoot.replaceAll(' ', '\\ ')} && yarn && cd dev && yarn postinstall && cd .. && yarn buildPaths && yarn build && yarn clean && cd dev && yarn i-${config.extensionId} && yarn dev`,
+      `cd ${extensionRoot.replaceAll(' ', '\\ ')} && yarn && cd ./dev && yarn postinstall && cd .. && yarn buildPaths && yarn build && yarn clean && cd ./dev && yarn i-${config.extensionId} && yarn dev`,
       {
         stdio: 'inherit',
       },
     );
   } else {
     console.log(
-      `                   Run \x1b[47mcd ${extensionRoot.replaceAll(' ', '\\ ')} && yarn && cd dev && yarn postinstall && cd .. && yarn buildPaths && yarn build && yarn clean && cd dev && yarn i-${config.extensionId} && yarn dev\x1b[0m manually.`,
+      `                   Run \x1b[47mcd ${extensionRoot.replaceAll(' ', '\\ ')} && yarn && cd ./dev && yarn postinstall && cd .. && yarn buildPaths && yarn build && yarn clean && cd ./dev && yarn i-${config.extensionId} && yarn dev\x1b[0m manually.`,
     );
   }
 
