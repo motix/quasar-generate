@@ -9,6 +9,12 @@
     "isolatedModules": true,
     "module": "preserve",
     "lib": ["esnext", "dom", "dom.iterable"],
+    "strict": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noImplicitOverride": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
     "rootDir": "./src",
     "outDir": "./dist"
   },
