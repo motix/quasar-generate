@@ -12,7 +12,8 @@
     "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore --ignore-path .prettierignore",
     "clean": "yarn format --log-level warn && yarn lint --fix",
     "build": "yarn tsc",
-    "watch": "yarn tsc --watch"
+    "watch": "yarn tsc --watch",
+    "create-ext": "node ./dist/create-ext.js"
   },
   "devDependencies": {
     "@dreamonkey/cli-ghostwriter": "^0.2.0",
