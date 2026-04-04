@@ -280,7 +280,9 @@ function refineGitignore() {
 .yarn/unplugged/
 .yarn/install-state.gz
 `;
-  dotGitignore = dotGitignore.replace('.vscode', '# .vscode');
+  dotGitignore = dotGitignore.includes('# .vscode')
+    ? dotGitignore
+    : dotGitignore.replace('.vscode', '# .vscode');
 
   fs.writeFileSync(rootDotGitignoreFilePath, dotGitignore, { encoding: 'utf-8' });
 }
@@ -777,19 +779,21 @@ function finishRootWorkspace() {
 }
 
 function finishExtensionWorkspace() {
-  // Add `typescript`
+  if (config.monorepo) {
+    // Add `typescript`
 
-  extendJsonFile(extensionPackageJsonFilePath, [
-    { path: 'devDependencies.typescript', value: packagesVersion['typescript'] },
-  ]);
+    extendJsonFile(extensionPackageJsonFilePath, [
+      { path: 'devDependencies.typescript', value: packagesVersion['typescript'] },
+    ]);
 
-  // Reorder `package.json`.
+    // Reorder `package.json`.
 
-  reorderJsonFile(extensionPackageJsonFilePath);
+    reorderJsonFile(extensionPackageJsonFilePath);
 
-  // Commit code.
+    // Commit code.
 
-  commitCode(rootWorkspaceFolder, '\\`finishExtensionWorkspace()\\`');
+    commitCode(rootWorkspaceFolder, '\\`finishExtensionWorkspace()\\`');
+  }
 }
 
 function finishTemplatesWorkspace() {

@@ -68,9 +68,11 @@ export default function fixCompileTimeYarnPnP(options) {
         reduceJsonFile(settingsJsonPath, ['typescript.tsdk']);
         if (rootWorkspaceFolder !== undefined) {
             // Unignore `.vscode` to persist settings for editor SDKs.
-            let gitignore = fs.readFileSync(`${rootWorkspaceFolder}/.gitignore`, 'utf-8');
-            gitignore = gitignore.replace('.vscode', '# .vscode');
-            fs.writeFileSync(`${rootWorkspaceFolder}/.gitignore`, gitignore, {
+            let dotGitignore = fs.readFileSync(`${rootWorkspaceFolder}/.gitignore`, 'utf-8');
+            dotGitignore = dotGitignore.includes('# .vscode')
+                ? dotGitignore
+                : dotGitignore.replace('.vscode', '# .vscode');
+            fs.writeFileSync(`${rootWorkspaceFolder}/.gitignore`, dotGitignore, {
                 encoding: 'utf-8',
             });
         }
