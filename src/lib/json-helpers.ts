@@ -79,3 +79,43 @@ export function reduceJsonFileArray(
     fs.writeFileSync(filePath, JSON.stringify(json, null, 2));
   }
 }
+
+export function reorderJsonFile(
+  filePath: string,
+  topKeys: string[] = [
+    'name',
+    'version',
+    'description',
+    'productName',
+    'author',
+    'license',
+    'type',
+    'private',
+    'scripts',
+    'workspaces',
+    'dependencies',
+    'devDependencies',
+    'dependenciesMeta',
+    'engines',
+  ],
+) {
+  const json = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
+
+  if (json) {
+    const newJson: typeof json = {};
+
+    topKeys.forEach((key) => {
+      if (Object.prototype.hasOwnProperty.call(json, key)) {
+        newJson[key] = json[key];
+      }
+    });
+
+    Object.keys(json).forEach((key) => {
+      if (!topKeys.includes(key)) {
+        newJson[key] = json[key];
+      }
+    });
+
+    fs.writeFileSync(filePath, JSON.stringify(newJson, null, 2));
+  }
+}

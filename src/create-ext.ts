@@ -11,7 +11,7 @@ import {
 
 import commitCode from './lib/commit-code.js';
 import fixCompileTimeYarnPnP from './lib/fix-compile-time-yarn-pnp.js';
-import { extendJsonFile, reduceJsonFile } from './lib/json-helpers.js';
+import { extendJsonFile, reduceJsonFile, reorderJsonFile } from './lib/json-helpers.js';
 import packagesVersion from './lib/packages-version.js';
 import patchQuasarAppVite from './lib/patches/patch-quasar-app-vite.js';
 import setupFormatLint from './lib/setup-format-lint.js';
@@ -767,6 +767,10 @@ function finishRootWorkspace() {
     },
   ]);
 
+  // Reorder `package.json`.
+
+  reorderJsonFile(rootPackageJsonFilePath);
+
   // Commit code.
 
   commitCode(rootWorkspaceFolder, '\\`finishRootWorkspace()\\`');
@@ -778,6 +782,14 @@ function finishExtensionWorkspace() {
   extendJsonFile(extensionPackageJsonFilePath, [
     { path: 'devDependencies.typescript', value: packagesVersion['typescript'] },
   ]);
+
+  // Reorder `package.json`.
+
+  reorderJsonFile(extensionPackageJsonFilePath);
+
+  // Commit code.
+
+  commitCode(rootWorkspaceFolder, '\\`finishExtensionWorkspace()\\`');
 }
 
 function finishTemplatesWorkspace() {
@@ -804,6 +816,10 @@ function finishTemplatesWorkspace() {
     },
   ]);
 
+  // Reorder `package.json`.
+
+  reorderJsonFile(templatesPackageJsonFilePath);
+
   // Commit code.
 
   commitCode(rootWorkspaceFolder, '\\`finishTemplatesWorkspace()\\`');
@@ -822,6 +838,10 @@ function finishDevWorkspace() {
       value: `quasar ext invoke @${config.organizationName}/${config.extensionId} && yarn format --log-level warn`,
     },
   ]);
+
+  // Reorder `package.json`.
+
+  reorderJsonFile(devPackageJsonFilePath);
 
   // Commit code.
 

@@ -4,7 +4,7 @@ import path from 'path';
 import { ACCEPT_DEFAULT, DOWN_KEY, WHITESPACE_KEY, cliGhostwriter, } from '@dreamonkey/cli-ghostwriter';
 import commitCode from './lib/commit-code.js';
 import fixCompileTimeYarnPnP from './lib/fix-compile-time-yarn-pnp.js';
-import { extendJsonFile, reduceJsonFile } from './lib/json-helpers.js';
+import { extendJsonFile, reduceJsonFile, reorderJsonFile } from './lib/json-helpers.js';
 import packagesVersion from './lib/packages-version.js';
 import patchQuasarAppVite from './lib/patches/patch-quasar-app-vite.js';
 import setupFormatLint from './lib/setup-format-lint.js';
@@ -530,6 +530,8 @@ function finishRootWorkspace() {
             value: `cd ./${config.monorepo ? `${extensionName}/` : ''}templates && node ./buildPaths.js && yarn prettier --write ./tsconfig-paths.json`,
         },
     ]);
+    // Reorder `package.json`.
+    reorderJsonFile(rootPackageJsonFilePath);
     // Commit code.
     commitCode(rootWorkspaceFolder, '\\`finishRootWorkspace()\\`');
 }
@@ -538,6 +540,10 @@ function finishExtensionWorkspace() {
     extendJsonFile(extensionPackageJsonFilePath, [
         { path: 'devDependencies.typescript', value: packagesVersion['typescript'] },
     ]);
+    // Reorder `package.json`.
+    reorderJsonFile(extensionPackageJsonFilePath);
+    // Commit code.
+    commitCode(rootWorkspaceFolder, '\\`finishExtensionWorkspace()\\`');
 }
 function finishTemplatesWorkspace() {
     // Add `vue-tsc`.
@@ -556,6 +562,8 @@ function finishTemplatesWorkspace() {
             value: 'yarn vue-tsc --noEmit --skipLibCheck',
         },
     ]);
+    // Reorder `package.json`.
+    reorderJsonFile(templatesPackageJsonFilePath);
     // Commit code.
     commitCode(rootWorkspaceFolder, '\\`finishTemplatesWorkspace()\\`');
 }
@@ -571,6 +579,8 @@ function finishDevWorkspace() {
             value: `quasar ext invoke @${config.organizationName}/${config.extensionId} && yarn format --log-level warn`,
         },
     ]);
+    // Reorder `package.json`.
+    reorderJsonFile(devPackageJsonFilePath);
     // Commit code.
     commitCode(rootWorkspaceFolder, '\\`finishDevWorkspace()\\`');
 }
