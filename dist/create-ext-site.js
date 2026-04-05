@@ -2,7 +2,7 @@
 import path from 'path';
 import { ACCEPT_DEFAULT, DOWN_KEY, WHITESPACE_KEY, cliGhostwriter, } from '@dreamonkey/cli-ghostwriter';
 import commitCode from './lib/commit-code.js';
-// import fixCompileTimeYarnPnP from './lib/fix-compile-time-yarn-pnp.js';
+import fixCompileTimeYarnPnP from './lib/fix-compile-time-yarn-pnp.js';
 // import { extendJsonFile, reduceJsonFile } from './lib/json-helpers.js';
 import { extendJsonFile } from './lib/json-helpers.js';
 const project = process.argv[2];
@@ -24,7 +24,13 @@ const f = false;
 // Create workspaces
 f && (await createQuasarProject());
 f && setPackageInfo();
-f || prepareWorkspaces();
+f && prepareWorkspaces();
+// Fix Yarn PnP for Quasar `dev` and `build`
+f ||
+    fixCompileTimeYarnPnP({
+        targetWorkspaceFolder: siteWorkspaceFolder,
+        commitCodeMessage: `\\\`fixCompileTimeYarnPnP()\\\` for \\\`${config.packageName}\\\``,
+    });
 // Create workspaces
 async function createQuasarProject() {
     // Create Quasar project for `dev` workspace.
