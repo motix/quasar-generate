@@ -1,10 +1,12 @@
-// import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { ACCEPT_DEFAULT, DOWN_KEY, WHITESPACE_KEY, cliGhostwriter, } from '@dreamonkey/cli-ghostwriter';
 import commitCode from './lib/commit-code.js';
 import fixCompileTimeYarnPnP from './lib/fix-compile-time-yarn-pnp.js';
 // import { extendJsonFile, reduceJsonFile } from './lib/json-helpers.js';
 import { extendJsonFile } from './lib/json-helpers.js';
+// import packagesVersion from './lib/packages-version.js';
+import setupFormatLint from './lib/setup-format-lint.js';
 const project = process.argv[2];
 // TODO
 // const runYarn = process.argv[3] === '-y' || process.argv[4] === '-y';
@@ -26,11 +28,13 @@ f && (await createQuasarProject());
 f && setPackageInfo();
 f && prepareWorkspaces();
 // Fix Yarn PnP for Quasar `dev` and `build`
-f ||
+f &&
     fixCompileTimeYarnPnP({
         targetWorkspaceFolder: siteWorkspaceFolder,
         commitCodeMessage: `\\\`fixCompileTimeYarnPnP()\\\` for \\\`${config.packageName}\\\``,
     });
+// Workspaces formatting and linting
+f || formattingAndLinting();
 // Create workspaces
 async function createQuasarProject() {
     // Create Quasar project for `dev` workspace.
@@ -86,6 +90,40 @@ function prepareWorkspaces() {
     ]);
     // Commit code.
     commitCode(rootWorkspaceFolder, `\\\`prepareWorkspaces()\\\` for \\\`${config.packageName}\\\``);
+}
+// Workspaces formatting and linting
+function formattingAndLinting() {
+    // Setup formatting and linting.
+    setupFormatLint({ targetWorkspaceFolder: siteWorkspaceFolder });
+    // All formatting and some lingting tools were available in root workspace, remove them here.
+    fs.rmSync(`${siteWorkspaceFolder}/.vscode`, { recursive: true });
+    fs.rmSync(`${siteWorkspaceFolder}/.editorconfig`);
+    fs.rmSync(`${siteWorkspaceFolder}/.prettierrc.json`);
+    // Since there are multiple `eslint.config.js` and `tsconfig.json` files in the project,
+    // we need to set `tsconfigRootDir` for each `eslint.config.js` to avoid
+    // Parsing error: No tsconfigRootDir was set, and multiple candidate TSConfigRootDirs are present.
+    let eslintConfigJs = fs.readFileSync(`${siteWorkspaceFolder}/eslint.config.js`, 'utf-8');
+    eslintConfigJs = eslintConfigJs.replace("pluginVue.configs[ 'flat/recommended' ],", `pluginVue.configs[ 'flat/recommended' ],
+
+  {
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },`);
+    fs.writeFileSync(`${siteWorkspaceFolder}/eslint.config.js`, eslintConfigJs, {
+        encoding: 'utf-8',
+    });
+    // Add `clean` script.
+    extendJsonFile(sitePackageJsonFilePath, [
+        {
+            path: 'scripts.clean',
+            value: 'yarn format --log-level warn && yarn lint --fix',
+        },
+    ]);
+    // Commit code.
+    commitCode(rootWorkspaceFolder, `\\\`formattingAndLinting()\\\` for \\\`${config.packageName}\\\``);
 }
 // Internal
 async function getExtensionInfo() {
