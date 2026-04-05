@@ -67,6 +67,7 @@ f || devWorkspaceFormattingAndLinting();
 f || templatesWorkspaceFormattingAndLinting(); // `templates` workspace copies files from `dev` workspace, so it needs to be called after `dev` workspace.
 
 // Workspaces base source code
+f || rootWorkspaceSrc();
 f || extensionWorkspaceSrc();
 f || templatesWorkspaceSrc();
 f || devWorkspaceSrc();
@@ -561,6 +562,27 @@ function templatesWorkspaceFormattingAndLinting() {
 
 // Workspaces base source code
 
+function rootWorkspaceSrc() {
+  // Add project template.
+
+  const rootAssets = `${projectAssets}/templates/root`;
+  let codeChanged = false;
+
+  if (fs.existsSync(rootAssets)) {
+    fs.readdirSync(rootAssets).forEach((file) => {
+      codeChanged = true;
+      fs.cpSync(path.join(rootAssets, file), path.join(rootWorkspaceFolder, file), {
+        recursive: true,
+        force: true,
+      });
+    });
+  }
+
+  // Commit code.
+
+  codeChanged && commitCode(rootWorkspaceFolder, '\\`rootWorkspaceSrc()\\`');
+}
+
 function extensionWorkspaceSrc() {
   // Add `tsconfig.json`.
 
@@ -625,7 +647,7 @@ function extensionWorkspaceSrc() {
 
   // Add project template.
 
-  const extensionAssets = `${projectAssets}/templates/root`;
+  const extensionAssets = `${projectAssets}/templates/extension`;
 
   if (fs.existsSync(extensionAssets)) {
     fs.readdirSync(extensionAssets).forEach((file) => {
