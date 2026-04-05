@@ -12,7 +12,7 @@ export default function patchQuasarAppVite(options: {
     fs.mkdirSync(`${options.rootWorkspaceFolder}/.yarn/patches`, { recursive: true });
 
     fs.writeFileSync(
-      `${options.rootWorkspaceFolder}/.yarn/patches/@quasar-app-vite-npm-2.5.4-007016bf60.patch`,
+      `${options.rootWorkspaceFolder}/.yarn/patches/@quasar-app-vite-npm-2.5.4-0000000000.patch`,
       `diff --git a/package.json b/package.json
 index 2e7ae61add3684688a04c2dae79405a058ee5862..c469c605365d5eeaa8e9011351ea5efdd4a54243 100644
 --- a/package.json
@@ -42,7 +42,7 @@ index 2e7ae61add3684688a04c2dae79405a058ee5862..c469c605365d5eeaa8e9011351ea5efd
       {
         path: 'dependencies.@quasar/app-vite',
         value:
-          'patch:@quasar/app-vite@npm%3A2.5.4#~/.yarn/patches/@quasar-app-vite-npm-2.5.4-007016bf60.patch',
+          'patch:@quasar/app-vite@npm%3A2.5.4#~/.yarn/patches/@quasar-app-vite-npm-2.5.4-0000000000.patch',
       },
     ]);
   }

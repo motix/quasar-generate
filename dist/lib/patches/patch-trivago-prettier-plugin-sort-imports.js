@@ -4,7 +4,7 @@ import { extendJsonFile } from '../json-helpers.js';
 export default function patchTrivagoPrettierPluginSortImports(options) {
     if (options.rootWorkspaceFolder !== undefined) {
         fs.mkdirSync(`${options.rootWorkspaceFolder}/.yarn/patches`, { recursive: true });
-        fs.writeFileSync(`${options.rootWorkspaceFolder}/.yarn/patches/@trivago-prettier-plugin-sort-imports-npm-6.0.2-88f9e213cd.patch`, `diff --git a/lib/src/preprocessors/vue-preprocessor.js b/lib/src/preprocessors/vue-preprocessor.js
+        fs.writeFileSync(`${options.rootWorkspaceFolder}/.yarn/patches/@trivago-prettier-plugin-sort-imports-npm-6.0.2-0000000000.patch`, `diff --git a/lib/src/preprocessors/vue-preprocessor.js b/lib/src/preprocessors/vue-preprocessor.js
 index 41b5bc94b0fb8406f74a952e2b9afb01510da617..bae2dffc50c8afc4b1c856e7cd832f4d02dc7f20 100644
 --- a/lib/src/preprocessors/vue-preprocessor.js
 +++ b/lib/src/preprocessors/vue-preprocessor.js
@@ -25,7 +25,7 @@ index 41b5bc94b0fb8406f74a952e2b9afb01510da617..bae2dffc50c8afc4b1c856e7cd832f4d
         extendJsonFile(options.targetPackageJsonFilePath, [
             {
                 path: 'devDependencies.@trivago/prettier-plugin-sort-imports',
-                value: 'patch:@trivago/prettier-plugin-sort-imports@npm%3A6.0.2#~/.yarn/patches/@trivago-prettier-plugin-sort-imports-npm-6.0.2-88f9e213cd.patch',
+                value: 'patch:@trivago/prettier-plugin-sort-imports@npm%3A6.0.2#~/.yarn/patches/@trivago-prettier-plugin-sort-imports-npm-6.0.2-0000000000.patch',
             },
         ]);
     }

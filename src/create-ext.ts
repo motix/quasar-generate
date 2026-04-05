@@ -65,7 +65,6 @@ f ||
 f || rootWorkspaceFormattingAndLinting();
 f || devWorkspaceFormattingAndLinting();
 f || templatesWorkspaceFormattingAndLinting(); // `templates` workspace copies files from `dev` workspace, so it needs to be called after `dev` workspace.
-f || rootWorkspaceFormattingAndLintingScrips();
 
 // Workspaces base source code
 f || extensionWorkspaceSrc();
@@ -200,9 +199,7 @@ async function createDevQuasarProject() {
     'Package name': `${config.extensionId}-dev`,
     'Project product name': `${config.extensionId} Dev`,
     'Project description': `Dev for ${config.extensionId}`,
-    'Pick a Vue component style': ACCEPT_DEFAULT, // Composition API with <script setup>
-    'Pick your CSS preprocessor': ACCEPT_DEFAULT, // Sass with SCSS syntax
-    'Check the features needed for your project': `${DOWN_KEY}${WHITESPACE_KEY}`, // Linting, Pinia
+    'Check the features needed for your project': `${DOWN_KEY}${DOWN_KEY}${WHITESPACE_KEY}`, // Sass, Linting, Pinia
     'Add Prettier for code formatting?': ACCEPT_DEFAULT, // Y
     'Install project dependencies?': `${DOWN_KEY}`, // No
   };
@@ -267,9 +264,13 @@ function refineGitignore() {
   const rootDotGitignoreFilePath = path.resolve(`${rootWorkspaceFolder}/.gitignore`);
   const extensionDotGitignoreFilePath = path.resolve(`${extensionWorkspaceFolder}/.gitignore`);
 
+  // Move `.gitignore` from extension workspace to root workspace.
+
   if (config.monorepo) {
     fs.renameSync(extensionDotGitignoreFilePath, rootDotGitignoreFilePath);
   }
+
+  // Ignore `.yarn` and unignore `.vscode`.
 
   let dotGitignore = fs.readFileSync(rootDotGitignoreFilePath, { encoding: 'utf-8' });
 
@@ -285,6 +286,10 @@ function refineGitignore() {
     : dotGitignore.replace('.vscode', '# .vscode');
 
   fs.writeFileSync(rootDotGitignoreFilePath, dotGitignore, { encoding: 'utf-8' });
+
+  // Commit code.
+
+  commitCode(rootWorkspaceFolder, '\\`refineGitignore()\\`');
 }
 
 // Workspaces formatting and linting
@@ -420,6 +425,29 @@ import pluginQuasar from '@quasar/app-vite/eslint'
     encoding: 'utf-8',
   });
 
+  // Add `lint`, `lintf`, `format` and `clean` scripts but they won't work
+  // before `dev` and `templates` workspaces formatting and linting are ready.
+
+  reduceJsonFile(rootPackageJsonFilePath, ['scripts.clean']);
+  extendJsonFile(rootPackageJsonFilePath, [
+    {
+      path: 'scripts.lint',
+      value: `eslint -c ./eslint.config.js "./${config.monorepo ? `${extensionName}/` : ''}src/**/*.{ts,js,cjs,mjs,vue}" && cd ./${config.monorepo ? `${extensionName}/` : ''}templates && yarn lint && cd ../dev && yarn lint`,
+    },
+    {
+      path: 'scripts.lintf',
+      value: `eslint -c ./eslint.config.js "./${config.monorepo ? `${extensionName}/` : ''}src/**/*.{ts,js,cjs,mjs,vue}" --fix && cd ./${config.monorepo ? `${extensionName}/` : ''}templates && yarn lint --fix && cd ../dev && yarn lint --fix`,
+    },
+    {
+      path: 'scripts.format',
+      value: `prettier --write "**/*.{js,ts,vue,css,scss,html,md,json}" --ignore-path ${config.monorepo ? `${extensionName}/` : ''}dev/.gitignore --ignore-path .prettierignore`,
+    },
+    {
+      path: 'scripts.clean',
+      value: 'yarn format --log-level warn && yarn lintf',
+    },
+  ]);
+
   // Commit code.
 
   commitCode(rootWorkspaceFolder, '\\`rootWorkspaceFormattingAndLinting()\\`');
@@ -518,7 +546,7 @@ function templatesWorkspaceFormattingAndLinting() {
     {
       path: 'scripts.format',
       value:
-        'prettier --write "**/*.{js,ts,vue,scss,html,md,json}" --ignore-path ../dev/.gitignore',
+        'prettier --write "**/*.{js,ts,vue,css,scss,html,md,json}" --ignore-path ../dev/.gitignore',
     },
     {
       path: 'scripts.clean',
@@ -529,34 +557,6 @@ function templatesWorkspaceFormattingAndLinting() {
   // Commit code.
 
   commitCode(rootWorkspaceFolder, '\\`templatesWorkspaceFormattingAndLinting()\\`');
-}
-
-function rootWorkspaceFormattingAndLintingScrips() {
-  // Add `lint`, `lintf`, `format` and `clean` scripts.
-
-  reduceJsonFile(rootPackageJsonFilePath, ['scripts.clean']);
-  extendJsonFile(rootPackageJsonFilePath, [
-    {
-      path: 'scripts.lint',
-      value: `eslint -c ./eslint.config.js "./${config.monorepo ? `${extensionName}/` : ''}src/**/*.{ts,js,cjs,mjs,vue}" && cd ./${config.monorepo ? `${extensionName}/` : ''}templates && yarn lint && cd ../dev && yarn lint`,
-    },
-    {
-      path: 'scripts.lintf',
-      value: `eslint -c ./eslint.config.js "./${config.monorepo ? `${extensionName}/` : ''}src/**/*.{ts,js,cjs,mjs,vue}" --fix && cd ./${config.monorepo ? `${extensionName}/` : ''}templates && yarn lint --fix && cd ../dev && yarn lint --fix`,
-    },
-    {
-      path: 'scripts.format',
-      value: `prettier --write "**/*.{js,ts,vue,scss,html,md,json}" --ignore-path ${config.monorepo ? `${extensionName}/` : ''}dev/.gitignore --ignore-path .prettierignore`,
-    },
-    {
-      path: 'scripts.clean',
-      value: 'yarn format --log-level warn && yarn lintf',
-    },
-  ]);
-
-  // Commit code.
-
-  commitCode(rootWorkspaceFolder, '\\`rootWorkspaceFormattingAndLintingScrips()\\`');
 }
 
 // Workspaces base source code
@@ -685,6 +685,23 @@ function templatesWorkspaceSrc() {
 }
 
 function devWorkspaceSrc() {
+  // TODO: Check reason
+  // Change to PascalCase.
+
+  let appvue = fs.readFileSync(`${devWorkspaceFolder}/src/App.vue`, 'utf-8');
+
+  appvue = appvue.replace('<router-view />', '<RouterView />');
+
+  fs.writeFileSync(`${devWorkspaceFolder}/src/App.vue`, appvue, 'utf-8');
+
+  // Disable shim.
+
+  let quasarconfigts = fs.readFileSync(`${devWorkspaceFolder}/quasar.config.ts`, 'utf-8');
+
+  quasarconfigts = quasarconfigts.replace('vueShim: true', 'vueShim: false');
+
+  fs.writeFileSync(`${devWorkspaceFolder}/quasar.config.ts`, quasarconfigts, 'utf-8');
+
   // Add project template.
 
   const devAssets = `${projectAssets}/templates/dev`;
