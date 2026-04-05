@@ -62,25 +62,6 @@ export default function fixCompileTimeYarnPnP(options) {
                 value: packagesVersion[item],
             })),
         ]);
-        // TODO: Check if neccessary
-        // Add `.yarn` in root workspace to Vite allow list.
-        const relativePathToYarn = path.join(path.relative(targetWorkspaceFolder, rootWorkspaceFolder), '.yarn');
-        fs.writeFileSync(`${targetWorkspaceFolder}/vite.config.ts`, `import { homedir } from 'node:os';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-import { defineConfig } from 'vite';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-export default defineConfig({
-  server: {
-    fs: {
-      allow: [__dirname, resolve(__dirname, '${relativePathToYarn}'), resolve(homedir(), '.yarn/berry')],
-    },
-  },
-});
-`, { encoding: 'utf-8' });
     }
     if (targetWorkspaceFolder !== rootWorkspaceFolder) {
         // Remove `typescript.tsdk` settings in target workspace as it will be added to root workspace
