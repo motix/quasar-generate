@@ -1,0 +1,41 @@
+<script setup lang="ts">
+import useFirebaseAuth from 'composables/useFirebaseAuth.js';
+
+// Composables
+
+const { isAuthenticated, authenticatedUser, hasRole } = useFirebaseAuth();
+</script>
+
+<template>
+  <q-page class="row items-center justify-evenly">
+    <div class="text-center">
+      <div class="text-h2">Welcome to MotiWiki!</div>
+
+      <FadeTransition>
+        <div v-if="!isAuthenticated" class="q-mt-xl text-primary">
+          Please
+          <RouterLink :to="{ name: 'SignIn' }"> sign-in </RouterLink>
+          to continue.
+        </div>
+
+        <div v-else class="q-mt-lg">
+          <q-avatar size="56px">
+            <q-img v-if="authenticatedUser.photoURL" :src="authenticatedUser.photoURL" />
+            <q-icon v-else color="dark" name="fas fa-user-alt" size="lg" />
+          </q-avatar>
+          <div class="q-mt-md">
+            {{ authenticatedUser.displayName }}
+          </div>
+          <div class="text-caption">
+            {{ authenticatedUser.email }}
+          </div>
+
+          <div v-if="!hasRole('user')" class="q-mt-md">
+            You have been successfully signed up to MotiWiki.<br />
+            Please wait for an administrator to approve your profile.
+          </div>
+        </div>
+      </FadeTransition>
+    </div>
+  </q-page>
+</template>
