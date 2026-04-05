@@ -23,18 +23,21 @@ const project = process.argv[2];
 const config = (await import(`../projects/${project}/project.js`)).default as CreateExtAppConfig;
 // const projectAssets = `./projects/${project}/assets`;
 const rootWorkspaceFolder = `../quasar-generate-output/${config.projectFolder}`;
-// const extensionWorkspaceFolder = `${rootWorkspaceFolder}/quasar-app-extension-${config.extensionId}`;
-const appWorkspaceFolder = `${rootWorkspaceFolder}/sites/${config.packageName}`;
-// const extensionPackageJsonFilePath = path.resolve(`${rootWorkspaceFolder}/package.json`);
-const appPackageJsonFilePath = path.resolve(`${appWorkspaceFolder}/package.json`);
+const extensionWorkspaceFolder = `${rootWorkspaceFolder}/quasar-app-extension-${config.extensionId}`;
+const siteWorkspaceFolder = `${rootWorkspaceFolder}/sites/${config.packageName}`;
+const rootPackageJsonFilePath = path.resolve(`${rootWorkspaceFolder}/package.json`);
+const extensionPackageJsonFilePath = path.resolve(`${extensionWorkspaceFolder}/package.json`);
+const sitePackageJsonFilePath = path.resolve(`${siteWorkspaceFolder}/package.json`);
 // const { extensionPackageName, extensionId, extensionOrganizationName } = await getExtensionInfo();
+const { extensionPackageName } = await getExtensionInfo();
 
 // Turning on/off functions
 const f = false;
 
 // Create workspaces
 f && (await createQuasarProject());
-f || setPackageInfo();
+f && setPackageInfo();
+f || prepareWorkspaces();
 
 // Create workspaces
 
@@ -48,7 +51,7 @@ async function createQuasarProject() {
 
   const answersMap: Record<string, string | undefined> = {
     'What would you like to build?': ACCEPT_DEFAULT, // App with Quasar CLI
-    'Project folder': appWorkspaceFolder,
+    'Project folder': siteWorkspaceFolder,
     'Pick script type': `${DOWN_KEY}`, // Typescript
     'Pick Quasar App CLI variant': ACCEPT_DEFAULT, // Quasar App CLI with Vite
     'Package name': config.packageName,
@@ -74,7 +77,7 @@ async function createQuasarProject() {
 }
 
 function setPackageInfo() {
-  extendJsonFile(appPackageJsonFilePath, [
+  extendJsonFile(sitePackageJsonFilePath, [
     {
       path: 'version',
       value: config.version,
@@ -90,25 +93,49 @@ function setPackageInfo() {
   commitCode(rootWorkspaceFolder, `\\\`setPackageInfo()\\\` for \\\`${config.packageName}\\\``);
 }
 
+function prepareWorkspaces() {
+  // Define workspaces.
+
+  extendJsonFile(rootPackageJsonFilePath, [
+    {
+      path: 'workspaces[]',
+      value: `sites/${config.packageName}`,
+    },
+  ]);
+
+  // Add extension workspace as a dependency in site workspace.
+
+  extendJsonFile(sitePackageJsonFilePath, [
+    {
+      path: `devDependencies.${extensionPackageName}`,
+      value: 'workspace:*',
+    },
+  ]);
+
+  // Commit code.
+
+  commitCode(rootWorkspaceFolder, `\\\`prepareWorkspaces()\\\` for \\\`${config.packageName}\\\``);
+}
+
 // Internal
 
-// async function getExtensionInfo() {
-//   const extensionPackageJson = (
-//     await import(extensionPackageJsonFilePath, { with: { type: 'json' } })
-//   ).default;
+async function getExtensionInfo() {
+  const extensionPackageJson = (
+    await import(extensionPackageJsonFilePath, { with: { type: 'json' } })
+  ).default;
 
-//   let id = extensionPackageJson.name;
+  let id = extensionPackageJson.name;
 
-//   id = id.substring(id.lastIndexOf('/'));
-//   id = id.substring('quasar-app-extension-'.length + 1);
+  id = id.substring(id.lastIndexOf('/'));
+  id = id.substring('quasar-app-extension-'.length + 1);
 
-//   let organizationName = extensionPackageJson.name;
+  let organizationName = extensionPackageJson.name;
 
-//   organizationName = organizationName.substring(1, organizationName.lastIndexOf('/'));
+  organizationName = organizationName.substring(1, organizationName.lastIndexOf('/'));
 
-//   return {
-//     extensionPackageName: extensionPackageJson.name,
-//     extensionId: id,
-//     extensionOrganizationName: organizationName,
-//   };
-// }
+  return {
+    extensionPackageName: extensionPackageJson.name,
+    extensionId: id,
+    extensionOrganizationName: organizationName,
+  };
+}
