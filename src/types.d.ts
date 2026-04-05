@@ -9,6 +9,10 @@ export interface CreateAppConfig {
   mnappLocation?: string;
 }
 
+export interface CreateExtAppConfig extends CreateAppConfig {
+  extensionId: string;
+}
+
 export interface CreateExtensionConfig {
   monorepo: boolean;
   projectFolder: string;
