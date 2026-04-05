@@ -729,6 +729,17 @@ function devWorkspaceSrc() {
 
   fs.writeFileSync(`${devWorkspaceFolder}/quasar.config.ts`, quasarconfigts, 'utf-8');
 
+  // Add extension config file. This could be overriden by project template.
+
+  fs.writeFileSync(
+    `${devWorkspaceFolder}/.${config.extensionId.replace(/-/g, '')}rc.js`,
+    `export default {
+  modules: {},
+};
+`,
+    { encoding: 'utf-8' },
+  );
+
   // Add project template.
 
   const devAssets = `${projectAssets}/templates/dev`;
@@ -741,17 +752,6 @@ function devWorkspaceSrc() {
       });
     });
   }
-
-  // Add extension config file.
-
-  fs.writeFileSync(
-    `${devWorkspaceFolder}/.${config.extensionId.replace(/-/g, '')}rc.js`,
-    `export default {
-  modules: {},
-};
-`,
-    { encoding: 'utf-8' },
-  );
 
   // Add dependency and add invoke script if `@motinet/quasar-app-extension-mnapp` is detected
   // and the project is not `@motinet/quasar-app-extension-mnapp` itself.
