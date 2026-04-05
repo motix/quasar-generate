@@ -40,12 +40,8 @@ export default function fixCompileTimeYarnPnP(options: {
   rootPackageJsonFilePath !== undefined &&
     extendJsonFile(rootPackageJsonFilePath, [
       {
-        path: 'dependenciesMeta',
-        value: {
-          'vite-plugin-checker': {
-            unplugged: true,
-          },
-        },
+        path: 'dependenciesMeta.vite-plugin-checker',
+        value: { unplugged: true },
       },
     ]);
 
