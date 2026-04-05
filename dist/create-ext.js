@@ -68,7 +68,12 @@ function createRootWorkspace() {
     fs.writeFileSync(rootPackageJsonFilePath, `{
   "name": "${config.extensionId}-root",
   "type": "module",
-  "private": true
+  "private": true,
+  "engines": {
+    "node": ">= 12.2.0",
+    "npm": ">= 5.6.0",
+    "yarn": ">= 1.6.0"
+  }
 }
 `, { encoding: 'utf-8' });
     // Init git.
