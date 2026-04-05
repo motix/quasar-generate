@@ -5,7 +5,7 @@ import { extendJsonFile } from './json-helpers.js';
 import packagesVersion from './packages-version.js';
 import patchTrivagoPrettierPluginSortImports from './patches/patch-trivago-prettier-plugin-sort-imports.js';
 
-export default function formatLint(options: {
+export default function setupFormatLint(options: {
   rootWorkspaceFolder?: string | undefined;
   targetWorkspaceFolder: string;
 }) {

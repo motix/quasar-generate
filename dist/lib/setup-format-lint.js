@@ -3,7 +3,7 @@ import path from 'path';
 import { extendJsonFile } from './json-helpers.js';
 import packagesVersion from './packages-version.js';
 import patchTrivagoPrettierPluginSortImports from './patches/patch-trivago-prettier-plugin-sort-imports.js';
-export default function formatLint(options) {
+export default function setupFormatLint(options) {
     const { rootWorkspaceFolder, targetWorkspaceFolder } = options;
     const extensionsJsonFilePath = rootWorkspaceFolder === undefined
         ? undefined
