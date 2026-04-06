@@ -23,19 +23,21 @@ const { extensionPackageName, extensionOrganizationName } = await getExtensionIn
 // Turning on/off functions
 const f = false;
 // Create workspaces
-f && (await createQuasarProject());
-f && setPackageInfo();
-f && prepareWorkspaces();
+f || (await createQuasarProject());
+f || setPackageInfo();
+f || prepareWorkspaces();
 // Fix Yarn PnP for Quasar `dev` and `build`
-f &&
+f ||
     fixCompileTimeYarnPnP({
         targetWorkspaceFolder: siteWorkspaceFolder,
         commitCodeMessage: `\\\`fixCompileTimeYarnPnP()\\\` for \\\`${config.packageName}\\\``,
     });
 // Workspaces formatting and linting
-f && formattingAndLinting();
+f || formattingAndLinting();
 // Workspaces base source code
 f || workspaceSrc();
+// Finish workspaces
+f || finishWorkspace();
 // Create workspaces
 async function createQuasarProject() {
     // Create Quasar project for `dev` workspace.
@@ -179,6 +181,22 @@ function workspaceSrc() {
     }
     // Commit code.
     commitCode(rootWorkspaceFolder, `\\\`workspaceSrc()\\\` for \\\`${config.packageName}\\\``);
+}
+// Finish workspaces
+function finishWorkspace() {
+    // Add build script and extension invoke script.
+    extendJsonFile(sitePackageJsonFilePath, [
+        {
+            path: 'scripts.tsc',
+            value: 'yarn vue-tsc --noEmit --skipLibCheck',
+        },
+        {
+            path: `scripts.i-${config.extensionId}`,
+            value: `quasar ext invoke @${extensionOrganizationName}/${config.extensionId} && yarn format --log-level warn`,
+        },
+    ]);
+    // Commit code.
+    commitCode(rootWorkspaceFolder, `\\\`finishWorkspace()\\\` for \\\`${config.packageName}\\\``);
 }
 // Internal
 async function getExtensionInfo() {
