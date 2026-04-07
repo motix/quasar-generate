@@ -22,6 +22,7 @@ const sitePackageJsonFilePath = path.resolve(`${siteWorkspaceFolder}/package.jso
 const { extensionPackageName, extensionOrganizationName } = await getExtensionInfo();
 // Turning on/off functions
 const f = false;
+const commitCodeEnabled = false;
 // Create workspaces
 f || (await createQuasarProject());
 f || setPackageInfo();
@@ -30,7 +31,9 @@ f || prepareWorkspaces();
 f ||
     fixCompileTimeYarnPnP({
         targetWorkspaceFolder: siteWorkspaceFolder,
-        commitCodeMessage: `\\\`fixCompileTimeYarnPnP()\\\` for \\\`${config.packageName}\\\``,
+        commitCodeMessage: commitCodeEnabled
+            ? `\\\`fixCompileTimeYarnPnP()\\\` for \\\`${config.packageName}\\\``
+            : undefined,
     });
 // Workspaces formatting and linting
 f || formattingAndLinting();
@@ -60,7 +63,8 @@ async function createQuasarProject() {
         endingMarker: 'Enjoy! - Quasar Team',
     });
     // Commit code.
-    commitCode(rootWorkspaceFolder, `\\\`createQuasarProject()\\\` for \\\`${config.packageName}\\\``);
+    commitCodeEnabled &&
+        commitCode(rootWorkspaceFolder, `\\\`createQuasarProject()\\\` for \\\`${config.packageName}\\\``);
 }
 function setPackageInfo() {
     extendJsonFile(sitePackageJsonFilePath, [
@@ -74,7 +78,8 @@ function setPackageInfo() {
         },
     ]);
     // Commit code.
-    commitCode(rootWorkspaceFolder, `\\\`setPackageInfo()\\\` for \\\`${config.packageName}\\\``);
+    commitCodeEnabled &&
+        commitCode(rootWorkspaceFolder, `\\\`setPackageInfo()\\\` for \\\`${config.packageName}\\\``);
 }
 function prepareWorkspaces() {
     // Define workspaces.
@@ -92,7 +97,8 @@ function prepareWorkspaces() {
         },
     ]);
     // Commit code.
-    commitCode(rootWorkspaceFolder, `\\\`prepareWorkspaces()\\\` for \\\`${config.packageName}\\\``);
+    commitCodeEnabled &&
+        commitCode(rootWorkspaceFolder, `\\\`prepareWorkspaces()\\\` for \\\`${config.packageName}\\\``);
 }
 // Workspaces formatting and linting
 function formattingAndLinting() {
@@ -126,7 +132,8 @@ function formattingAndLinting() {
         },
     ]);
     // Commit code.
-    commitCode(rootWorkspaceFolder, `\\\`formattingAndLinting()\\\` for \\\`${config.packageName}\\\``);
+    commitCodeEnabled &&
+        commitCode(rootWorkspaceFolder, `\\\`formattingAndLinting()\\\` for \\\`${config.packageName}\\\``);
 }
 // Workspaces base source code
 function workspaceSrc() {
@@ -180,7 +187,8 @@ function workspaceSrc() {
         ]);
     }
     // Commit code.
-    commitCode(rootWorkspaceFolder, `\\\`workspaceSrc()\\\` for \\\`${config.packageName}\\\``);
+    commitCodeEnabled &&
+        commitCode(rootWorkspaceFolder, `\\\`workspaceSrc()\\\` for \\\`${config.packageName}\\\``);
 }
 // Finish workspaces
 function finishWorkspace() {
@@ -196,7 +204,8 @@ function finishWorkspace() {
         },
     ]);
     // Commit code.
-    commitCode(rootWorkspaceFolder, `\\\`finishWorkspace()\\\` for \\\`${config.packageName}\\\``);
+    commitCodeEnabled &&
+        commitCode(rootWorkspaceFolder, `\\\`finishWorkspace()\\\` for \\\`${config.packageName}\\\``);
 }
 // Internal
 async function getExtensionInfo() {

@@ -29,6 +29,7 @@ const extensionPackageName = `@${config.organizationName}/${extensionName}`;
 console.log(' \x1b[32mquasar-generate •\x1b[0m', `Create extension \x1b[47m${extensionPackageName}\x1b[0m`);
 // Turning on/off functions
 const f = false;
+const commitCodeEnabled = false;
 // Create workspaces
 f || (config.monorepo && createRootWorkspace());
 f || (await createExtensionQuasarProject());
@@ -42,7 +43,7 @@ f ||
     fixCompileTimeYarnPnP({
         rootWorkspaceFolder,
         targetWorkspaceFolder: devWorkspaceFolder,
-        commitCodeMessage: '',
+        commitCodeMessage: commitCodeEnabled ? '' : undefined,
     });
 // Workspaces formatting and linting
 f || rootWorkspaceFormattingAndLinting();
@@ -81,7 +82,7 @@ function createRootWorkspace() {
         stdio: 'inherit',
     });
     // Commit code.
-    commitCode(rootWorkspaceFolder, '\\`createRootWorkspace()\\`');
+    commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`createRootWorkspace()\\`');
 }
 async function createExtensionQuasarProject() {
     // Create Quasar project for the extension.
@@ -109,7 +110,7 @@ async function createExtensionQuasarProject() {
             stdio: 'inherit',
         });
     }
-    commitCode(rootWorkspaceFolder, '\\`createExtensionQuasarProject()\\`');
+    commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`createExtensionQuasarProject()\\`');
 }
 function createTemplatesWorkspace() {
     // Create initial `templates` workspace.
@@ -125,7 +126,7 @@ function createTemplatesWorkspace() {
 }
 `, { encoding: 'utf-8' });
     // Commit code.
-    commitCode(rootWorkspaceFolder, '\\`createTemplatesWorkspace()\\`');
+    commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`createTemplatesWorkspace()\\`');
 }
 async function createDevQuasarProject() {
     // Create Quasar project for `dev` workspace.
@@ -148,7 +149,7 @@ async function createDevQuasarProject() {
         endingMarker: 'Enjoy! - Quasar Team',
     });
     // Commit code.
-    commitCode(rootWorkspaceFolder, '\\`createDevQuasarProject()\\`');
+    commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`createDevQuasarProject()\\`');
 }
 function setPackagesInfo() {
     extendJsonFile(extensionPackageJsonFilePath, [
@@ -163,7 +164,7 @@ function setPackagesInfo() {
     ]);
     reduceJsonFile(devPackageJsonFilePath, ['version', 'author']);
     // Commit code.
-    commitCode(rootWorkspaceFolder, '\\`setPackagesInfo()\\`');
+    commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`setPackagesInfo()\\`');
 }
 function prepareWorkspaces() {
     // Define workspaces.
@@ -183,7 +184,7 @@ function prepareWorkspaces() {
         },
     ]);
     // Commit code.
-    commitCode(rootWorkspaceFolder, '\\`prepareWorkspaces()\\`');
+    commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`prepareWorkspaces()\\`');
 }
 function refineGitignore() {
     const rootDotGitignoreFilePath = path.resolve(`${rootWorkspaceFolder}/.gitignore`);
@@ -206,7 +207,7 @@ function refineGitignore() {
         : dotGitignore.replace('.vscode', '# .vscode');
     fs.writeFileSync(rootDotGitignoreFilePath, dotGitignore, { encoding: 'utf-8' });
     // Commit code.
-    commitCode(rootWorkspaceFolder, '\\`refineGitignore()\\`');
+    commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`refineGitignore()\\`');
 }
 // Workspaces formatting and linting
 function rootWorkspaceFormattingAndLinting() {
@@ -313,7 +314,7 @@ import pluginQuasar from '@quasar/app-vite/eslint'
         },
     ]);
     // Commit code.
-    commitCode(rootWorkspaceFolder, '\\`rootWorkspaceFormattingAndLinting()\\`');
+    commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`rootWorkspaceFormattingAndLinting()\\`');
 }
 function devWorkspaceFormattingAndLinting() {
     // Setup formatting and linting.
@@ -346,7 +347,7 @@ function devWorkspaceFormattingAndLinting() {
         },
     ]);
     // Commit code.
-    commitCode(rootWorkspaceFolder, '\\`devWorkspaceFormattingAndLinting()\\`');
+    commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`devWorkspaceFormattingAndLinting()\\`');
 }
 function templatesWorkspaceFormattingAndLinting() {
     // Copy `eslint.config.js` from `dev` workspace.
@@ -388,7 +389,8 @@ function templatesWorkspaceFormattingAndLinting() {
         },
     ]);
     // Commit code.
-    commitCode(rootWorkspaceFolder, '\\`templatesWorkspaceFormattingAndLinting()\\`');
+    commitCodeEnabled &&
+        commitCode(rootWorkspaceFolder, '\\`templatesWorkspaceFormattingAndLinting()\\`');
 }
 // Workspaces base source code
 function rootWorkspaceSrc() {
@@ -405,7 +407,7 @@ function rootWorkspaceSrc() {
         });
     }
     // Commit code.
-    codeChanged && commitCode(rootWorkspaceFolder, '\\`rootWorkspaceSrc()\\`');
+    codeChanged && commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`rootWorkspaceSrc()\\`');
 }
 function extensionWorkspaceSrc() {
     // Add `tsconfig.json`.
@@ -459,7 +461,7 @@ function extensionWorkspaceSrc() {
         });
     }
     // Commit code.
-    commitCode(rootWorkspaceFolder, '\\`extensionWorkspaceSrc()\\`');
+    commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`extensionWorkspaceSrc()\\`');
 }
 function templatesWorkspaceSrc() {
     // Add `tsconfig.json`.
@@ -485,7 +487,7 @@ function templatesWorkspaceSrc() {
         });
     }
     // Commit code.
-    commitCode(rootWorkspaceFolder, '\\`templatesWorkspaceSrc()\\`');
+    commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`templatesWorkspaceSrc()\\`');
 }
 function devWorkspaceSrc() {
     // TODO: Check reason
@@ -527,7 +529,7 @@ function devWorkspaceSrc() {
         ]);
     }
     // Commit code.
-    commitCode(rootWorkspaceFolder, '\\`devWorkspaceSrc()\\`');
+    commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`devWorkspaceSrc()\\`');
 }
 // Finish workspaces
 function finishRootWorkspace() {
@@ -564,7 +566,7 @@ function finishRootWorkspace() {
     // Reorder `package.json`.
     reorderJsonFile(rootPackageJsonFilePath);
     // Commit code.
-    commitCode(rootWorkspaceFolder, '\\`finishRootWorkspace()\\`');
+    commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`finishRootWorkspace()\\`');
 }
 function finishExtensionWorkspace() {
     if (config.monorepo) {
@@ -575,7 +577,7 @@ function finishExtensionWorkspace() {
         // Reorder `package.json`.
         reorderJsonFile(extensionPackageJsonFilePath);
         // Commit code.
-        commitCode(rootWorkspaceFolder, '\\`finishExtensionWorkspace()\\`');
+        commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`finishExtensionWorkspace()\\`');
     }
 }
 function finishTemplatesWorkspace() {
@@ -598,7 +600,7 @@ function finishTemplatesWorkspace() {
     // Reorder `package.json`.
     reorderJsonFile(templatesPackageJsonFilePath);
     // Commit code.
-    commitCode(rootWorkspaceFolder, '\\`finishTemplatesWorkspace()\\`');
+    commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`finishTemplatesWorkspace()\\`');
 }
 function finishDevWorkspace() {
     // Add build script and extension invoke script.
@@ -615,7 +617,7 @@ function finishDevWorkspace() {
     // Reorder `package.json`.
     reorderJsonFile(devPackageJsonFilePath);
     // Commit code.
-    commitCode(rootWorkspaceFolder, '\\`finishDevWorkspace()\\`');
+    commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`finishDevWorkspace()\\`');
 }
 // Install and launch
 function installAndLaunch() {
