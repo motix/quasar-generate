@@ -180,6 +180,7 @@ export default {
   ],
   importOrderSeparation: true,
   importOrderSortSpecifiers: true,
+  importOrderCaseInsensitive: true,
 };
 `;
     fs.writeFileSync(`${rootWorkspaceFolder}/prettier.config.js`, prettierConfigJs, {

@@ -22,7 +22,7 @@ const sitePackageJsonFilePath = path.resolve(`${siteWorkspaceFolder}/package.jso
 const { extensionPackageName, extensionOrganizationName } = await getExtensionInfo();
 // Turning on/off functions
 const f = false;
-const commitCodeEnabled = false;
+const commitCodeEnabled = true;
 // Create workspaces
 f || (await createQuasarProject());
 f || setPackageInfo();

@@ -29,7 +29,7 @@ const extensionPackageName = `@${config.organizationName}/${extensionName}`;
 console.log(' \x1b[32mquasar-generate •\x1b[0m', `Create extension \x1b[47m${extensionPackageName}\x1b[0m`);
 // Turning on/off functions
 const f = false;
-const commitCodeEnabled = false;
+const commitCodeEnabled = true;
 // Create workspaces
 f || (config.monorepo && createRootWorkspace());
 f || (await createExtensionQuasarProject());

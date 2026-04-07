@@ -33,4 +33,5 @@ export default {
   ],
   importOrderSeparation: true,
   importOrderSortSpecifiers: true,
+  importOrderCaseInsensitive: true,
 };
