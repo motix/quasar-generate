@@ -11,7 +11,6 @@ import {
 
 import commitCode from './lib/commit-code.js';
 import fixCompileTimeYarnPnP from './lib/fix-compile-time-yarn-pnp.js';
-// import { extendJsonFile, reduceJsonFile } from './lib/json-helpers.js';
 import { extendJsonFile } from './lib/json-helpers.js';
 import packagesVersion from './lib/packages-version.js';
 import setupFormatLint from './lib/setup-format-lint.js';
@@ -54,7 +53,7 @@ f ||
   });
 
 // Workspaces formatting and linting
-f || formattingAndLinting();
+f || (await formattingAndLinting());
 
 // Workspaces base source code
 f || workspaceSrc();
@@ -151,7 +150,7 @@ function prepareWorkspaces() {
 
 // Workspaces formatting and linting
 
-function formattingAndLinting() {
+async function formattingAndLinting() {
   // Setup formatting and linting.
 
   setupFormatLint({ targetWorkspaceFolder: siteWorkspaceFolder });
@@ -193,6 +192,21 @@ function formattingAndLinting() {
       value: 'yarn format --log-level warn && yarn lint --fix',
     },
   ]);
+
+  // Update root workspace `format` script.
+
+  const rootPackageJson = (await import(rootPackageJsonFilePath, { with: { type: 'json' } }))
+    .default;
+
+  !rootPackageJson.scripts.format.includes(
+    `--ignore-path sites/${config.packageName}/.gitignore`,
+  ) &&
+    extendJsonFile(rootPackageJsonFilePath, [
+      {
+        path: 'scripts.format',
+        value: `${rootPackageJson.scripts.format} --ignore-path sites/${config.packageName}/.gitignore`,
+      },
+    ]);
 
   // Commit code.
 

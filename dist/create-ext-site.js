@@ -4,7 +4,6 @@ import path from 'path';
 import { ACCEPT_DEFAULT, cliGhostwriter, DOWN_KEY, WHITESPACE_KEY, } from '@dreamonkey/cli-ghostwriter';
 import commitCode from './lib/commit-code.js';
 import fixCompileTimeYarnPnP from './lib/fix-compile-time-yarn-pnp.js';
-// import { extendJsonFile, reduceJsonFile } from './lib/json-helpers.js';
 import { extendJsonFile } from './lib/json-helpers.js';
 import packagesVersion from './lib/packages-version.js';
 import setupFormatLint from './lib/setup-format-lint.js';
@@ -37,7 +36,7 @@ f ||
             : undefined,
     });
 // Workspaces formatting and linting
-f || formattingAndLinting();
+f || (await formattingAndLinting());
 // Workspaces base source code
 f || workspaceSrc();
 // Finish workspaces
@@ -104,7 +103,7 @@ function prepareWorkspaces() {
         commitCode(rootWorkspaceFolder, `\\\`prepareWorkspaces()\\\` for \\\`${config.packageName}\\\``);
 }
 // Workspaces formatting and linting
-function formattingAndLinting() {
+async function formattingAndLinting() {
     // Setup formatting and linting.
     setupFormatLint({ targetWorkspaceFolder: siteWorkspaceFolder });
     // All formatting and some lingting tools were available in root workspace, remove them here.
@@ -134,6 +133,16 @@ function formattingAndLinting() {
             value: 'yarn format --log-level warn && yarn lint --fix',
         },
     ]);
+    // Update root workspace `format` script.
+    const rootPackageJson = (await import(rootPackageJsonFilePath, { with: { type: 'json' } }))
+        .default;
+    !rootPackageJson.scripts.format.includes(`--ignore-path sites/${config.packageName}/.gitignore`) &&
+        extendJsonFile(rootPackageJsonFilePath, [
+            {
+                path: 'scripts.format',
+                value: `${rootPackageJson.scripts.format} --ignore-path sites/${config.packageName}/.gitignore`,
+            },
+        ]);
     // Commit code.
     commitCodeEnabled &&
         commitCode(rootWorkspaceFolder, `\\\`formattingAndLinting()\\\` for \\\`${config.packageName}\\\``);
@@ -211,15 +220,15 @@ function finishWorkspace() {
 }
 // Install and launch
 function installAndLaunch() {
-    // Install root workspace packages, build and clean code.
-    console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47m${config.packageName}\x1b[0m packages, build and clean code...`);
+    // Install site workspace packages and clean code.
+    console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47m${config.packageName}\x1b[0m packages and clean code...`);
     if (runYarn) {
-        execSync(`cd ${siteWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${config.extensionId} && yarn dev`, {
+        execSync(`cd ${siteWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn clean ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${config.extensionId} && yarn dev`, {
             stdio: 'inherit',
         });
     }
     else {
-        console.log(`                   Run \x1b[47mcd ${siteWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${config.extensionId} && yarn dev\x1b[0m manually.`);
+        console.log(`                   Run \x1b[47mcd ${siteWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn clean ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${config.extensionId} && yarn dev\x1b[0m manually.`);
     }
     // Auto launch
     if (autoLaunch) {
