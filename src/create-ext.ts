@@ -900,7 +900,7 @@ function finishDevWorkspace() {
 // Install and launch
 
 function installAndLaunch() {
-  // Install root workspace packages, build and clean code.
+  // Install all workspaces packages, build and clean code.
 
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',

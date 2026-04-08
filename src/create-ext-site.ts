@@ -307,23 +307,23 @@ function finishWorkspace() {
 // Install and launch
 
 function installAndLaunch() {
-  // Install root workspace packages, build and clean code.
+  // Install site workspace packages and clean code.
 
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
-    `Installing \x1b[47m${config.packageName}\x1b[0m packages, build and clean code...`,
+    `Installing \x1b[47m${config.packageName}\x1b[0m packages and clean code...`,
   );
 
   if (runYarn) {
     execSync(
-      `cd ${siteWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${config.extensionId} && yarn dev`,
+      `cd ${siteWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn clean ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${config.extensionId} && yarn dev`,
       {
         stdio: 'inherit',
       },
     );
   } else {
     console.log(
-      `                   Run \x1b[47mcd ${siteWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${config.extensionId} && yarn dev\x1b[0m manually.`,
+      `                   Run \x1b[47mcd ${siteWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn clean ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${config.extensionId} && yarn dev\x1b[0m manually.`,
     );
   }
 
