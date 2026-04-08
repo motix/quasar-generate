@@ -1,11 +1,12 @@
+import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
 import {
   ACCEPT_DEFAULT,
+  cliGhostwriter,
   DOWN_KEY,
   WHITESPACE_KEY,
-  cliGhostwriter,
 } from '@dreamonkey/cli-ghostwriter';
 
 import commitCode from './lib/commit-code.js';
@@ -17,9 +18,8 @@ import setupFormatLint from './lib/setup-format-lint.js';
 import type { CreateExtAppConfig } from './types';
 
 const project = process.argv[2];
-// TODO
-// const runYarn = process.argv[3] === '-y' || process.argv[4] === '-y';
-// const autoLaunch = process.argv[3] === '-l' || process.argv[4] === '-l';
+const runYarn = process.argv[3] === '-y' || process.argv[4] === '-y';
+const autoLaunch = process.argv[3] === '-l' || process.argv[4] === '-l';
 const config = (await import(`../projects/${project}/project.js`)).default as CreateExtAppConfig;
 const projectAssets = `./projects/${project}/assets`;
 const rootWorkspaceFolder = `../quasar-generate-output/${config.projectFolder}`;
@@ -29,6 +29,11 @@ const rootPackageJsonFilePath = path.resolve(`${rootWorkspaceFolder}/package.jso
 const extensionPackageJsonFilePath = path.resolve(`${extensionWorkspaceFolder}/package.json`);
 const sitePackageJsonFilePath = path.resolve(`${siteWorkspaceFolder}/package.json`);
 const { extensionPackageName, extensionOrganizationName } = await getExtensionInfo();
+
+console.log(
+  ' \x1b[32mquasar-generate •\x1b[0m',
+  `Create site \x1b[47m${config.packageName}\x1b[0m for extension \x1b[47m${extensionPackageName}\x1b[0m`,
+);
 
 // Turning on/off functions
 const f = false;
@@ -56,6 +61,9 @@ f || workspaceSrc();
 
 // Finish workspaces
 f || finishWorkspace();
+
+// Install and launch
+f || installAndLaunch();
 
 // Create workspaces
 
@@ -198,7 +206,6 @@ function formattingAndLinting() {
 // Workspaces base source code
 
 function workspaceSrc() {
-  // TODO: Check reason
   // Change to PascalCase.
 
   let appvue = fs.readFileSync(`${siteWorkspaceFolder}/src/App.vue`, 'utf-8');
@@ -295,6 +302,43 @@ function finishWorkspace() {
 
   commitCodeEnabled &&
     commitCode(rootWorkspaceFolder, `\\\`finishWorkspace()\\\` for \\\`${config.packageName}\\\``);
+}
+
+// Install and launch
+
+function installAndLaunch() {
+  // Install root workspace packages, build and clean code.
+
+  console.log(
+    ' \x1b[32mquasar-generate •\x1b[0m',
+    `Installing \x1b[47m${config.packageName}\x1b[0m packages, build and clean code...`,
+  );
+
+  if (runYarn) {
+    execSync(
+      `cd ${siteWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${config.extensionId} && yarn dev`,
+      {
+        stdio: 'inherit',
+      },
+    );
+  } else {
+    console.log(
+      `                   Run \x1b[47mcd ${siteWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${config.extensionId} && yarn dev\x1b[0m manually.`,
+    );
+  }
+
+  // Auto launch
+
+  if (autoLaunch) {
+    console.log(
+      ' \x1b[32mquasar-generate •\x1b[0m',
+      `Launching \x1b[47m${config.extensionId}\x1b[0m in Visual Studio Code...`,
+    );
+
+    execSync(`code ${rootWorkspaceFolder}.replaceAll(' ', '\\ ')`, {
+      stdio: 'inherit',
+    });
+  }
 }
 
 // Internal

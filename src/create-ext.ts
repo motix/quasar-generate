@@ -4,9 +4,9 @@ import path from 'path';
 
 import {
   ACCEPT_DEFAULT,
+  cliGhostwriter,
   DOWN_KEY,
   WHITESPACE_KEY,
-  cliGhostwriter,
 } from '@dreamonkey/cli-ghostwriter';
 
 import commitCode from './lib/commit-code.js';
@@ -714,7 +714,6 @@ function templatesWorkspaceSrc() {
 }
 
 function devWorkspaceSrc() {
-  // TODO: Check reason
   // Change to PascalCase.
 
   let appvue = fs.readFileSync(`${devWorkspaceFolder}/src/App.vue`, 'utf-8');

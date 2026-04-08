@@ -1,7 +1,7 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { ACCEPT_DEFAULT, DOWN_KEY, WHITESPACE_KEY, cliGhostwriter, } from '@dreamonkey/cli-ghostwriter';
+import { ACCEPT_DEFAULT, cliGhostwriter, DOWN_KEY, WHITESPACE_KEY, } from '@dreamonkey/cli-ghostwriter';
 import commitCode from './lib/commit-code.js';
 import fixCompileTimeYarnPnP from './lib/fix-compile-time-yarn-pnp.js';
 import { extendJsonFile, reduceJsonFile, reorderJsonFile } from './lib/json-helpers.js';
@@ -490,7 +490,6 @@ function templatesWorkspaceSrc() {
     commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`templatesWorkspaceSrc()\\`');
 }
 function devWorkspaceSrc() {
-    // TODO: Check reason
     // Change to PascalCase.
     let appvue = fs.readFileSync(`${devWorkspaceFolder}/src/App.vue`, 'utf-8');
     appvue = appvue.replace('<router-view />', '<RouterView />');
