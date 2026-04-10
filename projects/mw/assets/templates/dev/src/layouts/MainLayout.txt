@@ -66,7 +66,7 @@ const { isAuthenticated, authenticatedUser, isSignInPage, hasRole, signOut } = u
       </q-page>
     </q-page-container>
 
-    <q-footer class="bg-white">
+    <q-footer class="transparent">
       <FadeTransition>
         <q-tabs v-if="hasRole('user')" class="bg-grey-8 text-white shadow-up-5" dense>
           <q-route-tab label="Home" name="home" to="/" />
