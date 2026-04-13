@@ -26,7 +26,7 @@ const projectAssets = `./projects/${project}/assets`;
 const extensionName = `quasar-app-extension-${config.extensionId}`;
 const rootWorkspaceFolder = `../quasar-generate-output/${config.projectFolder}`;
 const extensionWorkspaceFolder = config.monorepo
-  ? `${rootWorkspaceFolder}/${extensionName}`
+  ? `${rootWorkspaceFolder}/ext`
   : rootWorkspaceFolder;
 const templatesWorkspaceFolder = `${extensionWorkspaceFolder}/templates`;
 const devWorkspaceFolder = `${extensionWorkspaceFolder}/dev`;
@@ -247,9 +247,7 @@ function prepareWorkspaces() {
   extendJsonFile(rootPackageJsonFilePath, [
     {
       path: 'workspaces',
-      value: config.monorepo
-        ? [extensionName, `${extensionName}/templates`, `${extensionName}/dev`]
-        : ['templates', 'dev'],
+      value: config.monorepo ? ['ext', 'ext/templates', 'ext/dev'] : ['templates', 'dev'],
     },
   ]);
 
@@ -320,7 +318,7 @@ function rootWorkspaceFormattingAndLinting() {
   fs.writeFileSync(
     `${rootWorkspaceFolder}/.prettierignore`,
     `/.yarn
-/${config.monorepo ? `${extensionName}/` : ''}dist
+/${config.monorepo ? 'ext/' : ''}dist
 .pnp.*
 `,
     { encoding: 'utf-8' },
@@ -372,7 +370,7 @@ import pluginQuasar from '@quasar/app-vite/eslint'
      * ESLint requires "ignores" key to be the only one in this object
      */
     // ignores: []`,
-    `ignores: ['.yarn/*', '${config.monorepo ? `${extensionName}/` : ''}dev/*', '${config.monorepo ? `${extensionName}/` : ''}dist/*', '${config.monorepo ? `${extensionName}/` : ''}templates/*', '.pnp.*'],`,
+    `ignores: ['.yarn/*', '${config.monorepo ? 'ext/' : ''}dev/*', '${config.monorepo ? 'ext/' : ''}dist/*', '${config.monorepo ? 'ext/' : ''}templates/*', '.pnp.*'],`,
   );
 
   eslintConfigJs = eslintConfigJs.replace(
@@ -439,15 +437,15 @@ import pluginQuasar from '@quasar/app-vite/eslint'
   extendJsonFile(rootPackageJsonFilePath, [
     {
       path: 'scripts.lint',
-      value: `eslint -c ./eslint.config.js "./${config.monorepo ? `${extensionName}/` : ''}src/**/*.{ts,js,cjs,mjs,vue}" && cd ./${config.monorepo ? `${extensionName}/` : ''}templates && yarn lint && cd ../dev && yarn lint`,
+      value: `eslint -c ./eslint.config.js "./${config.monorepo ? 'ext/' : ''}src/**/*.{ts,js,cjs,mjs,vue}" && cd ./${config.monorepo ? 'ext/' : ''}templates && yarn lint && cd ../dev && yarn lint`,
     },
     {
       path: 'scripts.lintf',
-      value: `eslint -c ./eslint.config.js "./${config.monorepo ? `${extensionName}/` : ''}src/**/*.{ts,js,cjs,mjs,vue}" --fix && cd ./${config.monorepo ? `${extensionName}/` : ''}templates && yarn lint --fix && cd ../dev && yarn lint --fix`,
+      value: `eslint -c ./eslint.config.js "./${config.monorepo ? 'ext/' : ''}src/**/*.{ts,js,cjs,mjs,vue}" --fix && cd ./${config.monorepo ? 'ext/' : ''}templates && yarn lint --fix && cd ../dev && yarn lint --fix`,
     },
     {
       path: 'scripts.format',
-      value: `prettier --write "**/*.{js,ts,vue,css,scss,html,md,json}" --ignore-path ${config.monorepo ? `${extensionName}/` : ''}dev/.gitignore --ignore-path .prettierignore`,
+      value: `prettier --write "**/*.{js,ts,vue,css,scss,html,md,json}" --ignore-path ${config.monorepo ? 'ext/' : ''}dev/.gitignore --ignore-path .prettierignore`,
     },
     {
       path: 'scripts.clean',
@@ -790,7 +788,7 @@ function finishRootWorkspace() {
   // Putting `path` in an array to keep it as a single property in JSON file.
   extendJsonFile(settingsJsonFilePath, [
     { path: ['search.exclude', '.yarn'], value: true },
-    { path: ['search.exclude', `${config.monorepo ? `${extensionName}/` : ''}dist`], value: true },
+    { path: ['search.exclude', `${config.monorepo ? 'ext/' : ''}dist`], value: true },
   ]);
   extendJsonFile(settingsJsonFilePath, [
     { path: ['compareFolders.excludeFilter'], value: ['node_modules', '.git'] },
@@ -802,15 +800,15 @@ function finishRootWorkspace() {
   extendJsonFile(rootPackageJsonFilePath, [
     {
       path: 'scripts.build',
-      value: `${config.monorepo ? `cd ./${extensionName} && ` : ''}yarn tsc && cd ./templates && yarn tsc && cd ../dev && yarn tsc`,
+      value: `${config.monorepo ? 'cd ./ext && ' : ''}yarn tsc && cd ./templates && yarn tsc && cd ../dev && yarn tsc`,
     },
     {
       path: 'scripts.watch',
-      value: `${config.monorepo ? `cd ./${extensionName} && ` : ''}yarn tsc --watch`,
+      value: `${config.monorepo ? 'cd ./ext && ' : ''}yarn tsc --watch`,
     },
     {
       path: 'scripts.buildPaths',
-      value: `cd ./${config.monorepo ? `${extensionName}/` : ''}templates && node ./buildPaths.js && yarn prettier --write ./tsconfig-paths.json`,
+      value: `cd ./${config.monorepo ? 'ext/' : ''}templates && node ./buildPaths.js && yarn prettier --write ./tsconfig-paths.json`,
     },
   ]);
 
@@ -909,14 +907,14 @@ function installAndLaunch() {
 
   if (runYarn) {
     execSync(
-      `cd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn buildPaths && yarn build && yarn clean && cd ./${config.monorepo ? `${extensionName}/` : ''}dev ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${config.extensionId} && yarn dev`,
+      `cd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn buildPaths && yarn build && yarn clean && cd ./${config.monorepo ? 'ext/' : ''}dev ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${config.extensionId} && yarn dev`,
       {
         stdio: 'inherit',
       },
     );
   } else {
     console.log(
-      `                   Run \x1b[47mcd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn buildPaths && yarn build && yarn clean && cd ./${config.monorepo ? `${extensionName}/` : ''}dev ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${config.extensionId} && yarn dev\x1b[0m manually.`,
+      `                   Run \x1b[47mcd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn buildPaths && yarn build && yarn clean && cd ./${config.monorepo ? 'ext/' : ''}dev ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${config.extensionId} && yarn dev\x1b[0m manually.`,
     );
   }
 

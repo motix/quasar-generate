@@ -22,7 +22,7 @@ const autoLaunch = process.argv[3] === '-l' || process.argv[4] === '-l';
 const config = (await import(`../projects/${project}/project.js`)).default as CreateExtAppConfig;
 const projectAssets = `./projects/${project}/assets`;
 const rootWorkspaceFolder = `../quasar-generate-output/${config.projectFolder}`;
-const extensionWorkspaceFolder = `${rootWorkspaceFolder}/quasar-app-extension-${config.extensionId}`;
+const extensionWorkspaceFolder = `${rootWorkspaceFolder}/ext`;
 const siteWorkspaceFolder = `${rootWorkspaceFolder}/sites/${config.packageName}`;
 const rootPackageJsonFilePath = path.resolve(`${rootWorkspaceFolder}/package.json`);
 const extensionPackageJsonFilePath = path.resolve(`${extensionWorkspaceFolder}/package.json`);
