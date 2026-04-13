@@ -14,12 +14,12 @@ import fixCompileTimeYarnPnP from './lib/fix-compile-time-yarn-pnp.js';
 import { extendJsonFile } from './lib/json-helpers.js';
 import packagesVersion from './lib/packages-version.js';
 import setupFormatLint from './lib/setup-format-lint.js';
-import type { CreateExtAppConfig } from './types';
+import type { CreateExtSiteConfig } from './types';
 
 const project = process.argv[2];
 const runYarn = process.argv[3] === '-y' || process.argv[4] === '-y';
 const autoLaunch = process.argv[3] === '-l' || process.argv[4] === '-l';
-const config = (await import(`../projects/${project}/project.js`)).default as CreateExtAppConfig;
+const config = (await import(`../projects/${project}/project.js`)).default as CreateExtSiteConfig;
 const projectAssets = `./projects/${project}/assets`;
 const rootWorkspaceFolder = `../quasar-generate-output/${config.projectFolder}`;
 const extensionWorkspaceFolder = `${rootWorkspaceFolder}/ext`;

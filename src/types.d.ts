@@ -9,7 +9,7 @@ export interface CreateAppConfig {
   mnappLocation?: string;
 }
 
-export interface CreateExtAppConfig extends CreateAppConfig {
+export interface CreateExtSiteConfig extends CreateAppConfig {
   extensionId: string;
 }
 
@@ -22,6 +22,7 @@ export interface CreateExtensionConfig {
   projectDescription: string;
   author: string;
   mnappLocation?: string;
+  sites?: string[];
 }
 
 export interface CreateFirebaseConfig {

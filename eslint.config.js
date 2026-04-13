@@ -6,7 +6,7 @@ import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescri
 
 export default defineConfigWithVueTs(
   {
-    ignores: ['.yarn/*', 'assets/*', 'assetsn/*', 'dist/*', '.pnp.*'],
+    ignores: ['.yarn/*', 'assets/*', 'dist/*', 'projects/*', '.pnp.*'],
   },
 
   js.configs.recommended,

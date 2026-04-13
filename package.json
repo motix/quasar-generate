@@ -14,7 +14,8 @@
     "build": "yarn tsc",
     "watch": "yarn tsc --watch",
     "create-ext": "node ./dist/create-ext.js",
-    "create-ext-site": "node ./dist/create-ext-site.js"
+    "create-ext-site": "node ./dist/create-ext-site.js",
+    "create-all": "node ./dist/create-all.js"
   },
   "devDependencies": {
     "@dreamonkey/cli-ghostwriter": "^0.2.0",

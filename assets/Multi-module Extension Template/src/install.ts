@@ -10,7 +10,6 @@ export default async function (api: InstallAPI) {
   const modules = await getModules<InstallDefinition>(api.appDir, 'install');
 
   backupFile(api, 'package.json');
-  backupFile(api, 'tsconfig.json');
 
   const packageName = getPackageName();
   const organizationName = getOrganizationName();

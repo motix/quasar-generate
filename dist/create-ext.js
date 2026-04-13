@@ -65,7 +65,9 @@ f || installAndLaunch();
 function createRootWorkspace() {
     // Create initial root workspace.
     console.log(' \x1b[32mquasar-generate •\x1b[0m', `Creating \x1b[33mroot\x1b[0m workspace...`);
-    fs.mkdirSync(`${rootWorkspaceFolder}`, { recursive: true });
+    if (!fs.existsSync(rootWorkspaceFolder)) {
+        fs.mkdirSync(rootWorkspaceFolder, { recursive: true });
+    }
     fs.writeFileSync(rootPackageJsonFilePath, `{
   "name": "${config.extensionId}-root",
   "type": "module",
