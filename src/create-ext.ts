@@ -370,7 +370,7 @@ import pluginQuasar from '@quasar/app-vite/eslint'
      * ESLint requires "ignores" key to be the only one in this object
      */
     // ignores: []`,
-    `ignores: ['.yarn/*', '${config.monorepo ? 'ext/' : ''}dev/*', '${config.monorepo ? 'ext/' : ''}dist/*', '${config.monorepo ? 'ext/' : ''}templates/*', '.pnp.*'],`,
+    `ignores: ['.yarn/*', '${config.monorepo ? 'ext/' : ''}dev/*', '${config.monorepo ? 'ext/' : ''}dist/*', '${config.monorepo ? 'ext/' : ''}templates/*', 'sites/*', 'firebase/*', '.pnp.*'],`,
   );
 
   eslintConfigJs = eslintConfigJs.replace(
