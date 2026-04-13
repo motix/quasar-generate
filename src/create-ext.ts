@@ -652,7 +652,7 @@ function extensionWorkspaceSrc() {
 
   // Add project template.
 
-  const extensionAssets = `${projectAssets}/templates/extension`;
+  const extensionAssets = `${projectAssets}/templates/ext`;
 
   if (fs.existsSync(extensionAssets)) {
     fs.readdirSync(extensionAssets).forEach((file) => {
@@ -669,20 +669,6 @@ function extensionWorkspaceSrc() {
 }
 
 function templatesWorkspaceSrc() {
-  // Add `tsconfig.json`.
-
-  fs.writeFileSync(
-    `${templatesWorkspaceFolder}/tsconfig.json`,
-    `{
-  "extends": "./tsconfig-paths.json",
-  "include": ["../dev/**/*.d.ts", "../dev/.quasar/**/*.d.ts", "./**/*"]
-}
-`,
-    {
-      encoding: 'utf-8',
-    },
-  );
-
   // Add `templates` from global `assets`.
 
   fs.cpSync(
@@ -704,6 +690,9 @@ function templatesWorkspaceSrc() {
         force: true,
       });
     });
+
+    // Remove dump file as code was added to `templates`
+    fs.rmSync(`${templatesWorkspaceFolder}/modules/index.ts`);
   }
 
   // Commit code.
