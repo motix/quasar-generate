@@ -1,5 +1,5 @@
 export default {
-  projectFolder: 'MotiWiki 2022-new',
+  projectFolder: 'MotiWiki 2022',
   extensionId: 'motiwiki-2022-app',
   packageName: 'motiwiki-2022-portal',
   version: '2.0.0',
