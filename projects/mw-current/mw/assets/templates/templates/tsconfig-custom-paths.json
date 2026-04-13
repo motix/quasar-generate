@@ -1,0 +1,11 @@
+{
+  "models/<%= prompts.tasksNamespace %>/index.js": [
+    "./modules/shared-tasks/placeholder/src/models/index.js"
+  ],
+  "composables/<%= prompts.tasksNamespace %>/shared/useCurrentMember.js": [
+    "./modules/shared-tasks/placeholder/src/composables/shared/useCurrentMember.js"
+  ],
+  "composables/<%= prompts.tasksNamespace %>/shared/useMemberOptions.js": [
+    "./modules/shared-tasks/placeholder/src/composables/shared/useMemberOptions.js"
+  ]
+}

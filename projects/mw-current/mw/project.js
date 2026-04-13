@@ -1,0 +1,18 @@
+export default {
+  monorepo: true,
+  projectFolder: 'MotiWiki 2022-new',
+  organizationName: 'motinet',
+  extensionId: 'motiwiki-2022-app',
+  version: '2.0.0',
+  projectDescription: 'Extensions for MotiWiki 2022',
+  author: 'Minh Nguyen <minh.nguyen@motiteam.com>',
+  mnappLocation: 'portal:../../../quasar-app-extension-mnapp',
+  sites: [
+    'mw-current/mw-portal',
+    'mw-current/mw-admin',
+    'mw-current/mw-hr',
+    'mw-current/mw-production',
+    'mw-current/mw-finance',
+    'mw-current/mw-reports',
+  ],
+};

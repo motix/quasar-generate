@@ -1,0 +1,11 @@
+export default {
+  projectFolder: 'MotiWiki 2022-new',
+  extensionId: 'motiwiki-2022-app',
+  packageName: 'motiwiki-2022-production',
+  version: '2.0.0',
+  productName: 'MotiWiki 2022 Production',
+  productDescription: 'Production app in MotiWiki 2022',
+  author: 'Minh Nguyen <minh.nguyen@motiteam.com>',
+  sharedAssets: '../mw-assets',
+  mnappLocation: 'portal:../../../quasar-app-extension-mnapp',
+};
