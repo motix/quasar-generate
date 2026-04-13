@@ -2,21 +2,11 @@ import { execSync } from 'child_process';
 
 const autoLaunch = process.argv[2] === '-l';
 
-execSync(
-  'mv ./ext/templates/package.json ./ext/templates/package.txt && yarn && cd ./ext/dev && yarn i-mnapp',
-  {
-    stdio: 'inherit',
-  },
-);
+execSync('yarn && yarn buildPaths && yarn build && yarn clean', {
+  stdio: 'inherit',
+});
 
-execSync(
-  'mv ./ext/templates/package.txt ./ext/templates/package.json && yarn && yarn buildPaths && yarn build && yarn clean',
-  {
-    stdio: 'inherit',
-  },
-);
-
-execSync('cd ./ext/dev && yarn i-motiwiki-2022-app', {
+execSync('cd ./ext/dev && yarn i-mnapp && yarn i-motiwiki-2022-app', {
   stdio: 'inherit',
 });
 
