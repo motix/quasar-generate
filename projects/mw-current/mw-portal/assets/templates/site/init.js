@@ -6,7 +6,8 @@ execSync('yarn && yarn clean && yarn i-mnapp && yarn i-motiwiki-2022-app', {
   stdio: 'inherit',
 });
 
-autoLaunch &&
+if (autoLaunch) {
   execSync('yarn devp', {
     stdio: 'inherit',
   });
+}

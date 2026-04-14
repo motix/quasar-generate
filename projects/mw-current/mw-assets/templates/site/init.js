@@ -13,7 +13,8 @@ execSync(
   },
 );
 
-autoLaunch &&
+if (autoLaunch) {
   execSync('yarn devp', {
     stdio: 'inherit',
   });
+}

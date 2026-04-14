@@ -34,7 +34,8 @@ execSync(
   },
 );
 
-autoLaunch &&
+if (autoLaunch) {
   execSync('cd ./ext/dev && yarn devp', {
     stdio: 'inherit',
   });
+}
