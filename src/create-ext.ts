@@ -95,17 +95,20 @@ function createRootWorkspace() {
 
   fs.writeFileSync(
     rootPackageJsonFilePath,
-    `{
-  "name": "${config.extensionId}-root",
-  "type": "module",
-  "private": true,
-  "engines": {
-    "node": ">= 12.2.0",
-    "npm": ">= 5.6.0",
-    "yarn": ">= 1.6.0"
-  }
-}
-`,
+    JSON.stringify(
+      {
+        name: `${config.extensionId}-root`,
+        type: 'module',
+        private: true,
+        engines: {
+          node: '>= 12.2.0',
+          npm: '>= 5.6.0',
+          yarn: '>= 1.6.0',
+        },
+      },
+      null,
+      2,
+    ),
     { encoding: 'utf-8' },
   );
 
@@ -178,12 +181,15 @@ function createTemplatesWorkspace() {
 
   fs.writeFileSync(
     templatesPackageJsonFilePath,
-    `{
-  "name": "${config.extensionId}-templates",
-  "type": "module",
-  "private": true
-}
-`,
+    JSON.stringify(
+      {
+        name: `${config.extensionId}-templates`,
+        type: 'module',
+        private: true,
+      },
+      null,
+      2,
+    ),
     { encoding: 'utf-8' },
   );
 
@@ -225,6 +231,8 @@ async function createDevQuasarProject() {
 }
 
 function setPackagesInfo() {
+  // Set `version` and `author`.
+
   extendJsonFile(extensionPackageJsonFilePath, [
     {
       path: 'version',
@@ -282,6 +290,9 @@ function refineGitignore() {
   let dotGitignore = fs.readFileSync(rootDotGitignoreFilePath, { encoding: 'utf-8' });
 
   dotGitignore = `${dotGitignore}
+# local .env files
+.env.local*
+
 # Yarn PnP
 .yarn/cache/
 .yarn/sdks/
@@ -372,7 +383,7 @@ import pluginQuasar from '@quasar/app-vite/eslint'
      * ESLint requires "ignores" key to be the only one in this object
      */
     // ignores: []`,
-    `ignores: ['.yarn/*', '${config.monorepo ? 'ext/' : ''}dev/*', '${config.monorepo ? 'ext/' : ''}dist/*', '${config.monorepo ? 'ext/' : ''}templates/*', 'sites/*', 'firebase/*', '.pnp.*'],`,
+    `ignores: ['.yarn/', '${config.monorepo ? 'ext/' : ''}dev/', '${config.monorepo ? 'ext/' : ''}dist/', '${config.monorepo ? 'ext/' : ''}templates/', 'sites/', 'firebase/functions*/', '.pnp.*'],`,
   );
 
   eslintConfigJs = eslintConfigJs.replace(
@@ -398,6 +409,7 @@ import pluginQuasar from '@quasar/app-vite/eslint'
     `{
     languageOptions: {
       parserOptions: {
+        projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -472,7 +484,11 @@ function devWorkspaceFormattingAndLinting() {
   fs.rmSync(`${devWorkspaceFolder}/.prettierrc.json`);
 
   // Since there are multiple `eslint.config.js` and `tsconfig.json` files in the project,
-  // we need to set `tsconfigRootDir` for each `eslint.config.js` to avoid
+  // we need to enable `projectService` to avoid
+  // Error while loading rule '@typescript-eslint/await-thenable':
+  // You have used a rule which requires type information,
+  // but don't have parserOptions set to generate type information for this file.
+  // and set `tsconfigRootDir` for each `eslint.config.js` to avoid
   // Parsing error: No tsconfigRootDir was set, and multiple candidate TSConfigRootDirs are present.
 
   let eslintConfigJs = fs.readFileSync(`${devWorkspaceFolder}/eslint.config.js`, 'utf-8');
@@ -484,6 +500,7 @@ function devWorkspaceFormattingAndLinting() {
   {
     languageOptions: {
       parserOptions: {
+        projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -595,18 +612,21 @@ function extensionWorkspaceSrc() {
 
   fs.writeFileSync(
     `${extensionWorkspaceFolder}/tsconfig.json`,
-    `{
-  "extends": "./dev/.quasar/tsconfig.json",
-  "compilerOptions": {
-    "noEmit": false,
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "paths": {}
-  },
-  "include": ["./src/**/*.ts"],
-  "exclude": []
-}
-`,
+    JSON.stringify(
+      {
+        extends: './dev/.quasar/tsconfig.json',
+        compilerOptions: {
+          noEmit: false,
+          rootDir: './src',
+          outDir: './dist',
+          paths: {},
+        },
+        include: ['./src/**/*.ts'],
+        exclude: [],
+      },
+      null,
+      2,
+    ),
     {
       encoding: 'utf-8',
     },

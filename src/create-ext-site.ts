@@ -11,6 +11,7 @@ import {
 
 import commitCode from './lib/commit-code.js';
 import fixCompileTimeYarnPnP from './lib/fix-compile-time-yarn-pnp.js';
+import getExtensionInfo from './lib/get-extension-info.js';
 import { extendJsonFile } from './lib/json-helpers.js';
 import packagesVersion from './lib/packages-version.js';
 import setupFormatLint from './lib/setup-format-lint.js';
@@ -27,7 +28,9 @@ const siteWorkspaceFolder = `${rootWorkspaceFolder}/sites/${config.packageName}`
 const rootPackageJsonFilePath = path.resolve(`${rootWorkspaceFolder}/package.json`);
 const extensionPackageJsonFilePath = path.resolve(`${extensionWorkspaceFolder}/package.json`);
 const sitePackageJsonFilePath = path.resolve(`${siteWorkspaceFolder}/package.json`);
-const { extensionPackageName, extensionOrganizationName } = await getExtensionInfo();
+const { extensionPackageName, extensionOrganizationName } = await getExtensionInfo(
+  extensionPackageJsonFilePath,
+);
 
 console.log(
   ' \x1b[32mquasar-generate •\x1b[0m',
@@ -103,6 +106,8 @@ async function createQuasarProject() {
 }
 
 function setPackageInfo() {
+  // Set `version` and `author`.
+
   extendJsonFile(sitePackageJsonFilePath, [
     {
       path: 'version',
@@ -162,7 +167,11 @@ async function formattingAndLinting() {
   fs.rmSync(`${siteWorkspaceFolder}/.prettierrc.json`);
 
   // Since there are multiple `eslint.config.js` and `tsconfig.json` files in the project,
-  // we need to set `tsconfigRootDir` for each `eslint.config.js` to avoid
+  // we need to enable `projectService` to avoid
+  // Error while loading rule '@typescript-eslint/await-thenable':
+  // You have used a rule which requires type information,
+  // but don't have parserOptions set to generate type information for this file.
+  // and set `tsconfigRootDir` for each `eslint.config.js` to avoid
   // Parsing error: No tsconfigRootDir was set, and multiple candidate TSConfigRootDirs are present.
 
   let eslintConfigJs = fs.readFileSync(`${siteWorkspaceFolder}/eslint.config.js`, 'utf-8');
@@ -174,6 +183,7 @@ async function formattingAndLinting() {
   {
     languageOptions: {
       parserOptions: {
+        projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -356,21 +366,6 @@ function installAndLaunch() {
 }
 
 // Internal
-
-async function getExtensionInfo() {
-  const extensionPackageJson = (
-    await import(extensionPackageJsonFilePath, { with: { type: 'json' } })
-  ).default;
-
-  let organizationName = extensionPackageJson.name;
-
-  organizationName = organizationName.substring(1, organizationName.lastIndexOf('/'));
-
-  return {
-    extensionPackageName: extensionPackageJson.name,
-    extensionOrganizationName: organizationName,
-  };
-}
 
 function mnappDetected() {
   return (
