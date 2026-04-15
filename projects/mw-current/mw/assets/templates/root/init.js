@@ -1,5 +1,4 @@
 import { execSync } from 'child_process';
-import fs from 'fs';
 
 const autoLaunch = process.argv[2] === '-l';
 
