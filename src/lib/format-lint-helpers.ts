@@ -1,9 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 
-import { extendJsonFile } from './json-helpers.js';
+import { extendJsonFile, reduceJsonFileArray } from './json-helpers.js';
 import packagesVersion from './packages-version.js';
 import patchTrivagoPrettierPluginSortImports from './patches/patch-trivago-prettier-plugin-sort-imports.js';
+
+const globalAssets = './assets';
 
 // Turning on/off features
 const sortImportsEnabled = true;
@@ -142,7 +144,11 @@ export function setupFormatLint(options: {
       ]);
 
       // Fix Prettier plugin Yarn PnP
-      fixPrettierPluginYarnPnP(rootWorkspaceFolder, rootPackageJsonFilePath);
+      fixPrettierPluginYarnPnP(
+        rootWorkspaceFolder,
+        rootPackageJsonFilePath,
+        dotPrettierrcJsonFilePath,
+      );
     }
   }
 
@@ -192,7 +198,71 @@ export function setupFormatLint(options: {
   ]);
 }
 
-function fixPrettierPluginYarnPnP(rootWorkspaceFolder: string, rootPackageJsonFilePath: string) {
+function fixPrettierPluginYarnPnP(
+  rootWorkspaceFolder: string,
+  rootPackageJsonFilePath: string,
+  dotPrettierrcJsonFilePath: string,
+) {
+  // Add missing dependency and bundle `@trivago/prettier-plugin-sort-imports`.
+
+  extendJsonFile(rootPackageJsonFilePath, [
+    {
+      path: 'devDependencies.@vue/compiler-sfc',
+      value: packagesVersion['@vue/compiler-sfc'],
+    },
+    {
+      path: 'devDependencies.esbuild',
+      value: packagesVersion['esbuild'],
+    },
+  ]);
+
+  !fs.existsSync(`${rootWorkspaceFolder}/scripts`) &&
+    fs.mkdirSync(`${rootWorkspaceFolder}/scripts`, { recursive: true });
+
+  fs.copyFileSync(
+    `${globalAssets}/bundle-prettier-plugin-sort-imports.js`,
+    `${rootWorkspaceFolder}/scripts/bundle-prettier-plugin-sort-imports.js`,
+  );
+
+  const packageJson = JSON.parse(fs.readFileSync(rootPackageJsonFilePath, 'utf-8'));
+
+  extendJsonFile(rootPackageJsonFilePath, [
+    {
+      path: 'scripts.postinstall',
+      value: `node scripts/bundle-prettier-plugin-sort-imports.js${packageJson.scripts?.postinstall ? ` && ${packageJson.scripts.postinstall}` : ''}`,
+    },
+  ]);
+
+  // Replace `@trivago/prettier-plugin-sort-imports` with bundled version.
+
+  reduceJsonFileArray(dotPrettierrcJsonFilePath, [
+    { path: 'plugins', value: '@trivago/prettier-plugin-sort-imports' },
+  ]);
+
+  extendJsonFile(dotPrettierrcJsonFilePath, [
+    { path: 'plugins[]', value: './scripts/prettier-plugin-sort-imports-bundle.js' },
+  ]);
+
+  // Ignore bundled file.
+
+  const dotGitignoreFilePath = path.resolve(`${rootWorkspaceFolder}/.gitignore`);
+  let dotGitignore = fs.readFileSync(dotGitignoreFilePath, 'utf-8');
+
+  dotGitignore = `${dotGitignore}
+# Prettier Bundle
+scripts/*bundle.js
+`;
+
+  fs.writeFileSync(dotGitignoreFilePath, dotGitignore, { encoding: 'utf-8' });
+}
+
+// TODO: Remove.
+// This method unplugs `@trivago/prettier-plugin-sort-imports` and its dependencies,
+// which causes poor performance in Yarn PnP.
+export function fixPrettierPluginYarnPnPUnplug(
+  rootWorkspaceFolder: string,
+  rootPackageJsonFilePath: string,
+) {
   // Add missing dependency.
 
   extendJsonFile(rootPackageJsonFilePath, [

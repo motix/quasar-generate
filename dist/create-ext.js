@@ -235,7 +235,10 @@ function rootWorkspaceFormattingAndLinting() {
     // Add dependencies for formatting and linting.
     addFormatLintDependencies(rootPackageJsonFilePath);
     // Setup formatting and linting.
-    setupFormatLint({ rootWorkspaceFolder, targetWorkspaceFolder: rootWorkspaceFolder });
+    setupFormatLint({
+        rootWorkspaceFolder,
+        targetWorkspaceFolder: rootWorkspaceFolder,
+    });
     // Add supports for monorepo in `eslint.config.js`.
     monorepoSupportEslintConfig(`${rootWorkspaceFolder}/eslint.config.js`);
     // Truncate Vue and HTML specific configurations.

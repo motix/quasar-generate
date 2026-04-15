@@ -1,5 +1,7 @@
 import fs from 'fs';
 import { extendJsonFile } from '../json-helpers.js';
+// TODO: Remove.
+// This method is used by `fixPrettierPluginYarnPnPUnplug`, which is waiting to be removed.
 // Patch `@trivago/prettier-plugin-sort-imports`.
 export default function patchTrivagoPrettierPluginSortImports(options) {
     if (options.rootWorkspaceFolder !== undefined) {

@@ -359,7 +359,10 @@ function rootWorkspaceFormattingAndLinting() {
 
   // Setup formatting and linting.
 
-  setupFormatLint({ rootWorkspaceFolder, targetWorkspaceFolder: rootWorkspaceFolder });
+  setupFormatLint({
+    rootWorkspaceFolder,
+    targetWorkspaceFolder: rootWorkspaceFolder,
+  });
 
   // Add supports for monorepo in `eslint.config.js`.
 

@@ -1,0 +1,33 @@
+{
+  "singleQuote": true,
+  "printWidth": 100,
+  "semi": true,
+  "plugins": ["./scripts/prettier-plugin-sort-imports-bundle.js"],
+  "importOrder": [
+    ".json$",
+    ".css$",
+    "<BUILTIN_MODULES>",
+    "^@fortawesome",
+    "^@automapper",
+    "^vue",
+    "^pinia$",
+    "^#q-app",
+    "^@quasar",
+    "^quasar",
+    "^firebase",
+    "^@vite",
+    "^vite",
+    "<THIRD_PARTY_MODULES>",
+    "^utils",
+    "^models",
+    "^stores",
+    "^services",
+    "^composables",
+    "^components",
+    "^[@]",
+    "^[.]"
+  ],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "importOrderCaseInsensitive": true
+}

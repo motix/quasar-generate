@@ -74,9 +74,6 @@ function createFirebase() {
     // Commit code.
 
     commitCodeEnabled &&
-      commitCode(
-        rootWorkspaceFolder,
-        `\\\`init.js\\\` in Firebase \\\`${config.firebase}\\\` done`,
-      );
+      commitCode(rootWorkspaceFolder, `\\\`init.js\\\` in \\\`${config.firebase}\\\` done`);
   }
 }

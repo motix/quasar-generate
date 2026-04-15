@@ -8,6 +8,7 @@ export default {
   '@vue/compiler-sfc': '^3.5.31',
   '@vue/eslint-config-prettier': '^10.2.0',
   '@vue/eslint-config-typescript': '^14.7.0',
+  esbuild: '^0.28.0',
   eslint: '^10.1.0',
   'eslint-plugin-vue': '^10.8.0',
   'firebase-admin': '^13.8.0',
