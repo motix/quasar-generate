@@ -1,13 +1,21 @@
 import { execSync } from 'child_process';
+import fs from 'fs';
 
 const autoLaunch = process.argv[2] === '-l';
 
-execSync(
-  'mv ./ext/templates/package.json ./ext/templates/package.txt && yarn && cd ./ext/dev && yarn i-mnapp',
-  {
-    stdio: 'inherit',
-  },
-);
+execSync('mv ./ext/templates/package.json ./ext/templates/package.txt && yarn', {
+  stdio: 'inherit',
+});
+
+let packageJson = fs.readFileSync('./package.json', 'utf-8');
+
+packageJson = packageJson.replace('postinstall', 'sdk');
+
+fs.writeFileSync('./package.json', packageJson, { encoding: 'utf-8' });
+
+execSync('cd ./ext/dev && yarn i-mnapp', {
+  stdio: 'inherit',
+});
 
 execSync(
   'mv ./ext/templates/package.txt ./ext/templates/package.json && yarn && yarn buildPaths && yarn build && yarn clean',
