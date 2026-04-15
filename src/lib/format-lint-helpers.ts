@@ -5,6 +5,9 @@ import { extendJsonFile } from './json-helpers.js';
 import packagesVersion from './packages-version.js';
 import patchTrivagoPrettierPluginSortImports from './patches/patch-trivago-prettier-plugin-sort-imports.js';
 
+// Turning on/off features
+const sortImportsEnabled = false;
+
 export function addFormatLintDependencies(packageJsonFilePath: string, quasar?: boolean) {
   const packages: (keyof typeof packagesVersion)[] = [
     'eslint',
@@ -92,52 +95,54 @@ export function setupFormatLint(options: {
 
     extendJsonFile(dotPrettierrcJsonFilePath, [{ path: 'semi', value: true }]);
 
-    // Setup Prettier plugin for sorting imports.
+    if (sortImportsEnabled) {
+      // Setup Prettier plugin for sorting imports.
 
-    // Add dependency
-    extendJsonFile(rootPackageJsonFilePath, [
-      {
-        path: 'devDependencies.@trivago/prettier-plugin-sort-imports',
-        value: packagesVersion['@trivago/prettier-plugin-sort-imports'],
-      },
-    ]);
+      // Add dependency
+      extendJsonFile(rootPackageJsonFilePath, [
+        {
+          path: 'devDependencies.@trivago/prettier-plugin-sort-imports',
+          value: packagesVersion['@trivago/prettier-plugin-sort-imports'],
+        },
+      ]);
 
-    // Add plugin settings
-    extendJsonFile(dotPrettierrcJsonFilePath, [
-      { path: 'plugins[]', value: '@trivago/prettier-plugin-sort-imports' },
-      {
-        path: 'importOrder',
-        value: [
-          '.json$',
-          '.css$',
-          '<BUILTIN_MODULES>',
-          '^@fortawesome',
-          '^@automapper',
-          '^vue',
-          '^pinia$',
-          '^#q-app',
-          '^@quasar',
-          '^quasar',
-          '^firebase',
-          '^@vite',
-          '^vite',
-          '<THIRD_PARTY_MODULES>',
-          '^utils',
-          '^models',
-          '^stores',
-          '^services',
-          '^composables',
-          '^components',
-          '^[@]',
-          '^[.]',
-        ],
-      },
-      { path: 'importOrderSeparation', value: true },
-      { path: 'importOrderSortSpecifiers', value: true },
-    ]);
+      // Add plugin settings
+      extendJsonFile(dotPrettierrcJsonFilePath, [
+        { path: 'plugins[]', value: '@trivago/prettier-plugin-sort-imports' },
+        {
+          path: 'importOrder',
+          value: [
+            '.json$',
+            '.css$',
+            '<BUILTIN_MODULES>',
+            '^@fortawesome',
+            '^@automapper',
+            '^vue',
+            '^pinia$',
+            '^#q-app',
+            '^@quasar',
+            '^quasar',
+            '^firebase',
+            '^@vite',
+            '^vite',
+            '<THIRD_PARTY_MODULES>',
+            '^utils',
+            '^models',
+            '^stores',
+            '^services',
+            '^composables',
+            '^components',
+            '^[@]',
+            '^[.]',
+          ],
+        },
+        { path: 'importOrderSeparation', value: true },
+        { path: 'importOrderSortSpecifiers', value: true },
+      ]);
 
-    // Fix Prettier plugin Yarn PnP
-    fixPrettierPluginYarnPnP(rootWorkspaceFolder, rootPackageJsonFilePath);
+      // Fix Prettier plugin Yarn PnP
+      fixPrettierPluginYarnPnP(rootWorkspaceFolder, rootPackageJsonFilePath);
+    }
   }
 
   // Modify `eslint.config.js`.
