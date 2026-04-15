@@ -50,6 +50,14 @@ import pluginVue from 'eslint-plugin-vue';
     '',
   );
 
+  // After formated without import sorting
+  eslintConfigJs = eslintConfigJs.replace(
+    `import pluginVue from 'eslint-plugin-vue';
+import pluginQuasar from '@quasar/app-vite/eslint';
+`,
+    '',
+  );
+
   eslintConfigJs = eslintConfigJs.replace(
     `/**
      * Ignore the following files.
