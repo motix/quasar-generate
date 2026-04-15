@@ -47,8 +47,7 @@ export function refFinish(mergedAlias) {
 
   fs.writeFileSync('./tsconfig.json', JSON.stringify(tsconfigJson, null, 2));
 
-  // Format codes
+  // Clean codes
 
-  execSync('yarn prettier --write tsconfig.json --log-level warn', { stdio: 'inherit' });
   execSync('yarn clean', { stdio: 'inherit' });
 }

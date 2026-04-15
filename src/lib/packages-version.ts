@@ -14,6 +14,7 @@ export default {
   'firebase-functions': '^7.2.5',
   'firebase-functions-test': '^3.4.1',
   globals: '^17.4.0',
+  jest: '^30.3.0',
   'lodash-es': '^4.17.23',
   postcss: '^8.5.8',
   prettier: '^3.8.1',

@@ -42,6 +42,7 @@ f || functionsWorkspaceSrc();
 f || finishFirebaseWorkspace();
 f || finishFunctionsWorkspace();
 f || createFunctionsCodebases();
+f || applyFunctionsProjectTemplate();
 // Install and launch
 f || installAndLaunch();
 // Create workspaces
@@ -166,14 +167,14 @@ function functionsFormattingAndLinting() {
 }
 // Workspaces base source code
 function firebaseWorkspaceSrc() {
-    // Add rebuild functions script.
+    // Add `rebuildFunctions` from global `assets`.
     fs.copyFileSync(`${globalAssets}/rebuildFunctions.js`, `${firebaseWorkspaceFolder}/rebuildFunctions.js`);
     let rebuildFunctionsJs = fs.readFileSync(`${firebaseWorkspaceFolder}/rebuildFunctions.js`, 'utf-8');
     rebuildFunctionsJs = rebuildFunctionsJs.replace('__PACKAGE_NAME__', config.packageName);
     fs.writeFileSync(`${firebaseWorkspaceFolder}/rebuildFunctions.js`, rebuildFunctionsJs, {
         encoding: 'utf-8',
     });
-    // Add project template.
+    // Apply project template.
     const firebaseAssets = `${projectAssets}/templates/firebase`;
     if (fs.existsSync(firebaseAssets)) {
         fs.readdirSync(firebaseAssets).forEach((file) => {
@@ -202,7 +203,11 @@ function functionsWorkspaceSrc() {
         path: `dependencies.${item}`,
         value: packagesVersion[item],
     })));
-    packages = ['firebase-functions-test', 'typescript'];
+    packages = [
+        'firebase-functions-test',
+        'jest', // Peer dependency of `firebase-functions-test`
+        'typescript',
+    ];
     extendJsonFile(functionsPackageJsonFilePath, packages.map((item) => ({
         path: `devDependencies.${item}`,
         value: packagesVersion[item],
@@ -244,8 +249,8 @@ function functionsWorkspaceSrc() {
     indexTs = indexTs.replace('__REGION__', config.functionsRegion);
     fs.writeFileSync(`${functionsWorkspaceFolder}/src/index.ts`, indexTs, { encoding: 'utf-8' });
     // Add `refTools` and `refUpdate` from global `assets`.
-    fs.copyFileSync(`${globalAssets}/functions/refUpdate.js`, `${functionsWorkspaceFolder}/refUpdate.js`);
     fs.copyFileSync(`${globalAssets}/functions/refTools.js`, `${functionsWorkspaceFolder}/refTools.js`);
+    fs.copyFileSync(`${globalAssets}/functions/refUpdate.js`, `${functionsWorkspaceFolder}/refUpdate.js`);
     // Commit code.
     commitCodeEnabled &&
         commitCode(rootWorkspaceFolder, `\\\`functionsWorkspaceSrc()\\\` for \\\`${config.packageName}\\\``);
@@ -374,9 +379,41 @@ function createFunctionsCodebases() {
         fs.writeFileSync(`${codebaseWorkspaceFolder}/src/index.ts`, indexTs, { encoding: 'utf-8' });
     }
     // Commit code.
-    config.functionsCodebases.length > 0 &&
-        commitCodeEnabled &&
+    commitCodeEnabled &&
+        config.functionsCodebases.length > 0 &&
         commitCode(rootWorkspaceFolder, `\\\`createFunctionsCodebases()\\\` for \\\`${config.packageName}\\\``);
+}
+function applyFunctionsProjectTemplate() {
+    let dirty = false;
+    // Apply project template to `functions` workspace.
+    const functionsAssets = `${projectAssets}/templates/functions`;
+    if (fs.existsSync(functionsAssets)) {
+        fs.readdirSync(functionsAssets).forEach((file) => {
+            fs.cpSync(path.join(functionsAssets, file), path.join(functionsWorkspaceFolder, file), {
+                recursive: true,
+                force: true,
+            });
+        });
+        dirty = true;
+    }
+    for (const codebase of config.functionsCodebases) {
+        // Apply project template to codebase workspace.
+        const codebaseWorkspaceFolder = `${functionsWorkspaceFolder}-${codebase}`;
+        const codebaseAssets = `${projectAssets}/templates/functions-${codebase}`;
+        if (fs.existsSync(codebaseAssets)) {
+            fs.readdirSync(codebaseAssets).forEach((file) => {
+                fs.cpSync(path.join(codebaseAssets, file), path.join(codebaseWorkspaceFolder, file), {
+                    recursive: true,
+                    force: true,
+                });
+            });
+            dirty = true;
+        }
+    }
+    // Commit code.
+    commitCodeEnabled &&
+        dirty &&
+        commitCode(rootWorkspaceFolder, `\\\`applyFunctionsProjectTemplate()\\\` for \\\`${config.packageName}\\\``);
 }
 // Install and launch
 function installAndLaunch() {

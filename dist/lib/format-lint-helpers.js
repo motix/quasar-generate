@@ -4,7 +4,7 @@ import { extendJsonFile } from './json-helpers.js';
 import packagesVersion from './packages-version.js';
 import patchTrivagoPrettierPluginSortImports from './patches/patch-trivago-prettier-plugin-sort-imports.js';
 // Turning on/off features
-const sortImportsEnabled = false;
+const sortImportsEnabled = true;
 export function addFormatLintDependencies(packageJsonFilePath, quasar) {
     const packages = [
         'eslint',
@@ -16,6 +16,7 @@ export function addFormatLintDependencies(packageJsonFilePath, quasar) {
         '@vue/eslint-config-typescript',
         'eslint-plugin-vue', // Peer dependency of `@vue/eslint-config-typescript`
         'vue-eslint-parser', // Peer dependency of `eslint-plugin-vue`
+        'typescript', // Peer dependency of `@vue/eslint-config-typescript`
     ];
     if (quasar) {
         packages.push('@quasar/app-vite', 'quasar', // Peer dependency of `@quasar/app-vite`

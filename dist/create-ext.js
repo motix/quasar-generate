@@ -309,12 +309,12 @@ function templatesWorkspaceFormattingAndLinting() {
 }
 // Workspaces base source code
 function rootWorkspaceSrc() {
-    // Add project template.
+    let dirty = false;
+    // Apply project template.
     const rootAssets = `${projectAssets}/templates/root`;
-    let codeChanged = false;
     if (fs.existsSync(rootAssets)) {
         fs.readdirSync(rootAssets).forEach((file) => {
-            codeChanged = true;
+            dirty = true;
             fs.cpSync(path.join(rootAssets, file), path.join(rootWorkspaceFolder, file), {
                 recursive: true,
                 force: true,
@@ -322,7 +322,7 @@ function rootWorkspaceSrc() {
         });
     }
     // Commit code.
-    codeChanged && commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`rootWorkspaceSrc()\\`');
+    commitCodeEnabled && dirty && commitCode(rootWorkspaceFolder, '\\`rootWorkspaceSrc()\\`');
 }
 function extensionWorkspaceSrc() {
     // Add `tsconfig.json`.
@@ -364,7 +364,7 @@ function extensionWorkspaceSrc() {
         rootWorkspaceFolder,
         targetPackageJsonFilePath: extensionPackageJsonFilePath,
     });
-    // Add project template.
+    // Apply project template.
     const extensionAssets = `${projectAssets}/templates/ext`;
     if (fs.existsSync(extensionAssets)) {
         fs.readdirSync(extensionAssets).forEach((file) => {
@@ -382,7 +382,7 @@ function templatesWorkspaceSrc() {
     fs.cpSync(`${globalAssets}/templates`, `${extensionWorkspaceFolder}/templates`, {
         recursive: true,
     });
-    // Add project template.
+    // Apply project template.
     const templatesAssets = `${projectAssets}/templates/templates`;
     if (fs.existsSync(templatesAssets)) {
         fs.readdirSync(templatesAssets).forEach((file) => {
@@ -411,7 +411,7 @@ function devWorkspaceSrc() {
   modules: {},
 };
 `, { encoding: 'utf-8' });
-    // Add project template.
+    // Apply project template.
     const devAssets = `${projectAssets}/templates/dev`;
     if (fs.existsSync(devAssets)) {
         fs.readdirSync(devAssets).forEach((file) => {

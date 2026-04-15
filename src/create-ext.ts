@@ -468,14 +468,15 @@ function templatesWorkspaceFormattingAndLinting() {
 // Workspaces base source code
 
 function rootWorkspaceSrc() {
-  // Add project template.
+  let dirty = false;
+
+  // Apply project template.
 
   const rootAssets = `${projectAssets}/templates/root`;
-  let codeChanged = false;
 
   if (fs.existsSync(rootAssets)) {
     fs.readdirSync(rootAssets).forEach((file) => {
-      codeChanged = true;
+      dirty = true;
       fs.cpSync(path.join(rootAssets, file), path.join(rootWorkspaceFolder, file), {
         recursive: true,
         force: true,
@@ -485,7 +486,7 @@ function rootWorkspaceSrc() {
 
   // Commit code.
 
-  codeChanged && commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`rootWorkspaceSrc()\\`');
+  commitCodeEnabled && dirty && commitCode(rootWorkspaceFolder, '\\`rootWorkspaceSrc()\\`');
 }
 
 function extensionWorkspaceSrc() {
@@ -549,7 +550,7 @@ function extensionWorkspaceSrc() {
     targetPackageJsonFilePath: extensionPackageJsonFilePath,
   });
 
-  // Add project template.
+  // Apply project template.
 
   const extensionAssets = `${projectAssets}/templates/ext`;
 
@@ -574,7 +575,7 @@ function templatesWorkspaceSrc() {
     recursive: true,
   });
 
-  // Add project template.
+  // Apply project template.
 
   const templatesAssets = `${projectAssets}/templates/templates`;
 
@@ -623,7 +624,7 @@ function devWorkspaceSrc() {
     { encoding: 'utf-8' },
   );
 
-  // Add project template.
+  // Apply project template.
 
   const devAssets = `${projectAssets}/templates/dev`;
 

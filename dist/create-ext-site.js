@@ -152,7 +152,7 @@ function workspaceSrc() {
             });
         });
     }
-    // Add project template.
+    // Apply project template.
     const siteProjectAssets = `${projectAssets}/templates/site`;
     if (fs.existsSync(siteProjectAssets)) {
         fs.readdirSync(siteProjectAssets).forEach((file) => {

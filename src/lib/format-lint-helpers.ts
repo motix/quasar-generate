@@ -6,7 +6,7 @@ import packagesVersion from './packages-version.js';
 import patchTrivagoPrettierPluginSortImports from './patches/patch-trivago-prettier-plugin-sort-imports.js';
 
 // Turning on/off features
-const sortImportsEnabled = false;
+const sortImportsEnabled = true;
 
 export function addFormatLintDependencies(packageJsonFilePath: string, quasar?: boolean) {
   const packages: (keyof typeof packagesVersion)[] = [
@@ -20,6 +20,7 @@ export function addFormatLintDependencies(packageJsonFilePath: string, quasar?: 
     '@vue/eslint-config-typescript',
     'eslint-plugin-vue', // Peer dependency of `@vue/eslint-config-typescript`
     'vue-eslint-parser', // Peer dependency of `eslint-plugin-vue`
+    'typescript', // Peer dependency of `@vue/eslint-config-typescript`
   ];
 
   if (quasar) {

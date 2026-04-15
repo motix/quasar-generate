@@ -233,7 +233,7 @@ function workspaceSrc() {
     });
   }
 
-  // Add project template.
+  // Apply project template.
 
   const siteProjectAssets = `${projectAssets}/templates/site`;
 
