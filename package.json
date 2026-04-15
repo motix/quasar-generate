@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "yarn dlx @yarnpkg/sdks vscode && yarn node scripts/bundle-prettier-plugin-sort-imports.js && prettier --write ./.vscode/*.*",
+    "postinstall": "node scripts/bundle-prettier-plugin-sort-imports.js && yarn dlx @yarnpkg/sdks vscode && prettier --write ./.vscode/*.*",
     "lint": "eslint -c ./eslint.config.js \"./src/**/*.{ts,js,cjs,mjs,vue}\"",
     "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore --ignore-path .prettierignore",
     "clean": "yarn format --log-level warn && yarn lint --fix",
