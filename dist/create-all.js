@@ -8,6 +8,7 @@ const f = false;
 const commitCodeEnabled = true;
 f || createExtension();
 f || (await createSites());
+f || createFirebase();
 // Create extension
 function createExtension() {
     // Create extension.
@@ -32,5 +33,17 @@ async function createSites() {
             commitCodeEnabled &&
                 commitCode(rootWorkspaceFolder, `\\\`init.js\\\` in site \\\`${site}\\\` done`);
         }
+    }
+}
+// Create Firebase
+function createFirebase() {
+    if (config.firebase) {
+        // Create Firebase
+        execSync(`yarn create-ext-firebase ${config.firebase} && cd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')}/firebase && node init.js`, {
+            stdio: 'inherit',
+        });
+        // Commit code.
+        commitCodeEnabled &&
+            commitCode(rootWorkspaceFolder, `\\\`init.js\\\` in Firebase \\\`${config.firebase}\\\` done`);
     }
 }

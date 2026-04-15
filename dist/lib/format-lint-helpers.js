@@ -3,7 +3,30 @@ import path from 'path';
 import { extendJsonFile } from './json-helpers.js';
 import packagesVersion from './packages-version.js';
 import patchTrivagoPrettierPluginSortImports from './patches/patch-trivago-prettier-plugin-sort-imports.js';
-export default function setupFormatLint(options) {
+export function addFormatLintDependencies(packageJsonFilePath, quasar) {
+    const packages = [
+        'eslint',
+        'prettier',
+        // `eslint.config.js` specific dependencies
+        'globals',
+        '@eslint/js',
+        '@vue/eslint-config-prettier',
+        '@vue/eslint-config-typescript',
+        'eslint-plugin-vue', // Peer dependency of `@vue/eslint-config-typescript`
+        'vue-eslint-parser', // Peer dependency of `eslint-plugin-vue`
+    ];
+    if (quasar) {
+        packages.push('@quasar/app-vite', 'quasar', // Peer dependency of `@quasar/app-vite`
+        'typescript', // Peer dependency of `@quasar/app-vite`
+        'vue', // Peer dependency of `@quasar/app-vite`
+        'vue-router');
+    }
+    extendJsonFile(packageJsonFilePath, packages.map((item) => ({
+        path: `devDependencies.${item}`,
+        value: packagesVersion[item],
+    })));
+}
+export function setupFormatLint(options) {
     const { rootWorkspaceFolder, targetWorkspaceFolder } = options;
     const extensionsJsonFilePath = rootWorkspaceFolder === undefined
         ? undefined

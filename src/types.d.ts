@@ -23,12 +23,12 @@ export interface CreateExtensionConfig {
   author: string;
   mnappLocation?: string;
   sites?: string[];
+  firebase?: string;
 }
 
 export interface CreateFirebaseConfig {
   projectFolder: string;
   packageName: string;
-  version: string;
   firebaseProjectPosition: number;
   authEmulatorPort: number;
   functionsEmulatorPort: number;

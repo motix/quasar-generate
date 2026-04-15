@@ -101,6 +101,7 @@ export default function fixCompileTimeYarnPnP(options: {
       dotGitignore = dotGitignore.includes('# .vscode')
         ? dotGitignore
         : dotGitignore.replace('.vscode', '# .vscode');
+
       fs.writeFileSync(`${rootWorkspaceFolder}/.gitignore`, dotGitignore, {
         encoding: 'utf-8',
       });

@@ -3,11 +3,12 @@ import fs from 'fs';
 import path from 'path';
 import { ACCEPT_DEFAULT, cliGhostwriter, DOWN_KEY, WHITESPACE_KEY, } from '@dreamonkey/cli-ghostwriter';
 import commitCode from './lib/commit-code.js';
+import { monorepoSupportEslintConfig } from './lib/eslint-helpers.js';
 import fixCompileTimeYarnPnP from './lib/fix-compile-time-yarn-pnp.js';
+import { setupFormatLint } from './lib/format-lint-helpers.js';
 import getExtensionInfo from './lib/get-extension-info.js';
 import { extendJsonFile } from './lib/json-helpers.js';
 import packagesVersion from './lib/packages-version.js';
-import setupFormatLint from './lib/setup-format-lint.js';
 const project = process.argv[2];
 const runYarn = process.argv[3] === '-y' || process.argv[4] === '-y';
 const autoLaunch = process.argv[3] === '-l' || process.argv[4] === '-l';
@@ -37,7 +38,7 @@ f ||
             : undefined,
     });
 // Workspaces formatting and linting
-f || (await formattingAndLinting());
+f || formattingAndLinting();
 // Workspaces base source code
 f || workspaceSrc();
 // Finish workspaces
@@ -105,34 +106,15 @@ function prepareWorkspaces() {
         commitCode(rootWorkspaceFolder, `\\\`prepareWorkspaces()\\\` for \\\`${config.packageName}\\\``);
 }
 // Workspaces formatting and linting
-async function formattingAndLinting() {
+function formattingAndLinting() {
     // Setup formatting and linting.
     setupFormatLint({ targetWorkspaceFolder: siteWorkspaceFolder });
     // All formatting and some lingting tools were available in root workspace, remove them here.
     fs.rmSync(`${siteWorkspaceFolder}/.vscode`, { recursive: true });
     fs.rmSync(`${siteWorkspaceFolder}/.editorconfig`);
     fs.rmSync(`${siteWorkspaceFolder}/.prettierrc.json`);
-    // Since there are multiple `eslint.config.js` and `tsconfig.json` files in the project,
-    // we need to enable `projectService` to avoid
-    // Error while loading rule '@typescript-eslint/await-thenable':
-    // You have used a rule which requires type information,
-    // but don't have parserOptions set to generate type information for this file.
-    // and set `tsconfigRootDir` for each `eslint.config.js` to avoid
-    // Parsing error: No tsconfigRootDir was set, and multiple candidate TSConfigRootDirs are present.
-    let eslintConfigJs = fs.readFileSync(`${siteWorkspaceFolder}/eslint.config.js`, 'utf-8');
-    eslintConfigJs = eslintConfigJs.replace("pluginVue.configs[ 'flat/recommended' ],", `pluginVue.configs[ 'flat/recommended' ],
-
-  {
-    languageOptions: {
-      parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname,
-      },
-    },
-  },`);
-    fs.writeFileSync(`${siteWorkspaceFolder}/eslint.config.js`, eslintConfigJs, {
-        encoding: 'utf-8',
-    });
+    // Add supports for monorepo in `eslint.config.js`.
+    monorepoSupportEslintConfig(`${siteWorkspaceFolder}/eslint.config.js`);
     // Add `clean` script.
     extendJsonFile(sitePackageJsonFilePath, [
         {
@@ -140,16 +122,6 @@ async function formattingAndLinting() {
             value: 'yarn format --log-level warn && yarn lint --fix',
         },
     ]);
-    // Update root workspace `format` script.
-    const rootPackageJson = (await import(rootPackageJsonFilePath, { with: { type: 'json' } }))
-        .default;
-    !rootPackageJson.scripts.format.includes(`--ignore-path sites/${config.packageName}/.gitignore`) &&
-        extendJsonFile(rootPackageJsonFilePath, [
-            {
-                path: 'scripts.format',
-                value: `${rootPackageJson.scripts.format} --ignore-path sites/${config.packageName}/.gitignore`,
-            },
-        ]);
     // Commit code.
     commitCodeEnabled &&
         commitCode(rootWorkspaceFolder, `\\\`formattingAndLinting()\\\` for \\\`${config.packageName}\\\``);

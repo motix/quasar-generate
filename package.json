@@ -15,6 +15,7 @@
     "watch": "yarn tsc --watch",
     "create-ext": "node ./dist/create-ext.js",
     "create-ext-site": "node ./dist/create-ext-site.js",
+    "create-ext-firebase": "node ./dist/create-ext-firebase.js",
     "create-all": "node ./dist/create-all.js"
   },
   "devDependencies": {

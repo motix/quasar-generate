@@ -3,12 +3,13 @@ import fs from 'fs';
 import path from 'path';
 import { ACCEPT_DEFAULT, cliGhostwriter, DOWN_KEY, WHITESPACE_KEY, } from '@dreamonkey/cli-ghostwriter';
 import commitCode from './lib/commit-code.js';
+import { convertEslintConfigToTsOnly, monorepoSupportEslintConfig } from './lib/eslint-helpers.js';
 import fixCompileTimeYarnPnP from './lib/fix-compile-time-yarn-pnp.js';
+import { addFormatLintDependencies, setupFormatLint } from './lib/format-lint-helpers.js';
 import { extendJsonFile, reduceJsonFile, reorderJsonFile } from './lib/json-helpers.js';
 import packagesVersion from './lib/packages-version.js';
 import patchQuasarAppVite from './lib/patches/patch-quasar-app-vite.js';
-import setupFormatLint from './lib/setup-format-lint.js';
-const globalAssets = './assets';
+const globalAssets = './assets/Multi-module Extension Template';
 const project = process.argv[2];
 const runYarn = process.argv[3] === '-y' || process.argv[4] === '-y';
 const autoLaunch = process.argv[3] === '-l' || process.argv[4] === '-l';
@@ -218,83 +219,27 @@ function rootWorkspaceFormattingAndLinting() {
     fs.copyFileSync(`${devWorkspaceFolder}/.editorconfig`, `${rootWorkspaceFolder}/.editorconfig`);
     fs.copyFileSync(`${devWorkspaceFolder}/.prettierrc.json`, `${rootWorkspaceFolder}/.prettierrc.json`);
     fs.copyFileSync(`${devWorkspaceFolder}/eslint.config.js`, `${rootWorkspaceFolder}/eslint.config.js`);
-    // Add `.prettierignore` to ignore `.yarn` and `dist`.
+    // Add `.prettierignore` to ignore `.yarn` and `dist` / `lib`.
     fs.writeFileSync(`${rootWorkspaceFolder}/.prettierignore`, `/.yarn
-/${config.monorepo ? 'ext/' : ''}dist
+/${config.monorepo ? 'ext/' : ''}dist${config.monorepo
+        ? `
+/firebase/functions*/lib
+/sites/*/dist`
+        : ''}
 .pnp.*
 `, { encoding: 'utf-8' });
-    // Add `eslint.config.js` specific dependencies.
-    const packages = [
-        '@eslint/js',
-        'globals',
-        'eslint-plugin-vue',
-        '@vue/eslint-config-typescript',
-        '@vue/eslint-config-prettier',
-        'vue-eslint-parser',
-    ];
-    extendJsonFile(rootPackageJsonFilePath, packages.map((item) => ({
-        path: `devDependencies.${item}`,
-        value: packagesVersion[item],
-    })));
+    config.monorepo &&
+        fs.writeFileSync(`${rootWorkspaceFolder}/.prettierignore-noneExtension`, `/firebase
+/sites
+`, { encoding: 'utf-8' });
+    // Add dependencies for formatting and linting.
+    addFormatLintDependencies(rootPackageJsonFilePath);
     // Setup formatting and linting.
     setupFormatLint({ rootWorkspaceFolder, targetWorkspaceFolder: rootWorkspaceFolder });
-    // Since there are multiple `eslint.config.js` and `tsconfig.json` files in the project,
-    // we need to set `tsconfigRootDir` for each `eslint.config.js` to avoid
-    // Parsing error: No tsconfigRootDir was set, and multiple candidate TSConfigRootDirs are present.
-    // Trimming some vue specific configurations too.
-    let eslintConfigJs = fs.readFileSync(`${rootWorkspaceFolder}/eslint.config.js`, 'utf-8');
-    eslintConfigJs = eslintConfigJs.replace(`import pluginVue from 'eslint-plugin-vue'
-import pluginQuasar from '@quasar/app-vite/eslint'
-`, '');
-    eslintConfigJs = eslintConfigJs.replace(`/**
-     * Ignore the following files.
-     * Please note that pluginQuasar.configs.recommended() already ignores
-     * the "node_modules" folder for you (and all other Quasar project
-     * relevant folders and files).
-     *
-     * ESLint requires "ignores" key to be the only one in this object
-     */
-    // ignores: []`, `ignores: ['.yarn/', '${config.monorepo ? 'ext/' : ''}dev/', '${config.monorepo ? 'ext/' : ''}dist/', '${config.monorepo ? 'ext/' : ''}templates/', 'sites/', 'firebase/functions*/', '.pnp.*'],`);
-    eslintConfigJs = eslintConfigJs.replace(`  pluginQuasar.configs.recommended(),
-`, '');
-    eslintConfigJs = eslintConfigJs.replace(`  /**
-   * https://eslint.vuejs.org
-   *
-   * pluginVue.configs.base
-   *   -> Settings and rules to enable correct ESLint parsing.
-   * pluginVue.configs[ 'flat/essential']
-   *   -> base, plus rules to prevent errors or unintended behavior.
-   * pluginVue.configs["flat/strongly-recommended"]
-   *   -> Above, plus rules to considerably improve code readability and/or dev experience.
-   * pluginVue.configs["flat/recommended"]
-   *   -> Above, plus rules to enforce subjective community defaults to ensure consistency.
-   */
-  pluginVue.configs[ 'flat/recommended' ],`, `{
-    languageOptions: {
-      parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname,
-      },
-    },
-  },`);
-    eslintConfigJs = eslintConfigJs.replace("files: ['**/*.ts', '**/*.vue'],", "files: ['**/*.ts'],");
-    eslintConfigJs = eslintConfigJs.replace(`
-      // alphabetical
-      'vue/attributes-order': ['warn', { alphabetical: true }]
-`, '');
-    eslintConfigJs = eslintConfigJs.replace(`
-  {
-    files: [ 'src-pwa/custom-service-worker.ts' ],
-    languageOptions: {
-      globals: {
-        ...globals.serviceworker
-      }
-    }
-  },
-`, '');
-    fs.writeFileSync(`${rootWorkspaceFolder}/eslint.config.js`, eslintConfigJs, {
-        encoding: 'utf-8',
-    });
+    // Add supports for monorepo in `eslint.config.js`.
+    monorepoSupportEslintConfig(`${rootWorkspaceFolder}/eslint.config.js`);
+    // Truncate Vue and HTML specific configurations.
+    convertEslintConfigToTsOnly(`${rootWorkspaceFolder}/eslint.config.js`, `'.yarn/', '${config.monorepo ? 'ext/' : ''}dev/', '${config.monorepo ? 'ext/' : ''}dist/', '${config.monorepo ? 'ext/' : ''}templates/', 'firebase/', 'sites/', '.pnp.*'`);
     // Add `lint`, `lintf`, `format` and `clean` scripts but they won't work
     // before `dev` and `templates` workspaces formatting and linting are ready.
     reduceJsonFile(rootPackageJsonFilePath, ['scripts.clean']);
@@ -309,7 +254,7 @@ import pluginQuasar from '@quasar/app-vite/eslint'
         },
         {
             path: 'scripts.format',
-            value: `prettier --write "**/*.{js,ts,vue,css,scss,html,md,json}" --ignore-path ${config.monorepo ? 'ext/' : ''}dev/.gitignore --ignore-path .prettierignore`,
+            value: `prettier --write "**/*.{js,ts,vue,css,scss,html,md,json}" --ignore-path ${config.monorepo ? 'ext/' : ''}dev/.gitignore --ignore-path .prettierignore${config.monorepo ? ' --ignore-path .prettierignore-noneExtension' : ''}`,
         },
         {
             path: 'scripts.clean',
@@ -326,27 +271,8 @@ function devWorkspaceFormattingAndLinting() {
     fs.rmSync(`${devWorkspaceFolder}/.vscode`, { recursive: true });
     fs.rmSync(`${devWorkspaceFolder}/.editorconfig`);
     fs.rmSync(`${devWorkspaceFolder}/.prettierrc.json`);
-    // Since there are multiple `eslint.config.js` and `tsconfig.json` files in the project,
-    // we need to enable `projectService` to avoid
-    // Error while loading rule '@typescript-eslint/await-thenable':
-    // You have used a rule which requires type information,
-    // but don't have parserOptions set to generate type information for this file.
-    // and set `tsconfigRootDir` for each `eslint.config.js` to avoid
-    // Parsing error: No tsconfigRootDir was set, and multiple candidate TSConfigRootDirs are present.
-    let eslintConfigJs = fs.readFileSync(`${devWorkspaceFolder}/eslint.config.js`, 'utf-8');
-    eslintConfigJs = eslintConfigJs.replace("pluginVue.configs[ 'flat/recommended' ],", `pluginVue.configs[ 'flat/recommended' ],
-
-  {
-    languageOptions: {
-      parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname,
-      },
-    },
-  },`);
-    fs.writeFileSync(`${devWorkspaceFolder}/eslint.config.js`, eslintConfigJs, {
-        encoding: 'utf-8',
-    });
+    // Add supports for monorepo in `eslint.config.js`.
+    monorepoSupportEslintConfig(`${devWorkspaceFolder}/eslint.config.js`);
     // Add `clean` script.
     extendJsonFile(devPackageJsonFilePath, [
         {
@@ -361,26 +287,7 @@ function templatesWorkspaceFormattingAndLinting() {
     // Copy `eslint.config.js` from `dev` workspace.
     fs.copyFileSync(`${devWorkspaceFolder}/eslint.config.js`, `${templatesWorkspaceFolder}/eslint.config.js`);
     // Add dependencies for formatting and linting.
-    const packages = [
-        'eslint',
-        'prettier',
-        // `eslint.config.js` specific dependencies
-        '@eslint/js',
-        'globals',
-        'eslint-plugin-vue',
-        '@quasar/app-vite',
-        'quasar', // Peer dependency of `@quasar/app-vite`
-        'typescript', // Peer dependency of `@quasar/app-vite`
-        'vue', // Peer dependency of `@quasar/app-vite`
-        'vue-router', // Peer dependency of `@quasar/app-vite`
-        '@vue/eslint-config-typescript',
-        '@vue/eslint-config-prettier',
-        'vue-eslint-parser',
-    ];
-    extendJsonFile(templatesPackageJsonFilePath, packages.map((item) => ({
-        path: `devDependencies.${item}`,
-        value: packagesVersion[item],
-    })));
+    addFormatLintDependencies(templatesPackageJsonFilePath, true);
     // Add `lint`, `format` and `clean` scripts.
     extendJsonFile(templatesPackageJsonFilePath, [
         {
@@ -449,7 +356,7 @@ function extensionWorkspaceSrc() {
     // Delete `src` folder.
     fs.rmSync(`${extensionWorkspaceFolder}/src`, { recursive: true });
     // Add `src` from global `assets`.
-    fs.cpSync(`${globalAssets}/Multi-module Extension Template/src`, `${extensionWorkspaceFolder}/src`, {
+    fs.cpSync(`${globalAssets}/src`, `${extensionWorkspaceFolder}/src`, {
         recursive: true,
     });
     // Patch `@quasar/app-vite`.
@@ -472,7 +379,7 @@ function extensionWorkspaceSrc() {
 }
 function templatesWorkspaceSrc() {
     // Add `templates` from global `assets`.
-    fs.cpSync(`${globalAssets}/Multi-module Extension Template/templates`, `${extensionWorkspaceFolder}/templates`, {
+    fs.cpSync(`${globalAssets}/templates`, `${extensionWorkspaceFolder}/templates`, {
         recursive: true,
     });
     // Add project template.

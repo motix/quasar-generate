@@ -65,6 +65,7 @@ export function reorderJsonFile(filePath, topKeys = [
     'type',
     'private',
     'scripts',
+    'main',
     'workspaces',
     'dependencies',
     'devDependencies',

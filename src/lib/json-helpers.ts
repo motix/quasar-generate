@@ -92,6 +92,7 @@ export function reorderJsonFile(
     'type',
     'private',
     'scripts',
+    'main',
     'workspaces',
     'dependencies',
     'devDependencies',

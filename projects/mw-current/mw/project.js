@@ -15,4 +15,5 @@ export default {
     'mw-current/mw-finance',
     'mw-current/mw-reports',
   ],
+  firebase: 'mw-current/mw-firebase',
 };
