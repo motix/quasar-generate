@@ -22,7 +22,7 @@ const extensionPackageJsonFilePath = path.resolve(`${extensionWorkspaceFolder}/p
 const sitePackageJsonFilePath = path.resolve(`${siteWorkspaceFolder}/package.json`);
 const { extensionPackageName, extensionOrganizationName } = await getExtensionInfo(extensionPackageJsonFilePath);
 console.log(' \x1b[32mquasar-generate •\x1b[0m', `Create site \x1b[47m${config.packageName}\x1b[0m for extension \x1b[47m${extensionPackageName}\x1b[0m`);
-// Turning on/off functions
+// Turning on/off features
 const f = false;
 const commitCodeEnabled = true;
 // Create workspaces

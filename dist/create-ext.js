@@ -28,7 +28,7 @@ const templatesPackageJsonFilePath = path.resolve(`${templatesWorkspaceFolder}/p
 const devPackageJsonFilePath = path.resolve(`${devWorkspaceFolder}/package.json`);
 const extensionPackageName = `@${config.organizationName}/${extensionName}`;
 console.log(' \x1b[32mquasar-generate •\x1b[0m', `Create extension \x1b[47m${extensionPackageName}\x1b[0m`);
-// Turning on/off functions
+// Turning on/off features
 const f = false;
 const commitCodeEnabled = true;
 // Create workspaces

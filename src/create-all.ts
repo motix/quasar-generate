@@ -7,7 +7,7 @@ const project = process.argv[2];
 const config = (await import(`../projects/${project}/project.js`)).default as CreateExtensionConfig;
 const rootWorkspaceFolder = `../quasar-generate-output/${config.projectFolder}`;
 
-// Turning on/off functions
+// Turning on/off features
 const f = false;
 const commitCodeEnabled = true;
 

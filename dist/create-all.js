@@ -3,7 +3,7 @@ import commitCode from './lib/commit-code.js';
 const project = process.argv[2];
 const config = (await import(`../projects/${project}/project.js`)).default;
 const rootWorkspaceFolder = `../quasar-generate-output/${config.projectFolder}`;
-// Turning on/off functions
+// Turning on/off features
 const f = false;
 const commitCodeEnabled = true;
 f || createExtension();

@@ -26,7 +26,7 @@ const firebasePackageJsonFilePath = path.resolve(`${firebaseWorkspaceFolder}/pac
 const functionsPackageJsonFilePath = path.resolve(`${functionsWorkspaceFolder}/package.json`);
 const { extensionId, extensionPackageName } = await getExtensionInfo(extensionPackageJsonFilePath);
 console.log(' \x1b[32mquasar-generate •\x1b[0m', `Create \x1b[47mfirebase\x1b[0m for extension \x1b[47m${extensionPackageName}\x1b[0m`);
-// Turning on/off functions
+// Turning on/off features
 const f = false;
 const commitCodeEnabled = true;
 // Create workspaces

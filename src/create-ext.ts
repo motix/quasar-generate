@@ -42,7 +42,7 @@ console.log(
   `Create extension \x1b[47m${extensionPackageName}\x1b[0m`,
 );
 
-// Turning on/off functions
+// Turning on/off features
 const f = false;
 const commitCodeEnabled = true;
 
