@@ -1,5 +1,3 @@
-// Already done. Do not run again.
-
 import { info } from 'firebase-functions/logger';
 
 import { collectionForeach } from 'utils/queryForeach.js';
@@ -7,6 +5,10 @@ import { collectionForeach } from 'utils/queryForeach.js';
 import type { MemberAm as Member } from 'models/hr/team.js';
 
 export default async function updateMembersPayUnionDues() {
+  throw new Error('Already done. Do not run again.');
+
+  // @ts-expect-error Unreachable code
+
   await collectionForeach<Member, Member>('hr_members', async (docSnapshot) => {
     const member = docSnapshot.data();
     const payUnionDues =

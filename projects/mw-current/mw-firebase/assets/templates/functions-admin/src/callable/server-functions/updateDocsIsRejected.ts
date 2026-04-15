@@ -1,5 +1,3 @@
-// Already done. Do not run again.
-
 import { info } from 'firebase-functions/logger';
 
 import { collectionForeach } from 'utils/queryForeach.js';
@@ -10,6 +8,10 @@ import type { ProjectAm as Project } from 'models/finance/projects.js';
 import type { PayrollAm as Payroll } from 'models/hr/payrolls.js';
 
 export default async function updateDocsIsRejected() {
+  throw new Error('Already done. Do not run again.');
+
+  // @ts-expect-error Unreachable code
+
   await collectionForeach<Payroll, Payroll>('hr_payrolls', async (docSnapshot) => {
     info('[updateDocsIsRejected]', `Updating payroll "${docSnapshot.data().code}"...`);
 

@@ -1,5 +1,3 @@
-// Already done. Do not run again.
-
 import { info } from 'firebase-functions/logger';
 
 import { collectionForeach } from 'utils/queryForeach.js';
@@ -7,6 +5,10 @@ import { collectionForeach } from 'utils/queryForeach.js';
 import type { ProjectAm as Project } from 'models/finance/projects.js';
 
 export default async function updateProjectsInvoiceGroupIdsExpenseGroupIds() {
+  throw new Error('Already done. Do not run again.');
+
+  // @ts-expect-error Unreachable code
+
   await collectionForeach<Project, Project>('finance_projects', async (docSnapshot) => {
     const project = docSnapshot.data();
 
