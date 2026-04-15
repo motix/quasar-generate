@@ -7,12 +7,6 @@ execSync('mv ./ext/templates/package.json ./ext/templates/package.txt && yarn', 
   stdio: 'inherit',
 });
 
-let packageJson = fs.readFileSync('./package.json', 'utf-8');
-
-packageJson = packageJson.replace('postinstall', 'sdk');
-
-fs.writeFileSync('./package.json', packageJson, { encoding: 'utf-8' });
-
 execSync('cd ./ext/dev && yarn i-mnapp', {
   stdio: 'inherit',
 });
