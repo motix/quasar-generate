@@ -141,6 +141,7 @@ export function setupFormatLint(options: {
         },
         { path: 'importOrderSeparation', value: true },
         { path: 'importOrderSortSpecifiers', value: true },
+        { path: 'importOrderCaseInsensitive', value: true },
       ]);
 
       // Fix Prettier plugin Yarn PnP
