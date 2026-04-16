@@ -279,6 +279,10 @@ function firebaseWorkspaceSrc() {
     encoding: 'utf-8',
   });
 
+  // Prepare settings and instructions to run functions in Firebase emulator.
+
+  prepareFirebaseFunctionsEmulator();
+
   // Apply project template.
 
   const firebaseAssets = `${projectAssets}/templates/firebase`;
@@ -649,4 +653,36 @@ function installAndLaunch() {
       stdio: 'inherit',
     });
   }
+}
+
+// Internal
+
+function prepareFirebaseFunctionsEmulator() {
+  extendJsonFile(firebasePackageJsonFilePath, [
+    {
+      path: 'workspaces[]',
+      value: 'functions*',
+    },
+  ]);
+
+  fs.writeFileSync(
+    `${firebaseWorkspaceFolder}/.yarnrc.yml`,
+    `# nodeLinker: node-modules
+# nmHoistingLimits: workspaces
+`,
+    { encoding: 'utf-8' },
+  );
+
+  fs.writeFileSync(
+    `${firebaseWorkspaceFolder}/doc/Notes.md`,
+    `To run Firebase functions locally via Firebase emulators:
+
+1. Copy the whole folder to a different folder out of the root workspace.
+2. Uncomment all lines in \`.yarnrc.yml\`.
+3. Run \`yarn && yarn serve\`.
+`,
+    {
+      encoding: 'utf-8',
+    },
+  );
 }
