@@ -14,6 +14,13 @@ execSync('cd ./ext/dev && yarn i-mnapp', {
 fs.copyFileSync('./ext/dev/.yarnrc.yml', './.yarnrc.yml');
 fs.copyFileSync('./ext/dev/.env.local-mnapp-fap', './.env.local-mnapp-fap');
 
+let yarnrnYml = fs.readFileSync('./.yarnrc.yml', 'utf-8');
+
+// Make `.env.local-mnapp-fap` optional to avoid error when root workspace is built by Yarn
+yarnrnYml = yarnrnYml.replace('.env.local-mnapp-fap', '.env.local-mnapp-fap?');
+
+fs.writeFileSync('./.yarnrc.yml', yarnrnYml, { encoding: 'utf-8' });
+
 execSync(
   'mv ./ext/templates/package.txt ./ext/templates/package.json && yarn && yarn buildPaths && yarn build && yarn clean',
   {
