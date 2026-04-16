@@ -159,6 +159,10 @@ function fixPrettierPluginYarnPnP(rootWorkspaceFolder, rootPackageJsonFilePath, 
     !fs.existsSync(`${rootWorkspaceFolder}/scripts`) &&
         fs.mkdirSync(`${rootWorkspaceFolder}/scripts`, { recursive: true });
     fs.copyFileSync(`${globalAssets}/bundle-prettier-plugin-sort-imports.js`, `${rootWorkspaceFolder}/scripts/bundle-prettier-plugin-sort-imports.js`);
+    let prettierignore = fs.readFileSync(`${rootWorkspaceFolder}/.prettierignore`, 'utf-8');
+    prettierignore = `${prettierignore}/scripts/*bundle.js
+`;
+    fs.writeFileSync(`${rootWorkspaceFolder}/.prettierignore`, prettierignore, { encoding: 'utf-8' });
     const packageJson = JSON.parse(fs.readFileSync(rootPackageJsonFilePath, 'utf-8'));
     extendJsonFile(rootPackageJsonFilePath, [
         {

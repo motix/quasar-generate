@@ -660,8 +660,8 @@ function installAndLaunch() {
 function prepareFirebaseFunctionsEmulator() {
   extendJsonFile(firebasePackageJsonFilePath, [
     {
-      path: 'workspaces[]',
-      value: 'functions*',
+      path: 'workspaces',
+      value: ['functions*'],
     },
   ]);
 
@@ -681,7 +681,8 @@ function prepareFirebaseFunctionsEmulator() {
 
 1. Copy the whole folder to a different folder out of the root workspace.
 2. Uncomment all lines in \`.yarnrc.yml\`.
-3. Run \`yarn && yarn serve\`.
+3. Modify \`refRoot\` variable in \`functions/refTools.ts\`.
+4. Run \`yarn && yarn rebuildFunctions && yarn serve\`.
 `,
     {
       encoding: 'utf-8',
