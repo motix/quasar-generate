@@ -3,11 +3,30 @@ import fs from 'fs';
 
 const autoLaunch = process.argv[2] === '-l';
 
-execSync('mv ./ext/templates/package.json ./ext/templates/package.txt && yarn', {
+execSync('yarn && cd ./ext/dev && yarn i-mnapp', {
   stdio: 'inherit',
 });
 
-execSync('cd ./ext/dev && yarn i-mnapp', {
+const devPackageJson = JSON.parse(fs.readFileSync('./ext/dev/package.json', 'utf-8'));
+
+const templatesDevDependencies = [
+  '@automapper/core',
+  '@automapper/pojos',
+  `@fortawesome/fontawesome-svg-core@${devPackageJson.dependencies['@fortawesome/fontawesome-svg-core']}`,
+  `@fortawesome/pro-light-svg-icons@${devPackageJson.dependencies['@fortawesome/pro-light-svg-icons']}`,
+  `@fortawesome/pro-solid-svg-icons@${devPackageJson.dependencies['@fortawesome/pro-solid-svg-icons']}`,
+  '@types/lodash-es',
+  'apexcharts',
+  'exceljs',
+  'firebase',
+  'lodash-es',
+  'pinia',
+  'vee-validate',
+  'vue-markdown-render',
+  'yup',
+];
+
+execSync(`cd ./ext/templates && yarn add -D ${templatesDevDependencies.join(' ')}`, {
   stdio: 'inherit',
 });
 
@@ -21,12 +40,9 @@ yarnrnYml = yarnrnYml.replace('.env.local-mnapp-fap', '.env.local-mnapp-fap?');
 
 fs.writeFileSync('./.yarnrc.yml', yarnrnYml, { encoding: 'utf-8' });
 
-execSync(
-  'mv ./ext/templates/package.txt ./ext/templates/package.json && yarn && yarn buildPaths && yarn build && yarn clean',
-  {
-    stdio: 'inherit',
-  },
-);
+execSync('yarn && yarn buildPaths && yarn build && yarn clean', {
+  stdio: 'inherit',
+});
 
 execSync('cd ./ext/dev && yarn i-motiwiki-2022-app', {
   stdio: 'inherit',
