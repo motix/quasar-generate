@@ -441,6 +441,7 @@ function prepareFirebaseFunctionsEmulator() {
     fs.writeFileSync(`${firebaseWorkspaceFolder}/.yarnrc.yml`, `# nodeLinker: node-modules
 # nmHoistingLimits: workspaces
 `, { encoding: 'utf-8' });
+    fs.mkdirSync(`${firebaseWorkspaceFolder}/doc`, { recursive: true });
     fs.writeFileSync(`${firebaseWorkspaceFolder}/doc/Notes.md`, `To run Firebase functions locally via Firebase emulators:
 
 1. Copy the whole folder to a different folder out of the root workspace.

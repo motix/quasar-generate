@@ -673,6 +673,8 @@ function prepareFirebaseFunctionsEmulator() {
     { encoding: 'utf-8' },
   );
 
+  fs.mkdirSync(`${firebaseWorkspaceFolder}/doc`, { recursive: true });
+
   fs.writeFileSync(
     `${firebaseWorkspaceFolder}/doc/Notes.md`,
     `To run Firebase functions locally via Firebase emulators:
