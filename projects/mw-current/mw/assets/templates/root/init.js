@@ -15,7 +15,6 @@ const templatesDevDependencies = [
   `@fortawesome/fontawesome-svg-core@${devPackageJson.dependencies['@fortawesome/fontawesome-svg-core']}`,
   `@fortawesome/pro-light-svg-icons@${devPackageJson.dependencies['@fortawesome/pro-light-svg-icons']}`,
   `@fortawesome/pro-solid-svg-icons@${devPackageJson.dependencies['@fortawesome/pro-solid-svg-icons']}`,
-  '@types/lodash-es',
   'apexcharts',
   'exceljs',
   'firebase',
@@ -26,9 +25,12 @@ const templatesDevDependencies = [
   'yup',
 ];
 
-execSync(`cd ./ext/templates && yarn add -D ${templatesDevDependencies.join(' ')}`, {
-  stdio: 'inherit',
-});
+execSync(
+  `cd ./ext/templates && yarn add -D ${templatesDevDependencies.join(' ')} && yarn remove @types/lodash-es && yarn add -D @types/lodash-es`,
+  {
+    stdio: 'inherit',
+  },
+);
 
 fs.copyFileSync('./ext/dev/.yarnrc.yml', './.yarnrc.yml');
 fs.copyFileSync('./ext/dev/.env.local-mnapp-fap', './.env.local-mnapp-fap');

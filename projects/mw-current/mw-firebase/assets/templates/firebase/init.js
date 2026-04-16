@@ -5,7 +5,7 @@ const autoLaunch = process.argv[2] === '-l';
 // Finance
 
 execSync(
-  'cd ./functions-finance && yarn add dotenv lodash-es slack && yarn add -D @types/lodash-es',
+  'cd ./functions-finance && yarn add dotenv lodash-es slack && yarn remove @types/lodash-es && yarn add -D @types/lodash-es',
   {
     stdio: 'inherit',
   },
@@ -13,9 +13,12 @@ execSync(
 
 // Health
 
-execSync('cd ./functions-health && yarn add lodash-es && yarn add -D @types/lodash-es', {
-  stdio: 'inherit',
-});
+execSync(
+  'cd ./functions-health && yarn add lodash-es && yarn remove @types/lodash-es && yarn add -D @types/lodash-es',
+  {
+    stdio: 'inherit',
+  },
+);
 
 execSync('rm ./functions-health/src/group.ts', {
   stdio: 'inherit',
@@ -23,9 +26,12 @@ execSync('rm ./functions-health/src/group.ts', {
 
 // Production
 
-execSync('cd ./functions-production && yarn add lodash-es && yarn add -D @types/lodash-es', {
-  stdio: 'inherit',
-});
+execSync(
+  'cd ./functions-production && yarn add lodash-es && yarn remove @types/lodash-es && yarn add -D @types/lodash-es',
+  {
+    stdio: 'inherit',
+  },
+);
 
 // Build and clean codes
 
