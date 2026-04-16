@@ -1,4 +1,5 @@
 import { execSync } from 'child_process';
+import fs from 'fs';
 
 const autoLaunch = process.argv[2] === '-l';
 
@@ -9,6 +10,9 @@ execSync('mv ./ext/templates/package.json ./ext/templates/package.txt && yarn', 
 execSync('cd ./ext/dev && yarn i-mnapp', {
   stdio: 'inherit',
 });
+
+fs.copyFileSync('./ext/dev/.yarnrc.yml', './.yarnrc.yml');
+fs.copyFileSync('./ext/dev/.env.local-mnapp-fap', './.env.local-mnapp-fap');
 
 execSync(
   'mv ./ext/templates/package.txt ./ext/templates/package.json && yarn && yarn buildPaths && yarn build && yarn clean',
