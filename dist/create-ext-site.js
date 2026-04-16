@@ -91,7 +91,7 @@ function prepareWorkspaces() {
     extendJsonFile(rootPackageJsonFilePath, [
         {
             path: 'workspaces[]',
-            value: `sites/${config.packageName}`,
+            value: `sites/*`,
         },
     ]);
     // Add extension workspace as a dependency in site workspace.

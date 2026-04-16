@@ -143,7 +143,7 @@ function prepareWorkspaces() {
   extendJsonFile(rootPackageJsonFilePath, [
     {
       path: 'workspaces[]',
-      value: 'firebase/functions',
+      value: 'firebase/functions*',
     },
   ]);
 
@@ -506,15 +506,6 @@ function createFunctionsCodebases() {
     const codebaseWorkspaceFolder = `${functionsWorkspaceFolder}-${codebase}`;
 
     fs.cpSync(functionsWorkspaceFolder, codebaseWorkspaceFolder, { recursive: true });
-
-    // Add workspace.
-
-    extendJsonFile(rootPackageJsonFilePath, [
-      {
-        path: 'workspaces[]',
-        value: `firebase/functions-${codebase}`,
-      },
-    ]);
 
     // Truncate shared code.
 

@@ -132,7 +132,7 @@ function prepareWorkspaces() {
   extendJsonFile(rootPackageJsonFilePath, [
     {
       path: 'workspaces[]',
-      value: `sites/${config.packageName}`,
+      value: `sites/*`,
     },
   ]);
 
