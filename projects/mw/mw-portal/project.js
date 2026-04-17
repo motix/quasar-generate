@@ -7,5 +7,4 @@ export default {
   productDescription: 'Portal app in MotiWiki 2022',
   author: 'Minh Nguyen <minh.nguyen@motiteam.com>',
   sharedAssets: '../mw-assets',
-  mnappLocation: 'portal:../../../../../GitHub/motix/quasar-app-extension-mnapp',
 };

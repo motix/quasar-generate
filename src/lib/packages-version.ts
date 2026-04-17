@@ -1,6 +1,6 @@
 export default {
   '@eslint/js': '^10.0.1',
-  '@motinet/quasar-app-extension-mnapp': '2.0.16',
+  '@motinet/quasar-app-extension-mnapp': '2.1.10',
   '@quasar/app-vite': '^2.6.0',
   '@trivago/prettier-plugin-sort-imports': '^6.0.2',
   '@types/lodash-es': '^4.17.12',
