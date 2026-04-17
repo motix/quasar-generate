@@ -3,6 +3,10 @@ import fs from 'fs';
 
 const autoLaunch = process.argv[2] === '-l';
 
+execSync('npm pkg set repository.url="https://github.com/motix/quasar-app-extension-mnapp"', {
+  stdio: 'inherit',
+});
+
 execSync('yarn add dotenv firebase', {
   stdio: 'inherit',
 });

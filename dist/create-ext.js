@@ -165,6 +165,15 @@ function setPackagesInfo() {
         },
     ]);
     reduceJsonFile(devPackageJsonFilePath, ['version', 'author']);
+    // Set `repository`.
+    extendJsonFile(extensionPackageJsonFilePath, [
+        {
+            path: 'repository',
+            value: {
+                type: 'git',
+            },
+        },
+    ]);
     // Commit code.
     commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`setPackagesInfo()\\`');
 }

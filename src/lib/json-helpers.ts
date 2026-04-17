@@ -89,6 +89,7 @@ export function reorderJsonFile(
     'productName',
     'author',
     'license',
+    'repository',
     'type',
     'private',
     'scripts',

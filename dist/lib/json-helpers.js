@@ -62,6 +62,7 @@ export function reorderJsonFile(filePath, topKeys = [
     'productName',
     'author',
     'license',
+    'repository',
     'type',
     'private',
     'scripts',
