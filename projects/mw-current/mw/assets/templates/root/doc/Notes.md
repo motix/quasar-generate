@@ -8,7 +8,7 @@ cd ./ext/dev && yarn devp
 
 mv ./ext/dev/src/layouts/MainLayout.vue ./ext/dev/src/layouts/MainLayout.txt && mv ./ext/dev/src/layouts/MainLayout_original.vue ./ext/dev/src/layouts/MainLayout.vue && mv ./ext/dev/src/pages/IndexPage.vue ./ext/dev/src/pages/IndexPage.txt && mv ./ext/dev/src/pages/IndexPage_original.vue ./ext/dev/src/pages/IndexPage.vue
 
-yarn add -D @motinet/quasar-app-extension-mnapp@portal:../../../quasar-app-extension-mnapp && yarn quasar ext invoke @motinet/mnapp && yarn clean
+yarn add -D @motinet/quasar-app-extension-mnapp@portal:../../../../../GitHub/motix/quasar-app-extension-mnapp && yarn quasar ext invoke @motinet/mnapp && yarn clean
 
 yarn r-motiwiki-2022-app
 

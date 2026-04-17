@@ -6,7 +6,7 @@ export default {
   version: '2.0.0',
   projectDescription: 'Extensions for MotiWiki 2022',
   author: 'Minh Nguyen <minh.nguyen@motiteam.com>',
-  mnappLocation: 'portal:../../../quasar-app-extension-mnapp',
+  mnappLocation: 'portal:../../../../../GitHub/motix/quasar-app-extension-mnapp',
   sites: [
     'mw-current/mw-portal',
     'mw-current/mw-admin',

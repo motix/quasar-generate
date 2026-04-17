@@ -1,7 +1,7 @@
 export default {
-  projectFolder: 'MotiWiki 2022',
+  projectFolder: '../MotiWiki 2022',
   packageName: 'motiwiki-2022-firebase',
-  firebaseProjectPosition: 2,
+  firebaseProjectPosition: 0,
   authEmulatorPort: 4001,
   functionsEmulatorPort: 5001,
   firestoreEmulatorPort: 6001,
