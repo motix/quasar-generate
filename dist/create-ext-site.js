@@ -51,7 +51,7 @@ async function createQuasarProject() {
     console.log(' \x1b[32mquasar-generate •\x1b[0m', `Creating Quasar project for \x1b[47m${config.packageName}\x1b[0m...`);
     const answersMap = {
         'What would you like to build?': ACCEPT_DEFAULT, // App with Quasar CLI
-        'Project folder': siteWorkspaceFolder,
+        'Project folder': path.relative('.', siteWorkspaceFolder),
         'Pick script type': `${DOWN_KEY}`, // Typescript
         'Pick Quasar App CLI variant': ACCEPT_DEFAULT, // Quasar App CLI with Vite
         'Package name': config.packageName,

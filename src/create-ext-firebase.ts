@@ -84,7 +84,7 @@ async function createFirebaseWorkspace() {
     'Select a default Firebase project for this directory:': `${repeat(DOWN_KEY, config.firebaseProjectPosition)}`,
     'What file should be used for Firestore Rules?': ACCEPT_DEFAULT, // firestore.rules
     'What file should be used for Firestore indexes?': ACCEPT_DEFAULT, // firestore.indexes.json
-    'What language would you like to use to write Cloud Functions?': `${DOWN_KEY}${WHITESPACE_KEY}`, // TypeScript
+    'What language would you like to use to write Cloud Functions?': `${DOWN_KEY}`, // TypeScript
     'Do you want to use ESLint to catch probable bugs and enforce style?': 'n',
     'Do you want to install dependencies with npm now?': 'n',
     'What file should be used for Storage Rules?': ACCEPT_DEFAULT, // storage.rules
