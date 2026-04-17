@@ -1,6 +1,6 @@
 export default {
   monorepo: false,
-  projectFolder: 'quasar-app-extension-mnapp',
+  projectFolder: '../../../GitHub/motix/quasar-app-extension-mnapp',
   organizationName: 'motinet',
   extensionId: 'mnapp',
   version: '2.0.0',
