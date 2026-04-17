@@ -14,7 +14,7 @@ const runYarn = process.argv[3] === '-y' || process.argv[4] === '-y';
 const autoLaunch = process.argv[3] === '-l' || process.argv[4] === '-l';
 const config = (await import(`../projects/${project}/project.js`)).default;
 const projectAssets = `./projects/${project}/assets`;
-const rootWorkspaceFolder = `../quasar-generate-output/${config.projectFolder}`;
+const rootWorkspaceFolder = path.resolve('../quasar-generate-output/', config.projectFolder);
 const extensionWorkspaceFolder = `${rootWorkspaceFolder}/ext`;
 const siteWorkspaceFolder = `${rootWorkspaceFolder}/sites/${config.packageName}`;
 const rootPackageJsonFilePath = path.resolve(`${rootWorkspaceFolder}/package.json`);

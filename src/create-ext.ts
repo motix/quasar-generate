@@ -25,7 +25,7 @@ const autoLaunch = process.argv[3] === '-l' || process.argv[4] === '-l';
 const config = (await import(`../projects/${project}/project.js`)).default as CreateExtensionConfig;
 const projectAssets = `./projects/${project}/assets`;
 const extensionName = `quasar-app-extension-${config.extensionId}`;
-const rootWorkspaceFolder = `../quasar-generate-output/${config.projectFolder}`;
+const rootWorkspaceFolder = path.resolve('../quasar-generate-output/', config.projectFolder);
 const extensionWorkspaceFolder = config.monorepo
   ? `${rootWorkspaceFolder}/ext`
   : rootWorkspaceFolder;
@@ -134,7 +134,7 @@ async function createExtensionQuasarProject() {
 
   const answersMap: Record<string, string | undefined> = {
     'What would you like to build?': `${DOWN_KEY}`, // AppExtension (AE) for Quasar CLI
-    'Project folder': extensionWorkspaceFolder,
+    'Project folder': path.relative('.', extensionWorkspaceFolder),
     'Will you use an organization to publish it?': 'y',
     'Organization name': config.organizationName,
     'Quasar App Extension ext-id': config.extensionId,
@@ -209,7 +209,7 @@ async function createDevQuasarProject() {
 
   const answersMap: Record<string, string | undefined> = {
     'What would you like to build?': ACCEPT_DEFAULT, // App with Quasar CLI
-    'Project folder': devWorkspaceFolder,
+    'Project folder': path.relative('.', devWorkspaceFolder),
     'Pick script type': `${DOWN_KEY}`, // Typescript
     'Pick Quasar App CLI variant': ACCEPT_DEFAULT, // Quasar App CLI with Vite
     'Package name': `${config.extensionId}-dev`,

@@ -1,11 +1,12 @@
 import { execSync } from 'child_process';
+import path from 'path';
 
 import commitCode from './lib/commit-code.js';
 import type { CreateExtensionConfig, CreateExtSiteConfig } from './types';
 
 const project = process.argv[2];
 const config = (await import(`../projects/${project}/project.js`)).default as CreateExtensionConfig;
-const rootWorkspaceFolder = `../quasar-generate-output/${config.projectFolder}`;
+const rootWorkspaceFolder = path.resolve('../quasar-generate-output/', config.projectFolder);
 
 // Turning on/off features
 const f = false;
