@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "<%= prompts.project %>"
+  }<% if (prompts.targetName && prompts.siteId) { %>,
+  "targets": {
+    "<%= prompts.project %>": {
+      "hosting": {
+        "<%= prompts.targetName %>": [
+          "<%= prompts.siteId %>"
+        ]
+      }
+    }
+  }<% } %>
+}

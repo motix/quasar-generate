@@ -1,0 +1,7 @@
+{
+  "app/firebase.json": ["./modules/firebase/firebase.json"],
+  "models/firebase-auth/index.js": [
+    "../dev/src/models/firebase-auth/index.js",
+    "./modules/firebase-auth/dist/src/models/firebase-auth/index.js"
+  ]
+}

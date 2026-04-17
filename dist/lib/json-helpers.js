@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { get, isArray, set, unset } from 'lodash-es';
 export function extendJsonFile(filePath, pathAdnValues) {
-    const json = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
+    const json = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
     if (json) {
         for (let { path, value } of pathAdnValues) {
             if (typeof path === 'string' && path.endsWith('[]')) {
@@ -72,7 +72,7 @@ export function reorderJsonFile(filePath, topKeys = [
     'dependenciesMeta',
     'engines',
 ]) {
-    const json = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
+    const json = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
     if (json) {
         const newJson = {};
         topKeys.forEach((key) => {

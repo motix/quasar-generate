@@ -133,9 +133,7 @@ export function setupFormatLint(options) {
 
       // alphabetical
       'vue/attributes-order': ['warn', { alphabetical: true }]`);
-    fs.writeFileSync(`${targetWorkspaceFolder}/eslint.config.js`, eslintConfigJs, {
-        encoding: 'utf-8',
-    });
+    fs.writeFileSync(`${targetWorkspaceFolder}/eslint.config.js`, eslintConfigJs, 'utf-8');
     // Add `clean` script.
     extendJsonFile(targetPackageJsonFilePath, [
         {
@@ -162,7 +160,7 @@ function fixPrettierPluginYarnPnP(rootWorkspaceFolder, rootPackageJsonFilePath, 
     let prettierignore = fs.readFileSync(`${rootWorkspaceFolder}/.prettierignore`, 'utf-8');
     prettierignore = `${prettierignore}/scripts/*bundle.js
 `;
-    fs.writeFileSync(`${rootWorkspaceFolder}/.prettierignore`, prettierignore, { encoding: 'utf-8' });
+    fs.writeFileSync(`${rootWorkspaceFolder}/.prettierignore`, prettierignore, 'utf-8');
     const packageJson = JSON.parse(fs.readFileSync(rootPackageJsonFilePath, 'utf-8'));
     extendJsonFile(rootPackageJsonFilePath, [
         {
@@ -184,7 +182,7 @@ function fixPrettierPluginYarnPnP(rootWorkspaceFolder, rootPackageJsonFilePath, 
 # Prettier Bundle
 scripts/*bundle.js
 `;
-    fs.writeFileSync(dotGitignoreFilePath, dotGitignore, { encoding: 'utf-8' });
+    fs.writeFileSync(dotGitignoreFilePath, dotGitignore, 'utf-8');
 }
 // TODO: Remove.
 // This method unplugs `@trivago/prettier-plugin-sort-imports` and its dependencies,
@@ -258,8 +256,6 @@ export default {
   importOrderCaseInsensitive: true,
 };
 `;
-    fs.writeFileSync(`${rootWorkspaceFolder}/prettier.config.js`, prettierConfigJs, {
-        encoding: 'utf-8',
-    });
+    fs.writeFileSync(`${rootWorkspaceFolder}/prettier.config.js`, prettierConfigJs, 'utf-8');
     fs.rmSync(`${rootWorkspaceFolder}/.prettierrc.json`);
 }

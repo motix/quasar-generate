@@ -78,7 +78,7 @@ function createRootWorkspace() {
             npm: '>= 5.6.0',
             yarn: '>= 1.6.0',
         },
-    }, null, 2), { encoding: 'utf-8' });
+    }, null, 2), 'utf-8');
     // Init git.
     execSync(`cd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')} && git init -q`, {
         stdio: 'inherit',
@@ -120,12 +120,12 @@ function createTemplatesWorkspace() {
     fs.mkdirSync(`${templatesWorkspaceFolder}/modules`, { recursive: true });
     fs.writeFileSync(`${templatesWorkspaceFolder}/modules/index.ts`, `// Dump file to prevent \`lint\` script from rasing error.
 // Remove this file if any code was added.
-`, { encoding: 'utf-8' });
+`, 'utf-8');
     fs.writeFileSync(templatesPackageJsonFilePath, JSON.stringify({
         name: `${config.extensionId}-templates`,
         type: 'module',
         private: true,
-    }, null, 2), { encoding: 'utf-8' });
+    }, null, 2), 'utf-8');
     // Commit code.
     commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`createTemplatesWorkspace()\\`');
 }
@@ -194,7 +194,7 @@ function refineGitignore() {
         fs.renameSync(extensionDotGitignoreFilePath, rootDotGitignoreFilePath);
     }
     // Ignore `.yarn` and unignore `.vscode`.
-    let dotGitignore = fs.readFileSync(rootDotGitignoreFilePath, { encoding: 'utf-8' });
+    let dotGitignore = fs.readFileSync(rootDotGitignoreFilePath, 'utf-8');
     dotGitignore = `${dotGitignore}
 # local .env files
 .env.local*
@@ -208,7 +208,7 @@ function refineGitignore() {
     dotGitignore = dotGitignore.includes('# .vscode')
         ? dotGitignore
         : dotGitignore.replace('.vscode', '# .vscode');
-    fs.writeFileSync(rootDotGitignoreFilePath, dotGitignore, { encoding: 'utf-8' });
+    fs.writeFileSync(rootDotGitignoreFilePath, dotGitignore, 'utf-8');
     // Commit code.
     commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`refineGitignore()\\`');
 }
@@ -227,11 +227,11 @@ function rootWorkspaceFormattingAndLinting() {
 /sites/*/dist`
         : ''}
 .pnp.*
-`, { encoding: 'utf-8' });
+`, 'utf-8');
     config.monorepo &&
         fs.writeFileSync(`${rootWorkspaceFolder}/.prettierignore-noneExtension`, `/firebase
 /sites
-`, { encoding: 'utf-8' });
+`, 'utf-8');
     // Add dependencies for formatting and linting.
     addFormatLintDependencies(rootPackageJsonFilePath);
     // Setup formatting and linting.
@@ -242,7 +242,7 @@ function rootWorkspaceFormattingAndLinting() {
     // Add supports for monorepo in `eslint.config.js`.
     monorepoSupportEslintConfig(`${rootWorkspaceFolder}/eslint.config.js`);
     // Truncate Vue and HTML specific configurations.
-    convertEslintConfigToTsOnly(`${rootWorkspaceFolder}/eslint.config.js`, `'.yarn/', '${config.monorepo ? 'ext/' : ''}dev/', '${config.monorepo ? 'ext/' : ''}dist/', '${config.monorepo ? 'ext/' : ''}templates/', 'firebase/', 'sites/', '.pnp.*'`);
+    convertEslintConfigToTsOnly(`${rootWorkspaceFolder}/eslint.config.js`, `'.yarn/', '${config.monorepo ? 'ext/' : ''}dev/', '${config.monorepo ? 'ext/' : ''}dist/', '${config.monorepo ? 'ext/' : ''}templates/'${config.monorepo ? ", 'firebase/', 'sites/'" : ''}, '.pnp.*'`);
     // Add `lint`, `lintf`, `format` and `clean` scripts but they won't work
     // before `dev` and `templates` workspaces formatting and linting are ready.
     reduceJsonFile(rootPackageJsonFilePath, ['scripts.clean']);
@@ -339,9 +339,7 @@ function extensionWorkspaceSrc() {
         },
         include: ['./src/**/*.ts'],
         exclude: [],
-    }, null, 2), {
-        encoding: 'utf-8',
-    });
+    }, null, 2), 'utf-8');
     // Add `src` specific dependencies.
     const packages = [
         '@quasar/app-vite',
@@ -413,7 +411,7 @@ function devWorkspaceSrc() {
     fs.writeFileSync(`${devWorkspaceFolder}/.${config.extensionId.replace(/-/g, '')}rc.js`, `export default {
   modules: {},
 };
-`, { encoding: 'utf-8' });
+`, 'utf-8');
     // Apply project template.
     const devAssets = `${projectAssets}/templates/dev`;
     if (fs.existsSync(devAssets)) {

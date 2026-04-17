@@ -140,7 +140,7 @@ function workspaceSrc() {
     fs.writeFileSync(`${siteWorkspaceFolder}/.${config.extensionId.replace(/-/g, '')}rc.js`, `export default {
   modules: {},
 };
-`, { encoding: 'utf-8' });
+`, 'utf-8');
     // Add shared template.
     const sharedAssets = `./${path.relative(path.resolve('.'), path.resolve(`./projects/${project}`, config.sharedAssets))}`;
     const siteSharedAssets = `${sharedAssets}/templates/site`;

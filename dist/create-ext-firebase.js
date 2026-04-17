@@ -80,7 +80,7 @@ async function createFirebaseWorkspace() {
         name: config.packageName,
         type: 'module',
         private: true,
-    }, null, 2), { encoding: 'utf-8' });
+    }, null, 2), 'utf-8');
     // Commit code.
     commitCodeEnabled &&
         commitCode(rootWorkspaceFolder, `\\\`createFirebaseWorkspace()\\\` for \\\`${config.packageName}\\\``);
@@ -112,7 +112,7 @@ function firebaseFormattingAndLinting() {
     // Add `.prettierignore` to ignore `functions` and other codebase `lib`.
     fs.writeFileSync(`${firebaseWorkspaceFolder}/.prettierignore`, `/functions*/lib/
 firestore.*
-`, { encoding: 'utf-8' });
+`, 'utf-8');
     // Add dependencies for formatting and linting.
     addFormatLintDependencies(firebasePackageJsonFilePath);
     // Add `lint`, `format` and `clean` scripts.
@@ -171,9 +171,7 @@ function firebaseWorkspaceSrc() {
     fs.copyFileSync(`${globalAssets}/rebuildFunctions.js`, `${firebaseWorkspaceFolder}/rebuildFunctions.js`);
     let rebuildFunctionsJs = fs.readFileSync(`${firebaseWorkspaceFolder}/rebuildFunctions.js`, 'utf-8');
     rebuildFunctionsJs = rebuildFunctionsJs.replace('__PACKAGE_NAME__', config.packageName);
-    fs.writeFileSync(`${firebaseWorkspaceFolder}/rebuildFunctions.js`, rebuildFunctionsJs, {
-        encoding: 'utf-8',
-    });
+    fs.writeFileSync(`${firebaseWorkspaceFolder}/rebuildFunctions.js`, rebuildFunctionsJs, 'utf-8');
     // Prepare settings and instructions to run functions in Firebase emulator.
     prepareFirebaseFunctionsEmulator();
     // Apply project template.
@@ -249,7 +247,7 @@ function functionsWorkspaceSrc() {
     });
     let indexTs = fs.readFileSync(`${functionsWorkspaceFolder}/src/index.ts`, 'utf-8');
     indexTs = indexTs.replace('__REGION__', config.functionsRegion);
-    fs.writeFileSync(`${functionsWorkspaceFolder}/src/index.ts`, indexTs, { encoding: 'utf-8' });
+    fs.writeFileSync(`${functionsWorkspaceFolder}/src/index.ts`, indexTs, 'utf-8');
     // Add `refTools` and `refUpdate` from global `assets`.
     fs.copyFileSync(`${globalAssets}/functions/refTools.js`, `${functionsWorkspaceFolder}/refTools.js`);
     fs.copyFileSync(`${globalAssets}/functions/refUpdate.js`, `${functionsWorkspaceFolder}/refUpdate.js`);
@@ -265,7 +263,7 @@ function finishFirebaseWorkspace() {
 # Emulators data
 emulators-data/
 `;
-    fs.writeFileSync(`${firebaseWorkspaceFolder}/.gitignore`, gitignore, { encoding: 'utf-8' });
+    fs.writeFileSync(`${firebaseWorkspaceFolder}/.gitignore`, gitignore, 'utf-8');
     // Add build, `serve` and `indexes` scripts.
     extendJsonFile(firebasePackageJsonFilePath, [
         {
@@ -369,9 +367,9 @@ function createFunctionsCodebases() {
             },
         ]);
         // Modify `index.ts`.
-        let indexTs = fs.readFileSync(`${codebaseWorkspaceFolder}/src/index.ts`, { encoding: 'utf-8' });
+        let indexTs = fs.readFileSync(`${codebaseWorkspaceFolder}/src/index.ts`, 'utf-8');
         indexTs = indexTs.replace('export const app = group;', `export const ${codebase} = group;`);
-        fs.writeFileSync(`${codebaseWorkspaceFolder}/src/index.ts`, indexTs, { encoding: 'utf-8' });
+        fs.writeFileSync(`${codebaseWorkspaceFolder}/src/index.ts`, indexTs, 'utf-8');
     }
     // Commit code.
     commitCodeEnabled &&
@@ -440,7 +438,7 @@ function prepareFirebaseFunctionsEmulator() {
     ]);
     fs.writeFileSync(`${firebaseWorkspaceFolder}/.yarnrc.yml`, `# nodeLinker: node-modules
 # nmHoistingLimits: workspaces
-`, { encoding: 'utf-8' });
+`, 'utf-8');
     fs.mkdirSync(`${firebaseWorkspaceFolder}/doc`, { recursive: true });
     fs.writeFileSync(`${firebaseWorkspaceFolder}/doc/Notes.md`, `To run Firebase functions locally via Firebase emulators:
 
@@ -448,7 +446,5 @@ function prepareFirebaseFunctionsEmulator() {
 2. Uncomment all lines in \`.yarnrc.yml\`.
 3. Modify \`refRoot\` variable in \`functions/refTools.ts\`.
 4. Run \`yarn && yarn rebuildFunctions && yarn serve\`.
-`, {
-        encoding: 'utf-8',
-    });
+`, 'utf-8');
 }

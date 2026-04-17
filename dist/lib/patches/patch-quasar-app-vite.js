@@ -24,7 +24,7 @@ index 2e7ae61add3684688a04c2dae79405a058ee5862..c469c605365d5eeaa8e9011351ea5efd
    },
    "publishConfig": {
      "access": "public"
-`, { encoding: 'utf-8' });
+`, 'utf-8');
     }
     if (options.targetPackageJsonFilePath !== undefined) {
         extendJsonFile(options.targetPackageJsonFilePath, [

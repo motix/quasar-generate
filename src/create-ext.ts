@@ -372,7 +372,7 @@ function rootWorkspaceFormattingAndLinting() {
 
   convertEslintConfigToTsOnly(
     `${rootWorkspaceFolder}/eslint.config.js`,
-    `'.yarn/', '${config.monorepo ? 'ext/' : ''}dev/', '${config.monorepo ? 'ext/' : ''}dist/', '${config.monorepo ? 'ext/' : ''}templates/', 'firebase/', 'sites/', '.pnp.*'`,
+    `'.yarn/', '${config.monorepo ? 'ext/' : ''}dev/', '${config.monorepo ? 'ext/' : ''}dist/', '${config.monorepo ? 'ext/' : ''}templates/'${config.monorepo ? ", 'firebase/', 'sites/'" : ''}, '.pnp.*'`,
   );
 
   // Add `lint`, `lintf`, `format` and `clean` scripts but they won't work

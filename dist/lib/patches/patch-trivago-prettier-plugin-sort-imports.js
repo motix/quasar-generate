@@ -21,7 +21,7 @@ index 41b5bc94b0fb8406f74a952e2b9afb01510da617..bae2dffc50c8afc4b1c856e7cd832f4d
  }
  catch {
      // Do not error because the dependency is optional.
-`, { encoding: 'utf-8' });
+`, 'utf-8');
     }
     if (options.targetPackageJsonFilePath !== undefined) {
         extendJsonFile(options.targetPackageJsonFilePath, [

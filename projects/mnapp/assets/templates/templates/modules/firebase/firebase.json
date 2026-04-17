@@ -1,0 +1,16 @@
+{
+  "emulators": {
+    "auth": {
+      "port": 0
+    },
+    "functions": {
+      "port": 0
+    },
+    "firestore": {
+      "port": 0
+    },
+    "storage": {
+      "port": 0
+    }
+  }
+}
