@@ -6,7 +6,7 @@ export function extendJsonFile(
   filePath: string,
   pathAdnValues: { path: string | Array<string>; value: unknown }[],
 ) {
-  const json = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
+  const json = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
 
   if (json) {
     for (let { path, value } of pathAdnValues) {
@@ -100,7 +100,7 @@ export function reorderJsonFile(
     'engines',
   ],
 ) {
-  const json = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }));
+  const json = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
 
   if (json) {
     const newJson: typeof json = {};

@@ -55,7 +55,7 @@ index 27a775515049aa60f23c2778632b86d2db6d3513..28dbef5303639bea2d53e5cc8727dece
          eslint = new ESLint(eslintOptions);
        }
 `,
-      { encoding: 'utf-8' },
+      'utf-8',
     );
   }
 

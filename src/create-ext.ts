@@ -110,7 +110,7 @@ function createRootWorkspace() {
       null,
       2,
     ),
-    { encoding: 'utf-8' },
+    'utf-8',
   );
 
   // Init git.
@@ -177,7 +177,7 @@ function createTemplatesWorkspace() {
     `// Dump file to prevent \`lint\` script from rasing error.
 // Remove this file if any code was added.
 `,
-    { encoding: 'utf-8' },
+    'utf-8',
   );
 
   fs.writeFileSync(
@@ -191,7 +191,7 @@ function createTemplatesWorkspace() {
       null,
       2,
     ),
-    { encoding: 'utf-8' },
+    'utf-8',
   );
 
   // Commit code.
@@ -288,7 +288,7 @@ function refineGitignore() {
 
   // Ignore `.yarn` and unignore `.vscode`.
 
-  let dotGitignore = fs.readFileSync(rootDotGitignoreFilePath, { encoding: 'utf-8' });
+  let dotGitignore = fs.readFileSync(rootDotGitignoreFilePath, 'utf-8');
 
   dotGitignore = `${dotGitignore}
 # local .env files
@@ -304,7 +304,7 @@ function refineGitignore() {
     ? dotGitignore
     : dotGitignore.replace('.vscode', '# .vscode');
 
-  fs.writeFileSync(rootDotGitignoreFilePath, dotGitignore, { encoding: 'utf-8' });
+  fs.writeFileSync(rootDotGitignoreFilePath, dotGitignore, 'utf-8');
 
   // Commit code.
 
@@ -341,7 +341,7 @@ function rootWorkspaceFormattingAndLinting() {
     }
 .pnp.*
 `,
-    { encoding: 'utf-8' },
+    'utf-8',
   );
 
   config.monorepo &&
@@ -350,7 +350,7 @@ function rootWorkspaceFormattingAndLinting() {
       `/firebase
 /sites
 `,
-      { encoding: 'utf-8' },
+      'utf-8',
     );
 
   // Add dependencies for formatting and linting.
@@ -512,9 +512,7 @@ function extensionWorkspaceSrc() {
       null,
       2,
     ),
-    {
-      encoding: 'utf-8',
-    },
+    'utf-8',
   );
 
   // Add `src` specific dependencies.
@@ -624,7 +622,7 @@ function devWorkspaceSrc() {
   modules: {},
 };
 `,
-    { encoding: 'utf-8' },
+    'utf-8',
   );
 
   // Apply project template.

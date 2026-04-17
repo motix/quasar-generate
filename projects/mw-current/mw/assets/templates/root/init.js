@@ -40,7 +40,7 @@ let yarnrnYml = fs.readFileSync('./.yarnrc.yml', 'utf-8');
 // Make `.env.local-mnapp-fap` optional to avoid error when root workspace is built by Yarn
 yarnrnYml = yarnrnYml.replace('.env.local-mnapp-fap', '.env.local-mnapp-fap?');
 
-fs.writeFileSync('./.yarnrc.yml', yarnrnYml, { encoding: 'utf-8' });
+fs.writeFileSync('./.yarnrc.yml', yarnrnYml, 'utf-8');
 
 execSync('yarn && yarn buildPaths && yarn build && yarn clean', {
   stdio: 'inherit',

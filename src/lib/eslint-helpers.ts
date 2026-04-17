@@ -25,9 +25,7 @@ export function monorepoSupportEslintConfig(eslintConfigJsFilePath: string) {
   },`,
   );
 
-  fs.writeFileSync(eslintConfigJsFilePath, eslintConfigJs, {
-    encoding: 'utf-8',
-  });
+  fs.writeFileSync(eslintConfigJsFilePath, eslintConfigJs, 'utf-8');
 }
 
 export function convertEslintConfigToTsOnly(eslintConfigJsFilePath: string, ignores?: string) {
@@ -192,7 +190,5 @@ import pluginQuasar from '@quasar/app-vite/eslint';
     '',
   );
 
-  fs.writeFileSync(eslintConfigJsFilePath, eslintConfigJs, {
-    encoding: 'utf-8',
-  });
+  fs.writeFileSync(eslintConfigJsFilePath, eslintConfigJs, 'utf-8');
 }

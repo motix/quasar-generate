@@ -216,7 +216,7 @@ function workspaceSrc() {
   modules: {},
 };
 `,
-    { encoding: 'utf-8' },
+    'utf-8',
   );
 
   // Add shared template.

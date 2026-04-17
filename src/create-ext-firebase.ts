@@ -118,7 +118,7 @@ async function createFirebaseWorkspace() {
       null,
       2,
     ),
-    { encoding: 'utf-8' },
+    'utf-8',
   );
 
   // Commit code.
@@ -177,7 +177,7 @@ function firebaseFormattingAndLinting() {
     `/functions*/lib/
 firestore.*
 `,
-    { encoding: 'utf-8' },
+    'utf-8',
   );
 
   // Add dependencies for formatting and linting.
@@ -275,9 +275,7 @@ function firebaseWorkspaceSrc() {
 
   rebuildFunctionsJs = rebuildFunctionsJs.replace('__PACKAGE_NAME__', config.packageName);
 
-  fs.writeFileSync(`${firebaseWorkspaceFolder}/rebuildFunctions.js`, rebuildFunctionsJs, {
-    encoding: 'utf-8',
-  });
+  fs.writeFileSync(`${firebaseWorkspaceFolder}/rebuildFunctions.js`, rebuildFunctionsJs, 'utf-8');
 
   // Prepare settings and instructions to run functions in Firebase emulator.
 
@@ -384,7 +382,7 @@ function functionsWorkspaceSrc() {
 
   indexTs = indexTs.replace('__REGION__', config.functionsRegion);
 
-  fs.writeFileSync(`${functionsWorkspaceFolder}/src/index.ts`, indexTs, { encoding: 'utf-8' });
+  fs.writeFileSync(`${functionsWorkspaceFolder}/src/index.ts`, indexTs, 'utf-8');
 
   // Add `refTools` and `refUpdate` from global `assets`.
 
@@ -418,7 +416,7 @@ function finishFirebaseWorkspace() {
 emulators-data/
 `;
 
-  fs.writeFileSync(`${firebaseWorkspaceFolder}/.gitignore`, gitignore, { encoding: 'utf-8' });
+  fs.writeFileSync(`${firebaseWorkspaceFolder}/.gitignore`, gitignore, 'utf-8');
 
   // Add build, `serve` and `indexes` scripts.
 
@@ -555,11 +553,11 @@ function createFunctionsCodebases() {
 
     // Modify `index.ts`.
 
-    let indexTs = fs.readFileSync(`${codebaseWorkspaceFolder}/src/index.ts`, { encoding: 'utf-8' });
+    let indexTs = fs.readFileSync(`${codebaseWorkspaceFolder}/src/index.ts`, 'utf-8');
 
     indexTs = indexTs.replace('export const app = group;', `export const ${codebase} = group;`);
 
-    fs.writeFileSync(`${codebaseWorkspaceFolder}/src/index.ts`, indexTs, { encoding: 'utf-8' });
+    fs.writeFileSync(`${codebaseWorkspaceFolder}/src/index.ts`, indexTs, 'utf-8');
   }
 
   // Commit code.
@@ -670,7 +668,7 @@ function prepareFirebaseFunctionsEmulator() {
     `# nodeLinker: node-modules
 # nmHoistingLimits: workspaces
 `,
-    { encoding: 'utf-8' },
+    'utf-8',
   );
 
   fs.mkdirSync(`${firebaseWorkspaceFolder}/doc`, { recursive: true });
@@ -684,8 +682,6 @@ function prepareFirebaseFunctionsEmulator() {
 3. Modify \`refRoot\` variable in \`functions/refTools.ts\`.
 4. Run \`yarn && yarn rebuildFunctions && yarn serve\`.
 `,
-    {
-      encoding: 'utf-8',
-    },
+    'utf-8',
   );
 }
