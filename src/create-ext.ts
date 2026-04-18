@@ -34,10 +34,14 @@ if (project === undefined) {
   throw new Error('Please provide a valid `project`');
 }
 
+const projectAssets = path.resolve(projects, project, 'assets');
 const projectConfigFilePath = path.resolve(projects, project, 'project.js');
 const projectConfig = (await import(pathToFileURL(projectConfigFilePath).href))
   .default as CreateExtensionConfig;
-const projectAssets = path.resolve(projects, project, 'assets');
+
+if (projectConfig === undefined) {
+  throw new Error('Please provide a valid `project.js`');
+}
 
 const extensionName = `quasar-app-extension-${projectConfig.extensionId}`;
 const extensionPackageName = `@${projectConfig.organizationName}/${extensionName}`;

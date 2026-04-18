@@ -16,6 +16,10 @@ const projectConfigFilePath = path.resolve(projects, project, 'project.js');
 const projectConfig = (await import(pathToFileURL(projectConfigFilePath).href))
   .default as CreateExtensionConfig;
 
+if (projectConfig === undefined) {
+  throw new Error('Please provide a valid `project.js`');
+}
+
 const rootWorkspaceFolder = path.resolve(output, projectConfig.projectFolder);
 
 // Turning on/off features
@@ -53,6 +57,10 @@ async function createSites() {
       const siteConfigFilePath = path.resolve(projects, site, 'project.js');
       const siteConfig = (await import(pathToFileURL(siteConfigFilePath).href))
         .default as CreateExtSiteConfig;
+
+      if (siteConfig === undefined) {
+        throw new Error('Please provide a valid `project.js`');
+      }
 
       execSync(
         `yarn create-ext-site ${site} && cd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')}/sites/${siteConfig.packageName} && node init.js`,
