@@ -179,7 +179,7 @@ function fixPrettierPluginYarnPnP(rootWorkspaceFolder, rootPackageJsonFilePath, 
     const dotGitignoreFilePath = path.resolve(`${rootWorkspaceFolder}/.gitignore`);
     let dotGitignore = fs.readFileSync(dotGitignoreFilePath, 'utf-8');
     dotGitignore = `${dotGitignore}
-# Prettier Bundle
+# Prettier bundle
 scripts/*bundle.js
 `;
     fs.writeFileSync(dotGitignoreFilePath, dotGitignore, 'utf-8');

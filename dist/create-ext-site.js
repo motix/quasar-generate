@@ -15,10 +15,13 @@ const project = process.argv[2];
 if (project === undefined) {
     throw new Error('Please provide a valid `project`');
 }
+const projectAssets = path.resolve(projects, project, 'assets');
 const projectConfigFilePath = path.resolve(projects, project, 'project.js');
 const projectConfig = (await import(pathToFileURL(projectConfigFilePath).href))
     .default;
-const projectAssets = path.resolve(projects, project, 'assets');
+if (projectConfig === undefined) {
+    throw new Error('Please provide a valid `project.js`');
+}
 const rootWorkspaceFolder = path.resolve(output, projectConfig.projectFolder);
 const extensionWorkspaceFolder = `${rootWorkspaceFolder}/ext`;
 const siteWorkspaceFolder = `${rootWorkspaceFolder}/sites/${projectConfig.packageName}`;
