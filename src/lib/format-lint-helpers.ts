@@ -255,7 +255,7 @@ function fixPrettierPluginYarnPnP(
   let dotGitignore = fs.readFileSync(dotGitignoreFilePath, 'utf-8');
 
   dotGitignore = `${dotGitignore}
-# Prettier Bundle
+# Prettier bundle
 scripts/*bundle.js
 `;
 
