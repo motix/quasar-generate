@@ -1,3 +1,12 @@
+export interface QGConfig {
+  assets: string;
+  projects: string;
+  output: string;
+  commitCodeEnabled: boolean;
+  runYarn: boolean;
+  autoLaunch: boolean;
+}
+
 export interface CreateAppConfig {
   projectFolder: string;
   packageName: string;

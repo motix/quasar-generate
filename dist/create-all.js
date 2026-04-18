@@ -1,12 +1,18 @@
 import { execSync } from 'child_process';
 import path from 'path';
+import { pathToFileURL } from 'url';
 import commitCode from './lib/commit-code.js';
+import { commitCodeEnabled, output, projects } from './lib/qg-config.js';
 const project = process.argv[2];
-const config = (await import(`../projects/${project}/project.js`)).default;
-const rootWorkspaceFolder = path.resolve('../quasar-generate-output/', config.projectFolder);
+if (project === undefined) {
+    throw new Error('Please provide a valid `project`');
+}
+const projectConfigFilePath = path.resolve(projects, project, 'project.js');
+const projectConfig = (await import(pathToFileURL(projectConfigFilePath).href))
+    .default;
+const rootWorkspaceFolder = path.resolve(output, projectConfig.projectFolder);
 // Turning on/off features
 const f = false;
-const commitCodeEnabled = true;
 f || createExtension();
 f || (await createSites());
 f || createFirebase();
@@ -22,10 +28,11 @@ function createExtension() {
 }
 // Create sites
 async function createSites() {
-    if (config.sites) {
-        for (const site of config.sites) {
+    if (projectConfig.sites) {
+        for (const site of projectConfig.sites) {
             // Create site.
-            const siteConfig = (await import(`../projects/${site}/project.js`))
+            const siteConfigFilePath = path.resolve(projects, site, 'project.js');
+            const siteConfig = (await import(pathToFileURL(siteConfigFilePath).href))
                 .default;
             execSync(`yarn create-ext-site ${site} && cd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')}/sites/${siteConfig.packageName} && node init.js`, {
                 stdio: 'inherit',
@@ -38,13 +45,13 @@ async function createSites() {
 }
 // Create Firebase
 function createFirebase() {
-    if (config.firebase) {
+    if (projectConfig.firebase) {
         // Create Firebase
-        execSync(`yarn create-ext-firebase ${config.firebase} && cd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')}/firebase && node init.js`, {
+        execSync(`yarn create-ext-firebase ${projectConfig.firebase} && cd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')}/firebase && node init.js`, {
             stdio: 'inherit',
         });
         // Commit code.
         commitCodeEnabled &&
-            commitCode(rootWorkspaceFolder, `\\\`init.js\\\` in \\\`${config.firebase}\\\` done`);
+            commitCode(rootWorkspaceFolder, `\\\`init.js\\\` in \\\`${projectConfig.firebase}\\\` done`);
     }
 }

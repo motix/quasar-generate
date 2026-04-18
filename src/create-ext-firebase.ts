@@ -1,6 +1,7 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { pathToFileURL } from 'url';
 
 import { repeat } from 'lodash-es';
 
@@ -17,15 +18,29 @@ import { addFormatLintDependencies } from './lib/format-lint-helpers.js';
 import getExtensionInfo from './lib/get-extension-info.js';
 import { extendJsonFile, reorderJsonFile } from './lib/json-helpers.js';
 import packagesVersion from './lib/packages-version.js';
+import {
+  assets,
+  autoLaunch,
+  commitCodeEnabled,
+  output,
+  projects,
+  runYarn,
+} from './lib/qg-config.js';
 import type { CreateFirebaseConfig } from './types';
 
-const globalAssets = './assets/Firebase Template';
+const globalAssets = path.resolve(assets, 'Firebase Template');
 const project = process.argv[2];
-const runYarn = process.argv[3] === '-y' || process.argv[4] === '-y';
-const autoLaunch = process.argv[3] === '-l' || process.argv[4] === '-l';
-const config = (await import(`../projects/${project}/project.js`)).default as CreateFirebaseConfig;
-const projectAssets = `./projects/${project}/assets`;
-const rootWorkspaceFolder = path.resolve('../quasar-generate-output/', config.projectFolder);
+
+if (project === undefined) {
+  throw new Error('Please provide a valid `project`');
+}
+
+const projectConfigFilePath = path.resolve(projects, project, 'project.js');
+const projectConfig = (await import(pathToFileURL(projectConfigFilePath).href))
+  .default as CreateFirebaseConfig;
+const projectAssets = path.resolve(projects, project, 'assets');
+
+const rootWorkspaceFolder = path.resolve(output, projectConfig.projectFolder);
 const extensionWorkspaceFolder = `${rootWorkspaceFolder}/ext`;
 const devWorkspaceFolder = `${extensionWorkspaceFolder}/dev`;
 const firebaseWorkspaceFolder = `${rootWorkspaceFolder}/firebase`;
@@ -43,7 +58,6 @@ console.log(
 
 // Turning on/off features
 const f = false;
-const commitCodeEnabled = true;
 
 // Create workspaces
 f || (await createFirebaseWorkspace());
@@ -73,7 +87,7 @@ async function createFirebaseWorkspace() {
 
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
-    `Initializing Firebase project for \x1b[47m${config.packageName}\x1b[0m...`,
+    `Initializing Firebase project for \x1b[47m${projectConfig.packageName}\x1b[0m...`,
   );
 
   execSync(`mkdir ${firebaseWorkspaceFolder.replaceAll(' ', '\\ ')}`);
@@ -81,7 +95,7 @@ async function createFirebaseWorkspace() {
   const answersMap: Record<string, string | undefined> = {
     'Which Firebase features do you want to set up for this directory?': `${DOWN_KEY}${WHITESPACE_KEY}${DOWN_KEY}${DOWN_KEY}${WHITESPACE_KEY}${DOWN_KEY}${DOWN_KEY}${DOWN_KEY}${WHITESPACE_KEY}${DOWN_KEY}${WHITESPACE_KEY}`, // Firestore, Functions, Storage, Emulators
     'Please select an option:': ACCEPT_DEFAULT, // Use an existing project
-    'Select a default Firebase project for this directory:': `${repeat(DOWN_KEY, config.firebaseProjectPosition)}`,
+    'Select a default Firebase project for this directory:': `${repeat(DOWN_KEY, projectConfig.firebaseProjectPosition)}`,
     'What file should be used for Firestore Rules?': ACCEPT_DEFAULT, // firestore.rules
     'What file should be used for Firestore indexes?': ACCEPT_DEFAULT, // firestore.indexes.json
     'What language would you like to use to write Cloud Functions?': `${DOWN_KEY}`, // TypeScript
@@ -89,12 +103,12 @@ async function createFirebaseWorkspace() {
     'Do you want to install dependencies with npm now?': 'n',
     'What file should be used for Storage Rules?': ACCEPT_DEFAULT, // storage.rules
     'Which Firebase emulators do you want to set up?': `${DOWN_KEY}${WHITESPACE_KEY}${DOWN_KEY}${WHITESPACE_KEY}${DOWN_KEY}${WHITESPACE_KEY}${DOWN_KEY}${DOWN_KEY}${DOWN_KEY}${DOWN_KEY}${WHITESPACE_KEY}`, // Authentication, Functions, Firestore, Storage
-    'Which port do you want to use for the auth emulator?': `${config.authEmulatorPort}`,
-    'Which port do you want to use for the functions emulator?': `${config.functionsEmulatorPort}`,
-    'Which port do you want to use for the firestore emulator?': `${config.firestoreEmulatorPort}`,
-    'Which port do you want to use for the storage emulator?': `${config.storageEmulatorPort}`,
+    'Which port do you want to use for the auth emulator?': `${projectConfig.authEmulatorPort}`,
+    'Which port do you want to use for the functions emulator?': `${projectConfig.functionsEmulatorPort}`,
+    'Which port do you want to use for the firestore emulator?': `${projectConfig.firestoreEmulatorPort}`,
+    'Which port do you want to use for the storage emulator?': `${projectConfig.storageEmulatorPort}`,
     'Would you like to enable the Emulator UI?': ACCEPT_DEFAULT, // Y
-    'Which port do you want to use for the Emulator UI': `${config.emulatorUiPort}`,
+    'Which port do you want to use for the Emulator UI': `${projectConfig.emulatorUiPort}`,
     'Would you like to download the emulators now?': ACCEPT_DEFAULT, // Y,
     'Would you like to install agent skills for Firebase?': 'n',
   };
@@ -111,7 +125,7 @@ async function createFirebaseWorkspace() {
     firebasePackageJsonFilePath,
     JSON.stringify(
       {
-        name: config.packageName,
+        name: projectConfig.packageName,
         type: 'module',
         private: true,
       },
@@ -126,7 +140,7 @@ async function createFirebaseWorkspace() {
   commitCodeEnabled &&
     commitCode(
       rootWorkspaceFolder,
-      `\\\`createFirebaseWorkspace()\\\` for \\\`${config.packageName}\\\``,
+      `\\\`createFirebaseWorkspace()\\\` for \\\`${projectConfig.packageName}\\\``,
     );
 }
 
@@ -152,7 +166,7 @@ function prepareWorkspaces() {
   commitCodeEnabled &&
     commitCode(
       rootWorkspaceFolder,
-      `\\\`prepareWorkspaces()\\\` for \\\`${config.packageName}\\\``,
+      `\\\`prepareWorkspaces()\\\` for \\\`${projectConfig.packageName}\\\``,
     );
 }
 
@@ -207,7 +221,7 @@ firestore.*
   commitCodeEnabled &&
     commitCode(
       rootWorkspaceFolder,
-      `\\\`firebaseFormattingAndLinting()\\\` for \\\`${config.packageName}\\\``,
+      `\\\`firebaseFormattingAndLinting()\\\` for \\\`${projectConfig.packageName}\\\``,
     );
 }
 
@@ -254,7 +268,7 @@ function functionsFormattingAndLinting() {
   commitCodeEnabled &&
     commitCode(
       rootWorkspaceFolder,
-      `\\\`functionsFormattingAndLinting()\\\` for \\\`${config.packageName}\\\``,
+      `\\\`functionsFormattingAndLinting()\\\` for \\\`${projectConfig.packageName}\\\``,
     );
 }
 
@@ -273,7 +287,7 @@ function firebaseWorkspaceSrc() {
     'utf-8',
   );
 
-  rebuildFunctionsJs = rebuildFunctionsJs.replace('__PACKAGE_NAME__', config.packageName);
+  rebuildFunctionsJs = rebuildFunctionsJs.replace('__PACKAGE_NAME__', projectConfig.packageName);
 
   fs.writeFileSync(`${firebaseWorkspaceFolder}/rebuildFunctions.js`, rebuildFunctionsJs, 'utf-8');
 
@@ -299,7 +313,7 @@ function firebaseWorkspaceSrc() {
   commitCodeEnabled &&
     commitCode(
       rootWorkspaceFolder,
-      `\\\`firebaseWorkspaceSrc()\\\` for \\\`${config.packageName}\\\``,
+      `\\\`firebaseWorkspaceSrc()\\\` for \\\`${projectConfig.packageName}\\\``,
     );
 }
 
@@ -380,7 +394,7 @@ function functionsWorkspaceSrc() {
 
   let indexTs = fs.readFileSync(`${functionsWorkspaceFolder}/src/index.ts`, 'utf-8');
 
-  indexTs = indexTs.replace('__REGION__', config.functionsRegion);
+  indexTs = indexTs.replace('__REGION__', projectConfig.functionsRegion);
 
   fs.writeFileSync(`${functionsWorkspaceFolder}/src/index.ts`, indexTs, 'utf-8');
 
@@ -400,7 +414,7 @@ function functionsWorkspaceSrc() {
   commitCodeEnabled &&
     commitCode(
       rootWorkspaceFolder,
-      `\\\`functionsWorkspaceSrc()\\\` for \\\`${config.packageName}\\\``,
+      `\\\`functionsWorkspaceSrc()\\\` for \\\`${projectConfig.packageName}\\\``,
     );
 }
 
@@ -444,7 +458,7 @@ emulators-data/
   commitCodeEnabled &&
     commitCode(
       rootWorkspaceFolder,
-      `\\\`finishFirebaseWorkspace()\\\` for \\\`${config.packageName}\\\``,
+      `\\\`finishFirebaseWorkspace()\\\` for \\\`${projectConfig.packageName}\\\``,
     );
 }
 
@@ -497,12 +511,12 @@ function finishFunctionsWorkspace() {
   commitCodeEnabled &&
     commitCode(
       rootWorkspaceFolder,
-      `\\\`finishFunctionsWorkspace()\\\` for \\\`${config.packageName}\\\``,
+      `\\\`finishFunctionsWorkspace()\\\` for \\\`${projectConfig.packageName}\\\``,
     );
 }
 
 function createFunctionsCodebases() {
-  for (const codebase of config.functionsCodebases) {
+  for (const codebase of projectConfig.functionsCodebases) {
     // Create codebase workspace from `functions` workspace.
 
     const codebaseWorkspaceFolder = `${functionsWorkspaceFolder}-${codebase}`;
@@ -563,10 +577,10 @@ function createFunctionsCodebases() {
   // Commit code.
 
   commitCodeEnabled &&
-    config.functionsCodebases.length > 0 &&
+    projectConfig.functionsCodebases.length > 0 &&
     commitCode(
       rootWorkspaceFolder,
-      `\\\`createFunctionsCodebases()\\\` for \\\`${config.packageName}\\\``,
+      `\\\`createFunctionsCodebases()\\\` for \\\`${projectConfig.packageName}\\\``,
     );
 }
 
@@ -588,7 +602,7 @@ function applyFunctionsProjectTemplate() {
     dirty = true;
   }
 
-  for (const codebase of config.functionsCodebases) {
+  for (const codebase of projectConfig.functionsCodebases) {
     // Apply project template to codebase workspace.
 
     const codebaseWorkspaceFolder = `${functionsWorkspaceFolder}-${codebase}`;
@@ -612,7 +626,7 @@ function applyFunctionsProjectTemplate() {
     dirty &&
     commitCode(
       rootWorkspaceFolder,
-      `\\\`applyFunctionsProjectTemplate()\\\` for \\\`${config.packageName}\\\``,
+      `\\\`applyFunctionsProjectTemplate()\\\` for \\\`${projectConfig.packageName}\\\``,
     );
 }
 
@@ -623,7 +637,7 @@ function installAndLaunch() {
 
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
-    `Installing \x1b[47m${config.packageName}\x1b[0m packages, build and clean code...`,
+    `Installing \x1b[47m${projectConfig.packageName}\x1b[0m packages, build and clean code...`,
   );
 
   if (runYarn) {

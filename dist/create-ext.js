@@ -1,6 +1,7 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { pathToFileURL } from 'url';
 import { ACCEPT_DEFAULT, cliGhostwriter, DOWN_KEY, WHITESPACE_KEY, } from '@dreamonkey/cli-ghostwriter';
 import commitCode from './lib/commit-code.js';
 import { convertEslintConfigToTsOnly, monorepoSupportEslintConfig } from './lib/eslint-helpers.js';
@@ -9,15 +10,20 @@ import { addFormatLintDependencies, setupFormatLint } from './lib/format-lint-he
 import { extendJsonFile, reduceJsonFile, reorderJsonFile } from './lib/json-helpers.js';
 import packagesVersion from './lib/packages-version.js';
 import patchQuasarAppVite from './lib/patches/patch-quasar-app-vite.js';
-const globalAssets = './assets/Multi-module Extension Template';
+import { assets, autoLaunch, commitCodeEnabled, output, projects, runYarn, } from './lib/qg-config.js';
+const globalAssets = path.resolve(assets, 'Multi-module Extension Template');
 const project = process.argv[2];
-const runYarn = process.argv[3] === '-y' || process.argv[4] === '-y';
-const autoLaunch = process.argv[3] === '-l' || process.argv[4] === '-l';
-const config = (await import(`../projects/${project}/project.js`)).default;
-const projectAssets = `./projects/${project}/assets`;
-const extensionName = `quasar-app-extension-${config.extensionId}`;
-const rootWorkspaceFolder = path.resolve('../quasar-generate-output/', config.projectFolder);
-const extensionWorkspaceFolder = config.monorepo
+if (project === undefined) {
+    throw new Error('Please provide a valid `project`');
+}
+const projectConfigFilePath = path.resolve(projects, project, 'project.js');
+const projectConfig = (await import(pathToFileURL(projectConfigFilePath).href))
+    .default;
+const projectAssets = path.resolve(projects, project, 'assets');
+const extensionName = `quasar-app-extension-${projectConfig.extensionId}`;
+const extensionPackageName = `@${projectConfig.organizationName}/${extensionName}`;
+const rootWorkspaceFolder = path.resolve(output, projectConfig.projectFolder);
+const extensionWorkspaceFolder = projectConfig.monorepo
     ? `${rootWorkspaceFolder}/ext`
     : rootWorkspaceFolder;
 const templatesWorkspaceFolder = `${extensionWorkspaceFolder}/templates`;
@@ -26,13 +32,11 @@ const rootPackageJsonFilePath = path.resolve(`${rootWorkspaceFolder}/package.jso
 const extensionPackageJsonFilePath = path.resolve(`${extensionWorkspaceFolder}/package.json`);
 const templatesPackageJsonFilePath = path.resolve(`${templatesWorkspaceFolder}/package.json`);
 const devPackageJsonFilePath = path.resolve(`${devWorkspaceFolder}/package.json`);
-const extensionPackageName = `@${config.organizationName}/${extensionName}`;
 console.log(' \x1b[32mquasar-generate •\x1b[0m', `Create extension \x1b[47m${extensionPackageName}\x1b[0m`);
 // Turning on/off features
 const f = false;
-const commitCodeEnabled = true;
 // Create workspaces
-f || (config.monorepo && createRootWorkspace());
+f || (projectConfig.monorepo && createRootWorkspace());
 f || (await createExtensionQuasarProject());
 f || createTemplatesWorkspace();
 f || (await createDevQuasarProject());
@@ -70,7 +74,7 @@ function createRootWorkspace() {
         fs.mkdirSync(rootWorkspaceFolder, { recursive: true });
     }
     fs.writeFileSync(rootPackageJsonFilePath, JSON.stringify({
-        name: `${config.extensionId}-root`,
+        name: `${projectConfig.extensionId}-root`,
         type: 'module',
         private: true,
         engines: {
@@ -93,10 +97,10 @@ async function createExtensionQuasarProject() {
         'What would you like to build?': `${DOWN_KEY}`, // AppExtension (AE) for Quasar CLI
         'Project folder': path.relative('.', extensionWorkspaceFolder),
         'Will you use an organization to publish it?': 'y',
-        'Organization name': config.organizationName,
-        'Quasar App Extension ext-id': config.extensionId,
+        'Organization name': projectConfig.organizationName,
+        'Quasar App Extension ext-id': projectConfig.extensionId,
         'Pick AE code format': ACCEPT_DEFAULT, // ESM
-        'Project description': config.projectDescription,
+        'Project description': projectConfig.projectDescription,
         'License type': ACCEPT_DEFAULT, // MIT
         'Pick the needed scripts': 'a', // Prompts script, Install script, Uninstall script
     };
@@ -107,7 +111,7 @@ async function createExtensionQuasarProject() {
     });
     // Commit code.
     // Remove the default commit created by Quasar CLI.
-    if (!config.monorepo) {
+    if (!projectConfig.monorepo) {
         execSync(`cd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')} && git update-ref -d HEAD`, {
             stdio: 'inherit',
         });
@@ -122,7 +126,7 @@ function createTemplatesWorkspace() {
 // Remove this file if any code was added.
 `, 'utf-8');
     fs.writeFileSync(templatesPackageJsonFilePath, JSON.stringify({
-        name: `${config.extensionId}-templates`,
+        name: `${projectConfig.extensionId}-templates`,
         type: 'module',
         private: true,
     }, null, 2), 'utf-8');
@@ -137,9 +141,9 @@ async function createDevQuasarProject() {
         'Project folder': path.relative('.', devWorkspaceFolder),
         'Pick script type': `${DOWN_KEY}`, // Typescript
         'Pick Quasar App CLI variant': ACCEPT_DEFAULT, // Quasar App CLI with Vite
-        'Package name': `${config.extensionId}-dev`,
-        'Project product name': `${config.extensionId} Dev`,
-        'Project description': `Dev for ${config.extensionId}`,
+        'Package name': `${projectConfig.extensionId}-dev`,
+        'Project product name': `${projectConfig.extensionId} Dev`,
+        'Project description': `Dev for ${projectConfig.extensionId}`,
         'Check the features needed for your project': `${DOWN_KEY}${DOWN_KEY}${WHITESPACE_KEY}`, // Sass, Linting, Pinia
         'Add Prettier for code formatting?': ACCEPT_DEFAULT, // Y
         'Install project dependencies?': `${DOWN_KEY}`, // No
@@ -157,11 +161,11 @@ function setPackagesInfo() {
     extendJsonFile(extensionPackageJsonFilePath, [
         {
             path: 'version',
-            value: config.version,
+            value: projectConfig.version,
         },
         {
             path: 'author',
-            value: config.author,
+            value: projectConfig.author,
         },
     ]);
     reduceJsonFile(devPackageJsonFilePath, ['version', 'author']);
@@ -182,7 +186,7 @@ function prepareWorkspaces() {
     extendJsonFile(rootPackageJsonFilePath, [
         {
             path: 'workspaces',
-            value: config.monorepo ? ['ext', 'ext/templates', 'ext/dev'] : ['templates', 'dev'],
+            value: projectConfig.monorepo ? ['ext', 'ext/templates', 'ext/dev'] : ['templates', 'dev'],
         },
     ]);
     // Add extension workspace as a dependency in `dev` workspace.
@@ -199,7 +203,7 @@ function refineGitignore() {
     const rootDotGitignoreFilePath = path.resolve(`${rootWorkspaceFolder}/.gitignore`);
     const extensionDotGitignoreFilePath = path.resolve(`${extensionWorkspaceFolder}/.gitignore`);
     // Move `.gitignore` from extension workspace to root workspace.
-    if (config.monorepo) {
+    if (projectConfig.monorepo) {
         fs.renameSync(extensionDotGitignoreFilePath, rootDotGitignoreFilePath);
     }
     // Ignore `.yarn` and unignore `.vscode`.
@@ -230,14 +234,14 @@ function rootWorkspaceFormattingAndLinting() {
     fs.copyFileSync(`${devWorkspaceFolder}/eslint.config.js`, `${rootWorkspaceFolder}/eslint.config.js`);
     // Add `.prettierignore` to ignore `.yarn` and `dist` / `lib`.
     fs.writeFileSync(`${rootWorkspaceFolder}/.prettierignore`, `/.yarn
-/${config.monorepo ? 'ext/' : ''}dist${config.monorepo
+/${projectConfig.monorepo ? 'ext/' : ''}dist${projectConfig.monorepo
         ? `
 /firebase/functions*/lib
 /sites/*/dist`
         : ''}
 .pnp.*
 `, 'utf-8');
-    config.monorepo &&
+    projectConfig.monorepo &&
         fs.writeFileSync(`${rootWorkspaceFolder}/.prettierignore-noneExtension`, `/firebase
 /sites
 `, 'utf-8');
@@ -251,22 +255,22 @@ function rootWorkspaceFormattingAndLinting() {
     // Add supports for monorepo in `eslint.config.js`.
     monorepoSupportEslintConfig(`${rootWorkspaceFolder}/eslint.config.js`);
     // Truncate Vue and HTML specific configurations.
-    convertEslintConfigToTsOnly(`${rootWorkspaceFolder}/eslint.config.js`, `'.yarn/', '${config.monorepo ? 'ext/' : ''}dev/', '${config.monorepo ? 'ext/' : ''}dist/', '${config.monorepo ? 'ext/' : ''}templates/'${config.monorepo ? ", 'firebase/', 'sites/'" : ''}, '.pnp.*'`);
+    convertEslintConfigToTsOnly(`${rootWorkspaceFolder}/eslint.config.js`, `'.yarn/', '${projectConfig.monorepo ? 'ext/' : ''}dev/', '${projectConfig.monorepo ? 'ext/' : ''}dist/', '${projectConfig.monorepo ? 'ext/' : ''}templates/'${projectConfig.monorepo ? ", 'firebase/', 'sites/'" : ''}, '.pnp.*'`);
     // Add `lint`, `lintf`, `format` and `clean` scripts but they won't work
     // before `dev` and `templates` workspaces formatting and linting are ready.
     reduceJsonFile(rootPackageJsonFilePath, ['scripts.clean']);
     extendJsonFile(rootPackageJsonFilePath, [
         {
             path: 'scripts.lint',
-            value: `eslint -c ./eslint.config.js "./${config.monorepo ? 'ext/' : ''}src/**/*.{ts,js,cjs,mjs,vue}" && cd ./${config.monorepo ? 'ext/' : ''}templates && yarn lint && cd ../dev && yarn lint`,
+            value: `eslint -c ./eslint.config.js "./${projectConfig.monorepo ? 'ext/' : ''}src/**/*.{ts,js,cjs,mjs,vue}" && cd ./${projectConfig.monorepo ? 'ext/' : ''}templates && yarn lint && cd ../dev && yarn lint`,
         },
         {
             path: 'scripts.lintf',
-            value: `eslint -c ./eslint.config.js "./${config.monorepo ? 'ext/' : ''}src/**/*.{ts,js,cjs,mjs,vue}" --fix && cd ./${config.monorepo ? 'ext/' : ''}templates && yarn lint --fix && cd ../dev && yarn lint --fix`,
+            value: `eslint -c ./eslint.config.js "./${projectConfig.monorepo ? 'ext/' : ''}src/**/*.{ts,js,cjs,mjs,vue}" --fix && cd ./${projectConfig.monorepo ? 'ext/' : ''}templates && yarn lint --fix && cd ../dev && yarn lint --fix`,
         },
         {
             path: 'scripts.format',
-            value: `prettier --write "**/*.{js,ts,vue,css,scss,html,md,json}" --ignore-path ${config.monorepo ? 'ext/' : ''}dev/.gitignore --ignore-path .prettierignore${config.monorepo ? ' --ignore-path .prettierignore-noneExtension' : ''}`,
+            value: `prettier --write "**/*.{js,ts,vue,css,scss,html,md,json}" --ignore-path ${projectConfig.monorepo ? 'ext/' : ''}dev/.gitignore --ignore-path .prettierignore${projectConfig.monorepo ? ' --ignore-path .prettierignore-noneExtension' : ''}`,
         },
         {
             path: 'scripts.clean',
@@ -417,7 +421,7 @@ function devWorkspaceSrc() {
     quasarconfigts = quasarconfigts.replace('vueShim: true', 'vueShim: false');
     fs.writeFileSync(`${devWorkspaceFolder}/quasar.config.ts`, quasarconfigts, 'utf-8');
     // Add extension config file. This could be overriden by project template.
-    fs.writeFileSync(`${devWorkspaceFolder}/.${config.extensionId.replace(/-/g, '')}rc.js`, `export default {
+    fs.writeFileSync(`${devWorkspaceFolder}/.${projectConfig.extensionId.replace(/-/g, '')}rc.js`, `export default {
   modules: {},
 };
 `, 'utf-8');
@@ -441,7 +445,7 @@ function devWorkspaceSrc() {
             },
             {
                 path: 'devDependencies.@motinet/quasar-app-extension-mnapp',
-                value: config.mnappLocation || packagesVersion['@motinet/quasar-app-extension-mnapp'],
+                value: projectConfig.mnappLocation || packagesVersion['@motinet/quasar-app-extension-mnapp'],
             },
         ]);
     }
@@ -459,7 +463,7 @@ function finishRootWorkspace() {
     // Putting `path` in an array to keep it as a single property in JSON file.
     extendJsonFile(settingsJsonFilePath, [
         { path: ['search.exclude', '.yarn'], value: true },
-        { path: ['search.exclude', `${config.monorepo ? 'ext/' : ''}dist`], value: true },
+        { path: ['search.exclude', `${projectConfig.monorepo ? 'ext/' : ''}dist`], value: true },
     ]);
     extendJsonFile(settingsJsonFilePath, [
         { path: ['compareFolders.excludeFilter'], value: ['node_modules', '.git'] },
@@ -469,15 +473,15 @@ function finishRootWorkspace() {
     extendJsonFile(rootPackageJsonFilePath, [
         {
             path: 'scripts.build',
-            value: `${config.monorepo ? 'cd ./ext && ' : ''}yarn tsc && cd ./templates && yarn tsc && cd ../dev && yarn tsc`,
+            value: `${projectConfig.monorepo ? 'cd ./ext && ' : ''}yarn tsc && cd ./templates && yarn tsc && cd ../dev && yarn tsc`,
         },
         {
             path: 'scripts.watch',
-            value: `${config.monorepo ? 'cd ./ext && ' : ''}yarn tsc --watch`,
+            value: `${projectConfig.monorepo ? 'cd ./ext && ' : ''}yarn tsc --watch`,
         },
         {
             path: 'scripts.buildPaths',
-            value: `cd ./${config.monorepo ? 'ext/' : ''}templates && node ./buildPaths.js && yarn prettier --write ./tsconfig-paths.json`,
+            value: `cd ./${projectConfig.monorepo ? 'ext/' : ''}templates && node ./buildPaths.js && yarn prettier --write ./tsconfig-paths.json`,
         },
     ]);
     // Reorder `package.json`.
@@ -486,7 +490,7 @@ function finishRootWorkspace() {
     commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`finishRootWorkspace()\\`');
 }
 function finishExtensionWorkspace() {
-    if (config.monorepo) {
+    if (projectConfig.monorepo) {
         // Add `typescript`
         extendJsonFile(extensionPackageJsonFilePath, [
             { path: 'devDependencies.typescript', value: packagesVersion['typescript'] },
@@ -527,8 +531,8 @@ function finishDevWorkspace() {
             value: 'yarn vue-tsc --noEmit --skipLibCheck',
         },
         {
-            path: `scripts.i-${config.extensionId}`,
-            value: `quasar ext invoke @${config.organizationName}/${config.extensionId} && yarn format --log-level warn`,
+            path: `scripts.i-${projectConfig.extensionId}`,
+            value: `quasar ext invoke @${projectConfig.organizationName}/${projectConfig.extensionId} && yarn format --log-level warn`,
         },
     ]);
     // Reorder `package.json`.
@@ -539,18 +543,18 @@ function finishDevWorkspace() {
 // Install and launch
 function installAndLaunch() {
     // Install all workspaces packages, build and clean code.
-    console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47m${config.extensionId}\x1b[0m packages, build and clean code...`);
+    console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47m${projectConfig.extensionId}\x1b[0m packages, build and clean code...`);
     if (runYarn) {
-        execSync(`cd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn buildPaths && yarn build && yarn clean && cd ./${config.monorepo ? 'ext/' : ''}dev ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${config.extensionId} && yarn dev`, {
+        execSync(`cd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn buildPaths && yarn build && yarn clean && cd ./${projectConfig.monorepo ? 'ext/' : ''}dev ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${projectConfig.extensionId} && yarn dev`, {
             stdio: 'inherit',
         });
     }
     else {
-        console.log(`                   Run \x1b[47mcd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn buildPaths && yarn build && yarn clean && cd ./${config.monorepo ? 'ext/' : ''}dev ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${config.extensionId} && yarn dev\x1b[0m manually.`);
+        console.log(`                   Run \x1b[47mcd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn buildPaths && yarn build && yarn clean && cd ./${projectConfig.monorepo ? 'ext/' : ''}dev ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${projectConfig.extensionId} && yarn dev\x1b[0m manually.`);
     }
     // Auto launch
     if (autoLaunch) {
-        console.log(' \x1b[32mquasar-generate •\x1b[0m', `Launching \x1b[47m${config.extensionId}\x1b[0m in Visual Studio Code...`);
+        console.log(' \x1b[32mquasar-generate •\x1b[0m', `Launching \x1b[47m${projectConfig.extensionId}\x1b[0m in Visual Studio Code...`);
         execSync(`code ${rootWorkspaceFolder}.replaceAll(' ', '\\ ')`, {
             stdio: 'inherit',
         });
@@ -558,6 +562,6 @@ function installAndLaunch() {
 }
 // Internal
 function mnappDetected() {
-    return (!(config.organizationName === 'motinet' && config.extensionId === 'mnapp') &&
+    return (!(projectConfig.organizationName === 'motinet' && projectConfig.extensionId === 'mnapp') &&
         fs.existsSync(path.resolve(`${devWorkspaceFolder}/.mnapprc.js`)));
 }

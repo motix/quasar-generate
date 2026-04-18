@@ -1,6 +1,7 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { pathToFileURL } from 'url';
 
 import {
   ACCEPT_DEFAULT,
@@ -16,16 +17,23 @@ import { setupFormatLint } from './lib/format-lint-helpers.js';
 import getExtensionInfo from './lib/get-extension-info.js';
 import { extendJsonFile } from './lib/json-helpers.js';
 import packagesVersion from './lib/packages-version.js';
+import { autoLaunch, commitCodeEnabled, output, projects, runYarn } from './lib/qg-config.js';
 import type { CreateExtSiteConfig } from './types';
 
 const project = process.argv[2];
-const runYarn = process.argv[3] === '-y' || process.argv[4] === '-y';
-const autoLaunch = process.argv[3] === '-l' || process.argv[4] === '-l';
-const config = (await import(`../projects/${project}/project.js`)).default as CreateExtSiteConfig;
-const projectAssets = `./projects/${project}/assets`;
-const rootWorkspaceFolder = path.resolve('../quasar-generate-output/', config.projectFolder);
+
+if (project === undefined) {
+  throw new Error('Please provide a valid `project`');
+}
+
+const projectConfigFilePath = path.resolve(projects, project, 'project.js');
+const projectConfig = (await import(pathToFileURL(projectConfigFilePath).href))
+  .default as CreateExtSiteConfig;
+const projectAssets = path.resolve(projects, project, 'assets');
+
+const rootWorkspaceFolder = path.resolve(output, projectConfig.projectFolder);
 const extensionWorkspaceFolder = `${rootWorkspaceFolder}/ext`;
-const siteWorkspaceFolder = `${rootWorkspaceFolder}/sites/${config.packageName}`;
+const siteWorkspaceFolder = `${rootWorkspaceFolder}/sites/${projectConfig.packageName}`;
 const rootPackageJsonFilePath = path.resolve(`${rootWorkspaceFolder}/package.json`);
 const extensionPackageJsonFilePath = path.resolve(`${extensionWorkspaceFolder}/package.json`);
 const sitePackageJsonFilePath = path.resolve(`${siteWorkspaceFolder}/package.json`);
@@ -35,12 +43,11 @@ const { extensionPackageName, extensionOrganizationName } = await getExtensionIn
 
 console.log(
   ' \x1b[32mquasar-generate •\x1b[0m',
-  `Create site \x1b[47m${config.packageName}\x1b[0m for extension \x1b[47m${extensionPackageName}\x1b[0m`,
+  `Create site \x1b[47m${projectConfig.packageName}\x1b[0m for extension \x1b[47m${extensionPackageName}\x1b[0m`,
 );
 
 // Turning on/off features
 const f = false;
-const commitCodeEnabled = true;
 
 // Create workspaces
 f || (await createQuasarProject());
@@ -52,7 +59,7 @@ f ||
   fixCompileTimeYarnPnP({
     targetWorkspaceFolder: siteWorkspaceFolder,
     commitCodeMessage: commitCodeEnabled
-      ? `\\\`fixCompileTimeYarnPnP()\\\` for \\\`${config.packageName}\\\``
+      ? `\\\`fixCompileTimeYarnPnP()\\\` for \\\`${projectConfig.packageName}\\\``
       : undefined,
   });
 
@@ -75,7 +82,7 @@ async function createQuasarProject() {
 
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
-    `Creating Quasar project for \x1b[47m${config.packageName}\x1b[0m...`,
+    `Creating Quasar project for \x1b[47m${projectConfig.packageName}\x1b[0m...`,
   );
 
   const answersMap: Record<string, string | undefined> = {
@@ -83,9 +90,9 @@ async function createQuasarProject() {
     'Project folder': path.relative('.', siteWorkspaceFolder),
     'Pick script type': `${DOWN_KEY}`, // Typescript
     'Pick Quasar App CLI variant': ACCEPT_DEFAULT, // Quasar App CLI with Vite
-    'Package name': config.packageName,
-    'Project product name': config.productName,
-    'Project description': config.productDescription,
+    'Package name': projectConfig.packageName,
+    'Project product name': projectConfig.productName,
+    'Project description': projectConfig.productDescription,
     'Check the features needed for your project': `${DOWN_KEY}${DOWN_KEY}${WHITESPACE_KEY}`, // Sass, Linting, Pinia
     'Add Prettier for code formatting?': ACCEPT_DEFAULT, // Y
     'Install project dependencies?': `${DOWN_KEY}`, // No
@@ -102,7 +109,7 @@ async function createQuasarProject() {
   commitCodeEnabled &&
     commitCode(
       rootWorkspaceFolder,
-      `\\\`createQuasarProject()\\\` for \\\`${config.packageName}\\\``,
+      `\\\`createQuasarProject()\\\` for \\\`${projectConfig.packageName}\\\``,
     );
 }
 
@@ -112,18 +119,21 @@ function setPackageInfo() {
   extendJsonFile(sitePackageJsonFilePath, [
     {
       path: 'version',
-      value: config.version,
+      value: projectConfig.version,
     },
     {
       path: 'author',
-      value: config.author,
+      value: projectConfig.author,
     },
   ]);
 
   // Commit code.
 
   commitCodeEnabled &&
-    commitCode(rootWorkspaceFolder, `\\\`setPackageInfo()\\\` for \\\`${config.packageName}\\\``);
+    commitCode(
+      rootWorkspaceFolder,
+      `\\\`setPackageInfo()\\\` for \\\`${projectConfig.packageName}\\\``,
+    );
 }
 
 function prepareWorkspaces() {
@@ -150,7 +160,7 @@ function prepareWorkspaces() {
   commitCodeEnabled &&
     commitCode(
       rootWorkspaceFolder,
-      `\\\`prepareWorkspaces()\\\` for \\\`${config.packageName}\\\``,
+      `\\\`prepareWorkspaces()\\\` for \\\`${projectConfig.packageName}\\\``,
     );
 }
 
@@ -185,7 +195,7 @@ function formattingAndLinting() {
   commitCodeEnabled &&
     commitCode(
       rootWorkspaceFolder,
-      `\\\`formattingAndLinting()\\\` for \\\`${config.packageName}\\\``,
+      `\\\`formattingAndLinting()\\\` for \\\`${projectConfig.packageName}\\\``,
     );
 }
 
@@ -211,7 +221,7 @@ function workspaceSrc() {
   // Add extension config file. This could be overriden by project template.
 
   fs.writeFileSync(
-    `${siteWorkspaceFolder}/.${config.extensionId.replace(/-/g, '')}rc.js`,
+    `${siteWorkspaceFolder}/.${projectConfig.extensionId.replace(/-/g, '')}rc.js`,
     `export default {
   modules: {},
 };
@@ -221,8 +231,7 @@ function workspaceSrc() {
 
   // Add shared template.
 
-  const sharedAssets = `./${path.relative(path.resolve('.'), path.resolve(`./projects/${project}`, config.sharedAssets))}`;
-  const siteSharedAssets = `${sharedAssets}/templates/site`;
+  const siteSharedAssets = `${path.resolve(projects, project!, projectConfig.sharedAssets)}/templates/site`;
 
   if (fs.existsSync(siteSharedAssets)) {
     fs.readdirSync(siteSharedAssets).forEach((file) => {
@@ -257,7 +266,8 @@ function workspaceSrc() {
       },
       {
         path: 'devDependencies.@motinet/quasar-app-extension-mnapp',
-        value: config.mnappLocation || packagesVersion['@motinet/quasar-app-extension-mnapp'],
+        value:
+          projectConfig.mnappLocation || packagesVersion['@motinet/quasar-app-extension-mnapp'],
       },
     ]);
   }
@@ -265,7 +275,10 @@ function workspaceSrc() {
   // Commit code.
 
   commitCodeEnabled &&
-    commitCode(rootWorkspaceFolder, `\\\`workspaceSrc()\\\` for \\\`${config.packageName}\\\``);
+    commitCode(
+      rootWorkspaceFolder,
+      `\\\`workspaceSrc()\\\` for \\\`${projectConfig.packageName}\\\``,
+    );
 }
 
 // Finish workspaces
@@ -279,15 +292,18 @@ function finishWorkspace() {
       value: 'yarn vue-tsc --noEmit --skipLibCheck',
     },
     {
-      path: `scripts.i-${config.extensionId}`,
-      value: `quasar ext invoke @${extensionOrganizationName}/${config.extensionId} && yarn format --log-level warn`,
+      path: `scripts.i-${projectConfig.extensionId}`,
+      value: `quasar ext invoke @${extensionOrganizationName}/${projectConfig.extensionId} && yarn format --log-level warn`,
     },
   ]);
 
   // Commit code.
 
   commitCodeEnabled &&
-    commitCode(rootWorkspaceFolder, `\\\`finishWorkspace()\\\` for \\\`${config.packageName}\\\``);
+    commitCode(
+      rootWorkspaceFolder,
+      `\\\`finishWorkspace()\\\` for \\\`${projectConfig.packageName}\\\``,
+    );
 }
 
 // Install and launch
@@ -297,19 +313,19 @@ function installAndLaunch() {
 
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
-    `Installing \x1b[47m${config.packageName}\x1b[0m packages and clean code...`,
+    `Installing \x1b[47m${projectConfig.packageName}\x1b[0m packages and clean code...`,
   );
 
   if (runYarn) {
     execSync(
-      `cd ${siteWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn clean ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${config.extensionId} && yarn dev`,
+      `cd ${siteWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn clean ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${projectConfig.extensionId} && yarn dev`,
       {
         stdio: 'inherit',
       },
     );
   } else {
     console.log(
-      `                   Run \x1b[47mcd ${siteWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn clean ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${config.extensionId} && yarn dev\x1b[0m manually.`,
+      `                   Run \x1b[47mcd ${siteWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn clean ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${projectConfig.extensionId} && yarn dev\x1b[0m manually.`,
     );
   }
 
@@ -318,7 +334,7 @@ function installAndLaunch() {
   if (autoLaunch) {
     console.log(
       ' \x1b[32mquasar-generate •\x1b[0m',
-      `Launching \x1b[47m${config.extensionId}\x1b[0m in Visual Studio Code...`,
+      `Launching \x1b[47m${projectConfig.extensionId}\x1b[0m in Visual Studio Code...`,
     );
 
     execSync(`code ${rootWorkspaceFolder}.replaceAll(' ', '\\ ')`, {
@@ -331,7 +347,7 @@ function installAndLaunch() {
 
 function mnappDetected() {
   return (
-    !(extensionOrganizationName === 'motinet' && config.extensionId === 'mnapp') &&
+    !(extensionOrganizationName === 'motinet' && projectConfig.extensionId === 'mnapp') &&
     fs.existsSync(path.resolve(`${siteWorkspaceFolder}/.mnapprc.js`))
   );
 }
