@@ -24,3 +24,6 @@ yarn-error.log*
 
 # Prettier Bundle
 scripts/*bundle.js
+
+# quasar-generate config
+.qgrc.js
