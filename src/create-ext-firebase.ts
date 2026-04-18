@@ -193,7 +193,7 @@ function firebaseFormattingAndLinting() {
   fs.writeFileSync(
     `${firebaseWorkspaceFolder}/.prettierignore`,
     `/functions*/lib/
-firestore.*
+/firestore.*
 `,
     'utf-8',
   );
@@ -263,7 +263,7 @@ function functionsFormattingAndLinting() {
   extendJsonFile(`${firebaseWorkspaceFolder}/firebase.json`, [
     {
       path: 'functions[0].predeploy',
-      value: ['npm --prefix "$RESOURCE_DIR" run lint', 'npm --prefix "$RESOURCE_DIR" run build'],
+      value: ['yarn --cwd "$RESOURCE_DIR" lint', 'yarn --cwd "$RESOURCE_DIR" build'],
     },
   ]);
 
@@ -561,10 +561,7 @@ function createFunctionsCodebases() {
           codebase,
           disallowLegacyRuntimeConfig: true,
           ignore: ['node_modules', '.git', 'firebase-debug.log', 'firebase-debug.*.log', '*.local'],
-          predeploy: [
-            'npm --prefix "$RESOURCE_DIR" run lint',
-            'npm --prefix "$RESOURCE_DIR" run build',
-          ],
+          predeploy: ['yarn --cwd "$RESOURCE_DIR" lint', 'yarn --cwd "$RESOURCE_DIR" build'],
         },
       },
     ]);
