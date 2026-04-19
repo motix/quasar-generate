@@ -2,8 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { extendJsonFile, reduceJsonFileArray } from './json-helpers.js';
 import packagesVersion from './packages-version.js';
-import patchTrivagoPrettierPluginSortImports from './patches/patch-trivago-prettier-plugin-sort-imports.js';
 const globalAssets = './assets';
+// TODO: Move to config
 // Turning on/off features
 const sortImportsEnabled = true;
 export function addFormatLintDependencies(packageJsonFilePath, quasar) {
@@ -31,24 +31,24 @@ export function addFormatLintDependencies(packageJsonFilePath, quasar) {
     })));
 }
 export function setupFormatLint(options) {
-    const { rootWorkspaceFolder, targetWorkspaceFolder } = options;
-    const extensionsJsonFilePath = rootWorkspaceFolder === undefined
+    const { monorepoWorkspaceFolder, targetWorkspaceFolder } = options;
+    const extensionsJsonFilePath = monorepoWorkspaceFolder === undefined
         ? undefined
-        : path.resolve(`${rootWorkspaceFolder}/.vscode/extensions.json`);
-    const settingsJsonFilePath = rootWorkspaceFolder === undefined
+        : path.resolve(`${monorepoWorkspaceFolder}/.vscode/extensions.json`);
+    const settingsJsonFilePath = monorepoWorkspaceFolder === undefined
         ? undefined
-        : path.resolve(`${rootWorkspaceFolder}/.vscode/settings.json`);
-    const rootPackageJsonFilePath = rootWorkspaceFolder === undefined
+        : path.resolve(`${monorepoWorkspaceFolder}/.vscode/settings.json`);
+    const monorepoPackageJsonFilePath = monorepoWorkspaceFolder === undefined
         ? undefined
-        : path.resolve(`${rootWorkspaceFolder}/package.json`);
+        : path.resolve(`${monorepoWorkspaceFolder}/package.json`);
     const targetPackageJsonFilePath = path.resolve(`${targetWorkspaceFolder}/package.json`);
-    const dotPrettierrcJsonFilePath = rootWorkspaceFolder === undefined
+    const dotPrettierrcJsonFilePath = monorepoWorkspaceFolder === undefined
         ? undefined
-        : path.resolve(`${rootWorkspaceFolder}/.prettierrc.json`);
-    if (rootWorkspaceFolder !== undefined &&
+        : path.resolve(`${monorepoWorkspaceFolder}/.prettierrc.json`);
+    if (monorepoWorkspaceFolder !== undefined &&
         extensionsJsonFilePath !== undefined &&
         settingsJsonFilePath != undefined &&
-        rootPackageJsonFilePath != undefined &&
+        monorepoPackageJsonFilePath != undefined &&
         dotPrettierrcJsonFilePath != undefined) {
         // Add IDE extension recommendation and modify formatting settings.
         extendJsonFile(extensionsJsonFilePath, [
@@ -71,7 +71,7 @@ export function setupFormatLint(options) {
         if (sortImportsEnabled) {
             // Setup Prettier plugin for sorting imports.
             // Add dependency
-            extendJsonFile(rootPackageJsonFilePath, [
+            extendJsonFile(monorepoPackageJsonFilePath, [
                 {
                     path: 'devDependencies.@trivago/prettier-plugin-sort-imports',
                     value: packagesVersion['@trivago/prettier-plugin-sort-imports'],
@@ -112,7 +112,7 @@ export function setupFormatLint(options) {
                 { path: 'importOrderCaseInsensitive', value: true },
             ]);
             // Fix Prettier plugin Yarn PnP
-            fixPrettierPluginYarnPnP(rootWorkspaceFolder, rootPackageJsonFilePath, dotPrettierrcJsonFilePath);
+            fixPrettierPluginYarnPnP(monorepoWorkspaceFolder, monorepoPackageJsonFilePath, dotPrettierrcJsonFilePath);
         }
     }
     // Modify `eslint.config.js`.
@@ -142,9 +142,9 @@ export function setupFormatLint(options) {
         },
     ]);
 }
-function fixPrettierPluginYarnPnP(rootWorkspaceFolder, rootPackageJsonFilePath, dotPrettierrcJsonFilePath) {
+function fixPrettierPluginYarnPnP(monorepoWorkspaceFolder, monorepoPackageJsonFilePath, dotPrettierrcJsonFilePath) {
     // Add missing dependency and bundle `@trivago/prettier-plugin-sort-imports`.
-    extendJsonFile(rootPackageJsonFilePath, [
+    extendJsonFile(monorepoPackageJsonFilePath, [
         {
             path: 'devDependencies.@vue/compiler-sfc',
             value: packagesVersion['@vue/compiler-sfc'],
@@ -154,15 +154,11 @@ function fixPrettierPluginYarnPnP(rootWorkspaceFolder, rootPackageJsonFilePath, 
             value: packagesVersion['esbuild'],
         },
     ]);
-    !fs.existsSync(`${rootWorkspaceFolder}/scripts`) &&
-        fs.mkdirSync(`${rootWorkspaceFolder}/scripts`, { recursive: true });
-    fs.copyFileSync(`${globalAssets}/bundle-prettier-plugin-sort-imports.js`, `${rootWorkspaceFolder}/scripts/bundle-prettier-plugin-sort-imports.js`);
-    let prettierignore = fs.readFileSync(`${rootWorkspaceFolder}/.prettierignore`, 'utf-8');
-    prettierignore = `${prettierignore}/scripts/*bundle.js
-`;
-    fs.writeFileSync(`${rootWorkspaceFolder}/.prettierignore`, prettierignore, 'utf-8');
-    const packageJson = JSON.parse(fs.readFileSync(rootPackageJsonFilePath, 'utf-8'));
-    extendJsonFile(rootPackageJsonFilePath, [
+    !fs.existsSync(`${monorepoWorkspaceFolder}/scripts`) &&
+        fs.mkdirSync(`${monorepoWorkspaceFolder}/scripts`, { recursive: true });
+    fs.copyFileSync(`${globalAssets}/bundle-prettier-plugin-sort-imports.js`, `${monorepoWorkspaceFolder}/scripts/bundle-prettier-plugin-sort-imports.js`);
+    const packageJson = JSON.parse(fs.readFileSync(monorepoPackageJsonFilePath, 'utf-8'));
+    extendJsonFile(monorepoPackageJsonFilePath, [
         {
             path: 'scripts.postinstall',
             value: `node scripts/bundle-prettier-plugin-sort-imports.js${packageJson.scripts?.postinstall ? ` && ${packageJson.scripts.postinstall}` : ''}`,
@@ -175,87 +171,16 @@ function fixPrettierPluginYarnPnP(rootWorkspaceFolder, rootPackageJsonFilePath, 
     extendJsonFile(dotPrettierrcJsonFilePath, [
         { path: 'plugins[]', value: './scripts/prettier-plugin-sort-imports-bundle.js' },
     ]);
-    // Ignore bundled file.
-    const dotGitignoreFilePath = path.resolve(`${rootWorkspaceFolder}/.gitignore`);
+    // Ignore bundled file from git and Prettier.
+    const dotGitignoreFilePath = path.resolve(`${monorepoWorkspaceFolder}/.gitignore`);
     let dotGitignore = fs.readFileSync(dotGitignoreFilePath, 'utf-8');
     dotGitignore = `${dotGitignore}
 # Prettier bundle
 scripts/*bundle.js
 `;
     fs.writeFileSync(dotGitignoreFilePath, dotGitignore, 'utf-8');
-}
-// TODO: Remove.
-// This method unplugs `@trivago/prettier-plugin-sort-imports` and its dependencies,
-// which causes poor performance in Yarn PnP.
-export function fixPrettierPluginYarnPnPUnplug(rootWorkspaceFolder, rootPackageJsonFilePath) {
-    // Add missing dependency.
-    extendJsonFile(rootPackageJsonFilePath, [
-        {
-            path: 'devDependencies.@vue/compiler-sfc',
-            value: packagesVersion['@vue/compiler-sfc'],
-        },
-    ]);
-    // Unplug `@trivago/prettier-plugin-sort-imports` and its dependencies.
-    extendJsonFile(rootPackageJsonFilePath, [
-        '@babel/generator',
-        '@babel/parser',
-        '@babel/traverse',
-        '@babel/types',
-        '@trivago/prettier-plugin-sort-imports',
-        'brace-expansion',
-        'javascript-natural-sort',
-        'lodash-es',
-        'minimatch',
-        'parse-imports-exports',
-        'parse-statements',
-    ].map((item) => ({
-        path: `dependenciesMeta.${item}`,
-        value: { unplugged: true },
-    })));
-    // Patch @trivago/prettier-plugin-sort-imports.
-    patchTrivagoPrettierPluginSortImports({
-        rootWorkspaceFolder: rootWorkspaceFolder,
-        targetPackageJsonFilePath: rootPackageJsonFilePath,
-    });
-    // Convert `.prettierrc.json` to `.prettierrc.js` and use `require`.
-    const prettierConfigJs = `import { createRequire } from 'module';
-
-const require = createRequire(import.meta.url);
-
-export default {
-  singleQuote: true,
-  printWidth: 100,
-  semi: true,
-  plugins: [require.resolve('@trivago/prettier-plugin-sort-imports')],
-  importOrder: [
-    '.json$',
-    '.css$',
-    '<BUILTIN_MODULES>',
-    '^@fortawesome',
-    '^@automapper',
-    '^vue',
-    '^pinia$',
-    '^#q-app',
-    '^@quasar',
-    '^quasar',
-    '^firebase',
-    '^@vite',
-    '^vite',
-    '<THIRD_PARTY_MODULES>',
-    '^utils',
-    '^models',
-    '^stores',
-    '^services',
-    '^composables',
-    '^components',
-    '^[@]',
-    '^[.]',
-  ],
-  importOrderSeparation: true,
-  importOrderSortSpecifiers: true,
-  importOrderCaseInsensitive: true,
-};
+    let prettierignore = fs.readFileSync(`${monorepoWorkspaceFolder}/.prettierignore`, 'utf-8');
+    prettierignore = `${prettierignore}/scripts/*bundle.js
 `;
-    fs.writeFileSync(`${rootWorkspaceFolder}/prettier.config.js`, prettierConfigJs, 'utf-8');
-    fs.rmSync(`${rootWorkspaceFolder}/.prettierrc.json`);
+    fs.writeFileSync(`${monorepoWorkspaceFolder}/.prettierignore`, prettierignore, 'utf-8');
 }

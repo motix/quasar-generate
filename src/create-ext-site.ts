@@ -35,10 +35,11 @@ if (projectConfig === undefined) {
   throw new Error('Please provide a valid `project.js`');
 }
 
-const rootWorkspaceFolder = path.resolve(output, projectConfig.projectFolder);
-const extensionWorkspaceFolder = `${rootWorkspaceFolder}/ext`;
-const siteWorkspaceFolder = `${rootWorkspaceFolder}/sites/${projectConfig.packageName}`;
-const rootPackageJsonFilePath = path.resolve(`${rootWorkspaceFolder}/package.json`);
+const root = path.resolve(output, projectConfig.projectFolder);
+const monorepoWorkspaceFolder = `${root}/monorepo`;
+const extensionWorkspaceFolder = `${monorepoWorkspaceFolder}/ext`;
+const siteWorkspaceFolder = `${monorepoWorkspaceFolder}/sites/${projectConfig.packageName}`;
+const monorepoPackageJsonFilePath = path.resolve(`${monorepoWorkspaceFolder}/package.json`);
 const extensionPackageJsonFilePath = path.resolve(`${extensionWorkspaceFolder}/package.json`);
 const sitePackageJsonFilePath = path.resolve(`${siteWorkspaceFolder}/package.json`);
 const { extensionPackageName, extensionOrganizationName } = await getExtensionInfo(
@@ -111,10 +112,7 @@ async function createQuasarProject() {
   // Commit code.
 
   commitCodeEnabled &&
-    commitCode(
-      rootWorkspaceFolder,
-      `\\\`createQuasarProject()\\\` for \\\`${projectConfig.packageName}\\\``,
-    );
+    commitCode(root, `\\\`createQuasarProject()\\\` for \\\`${projectConfig.packageName}\\\``);
 }
 
 function setPackageInfo() {
@@ -134,16 +132,13 @@ function setPackageInfo() {
   // Commit code.
 
   commitCodeEnabled &&
-    commitCode(
-      rootWorkspaceFolder,
-      `\\\`setPackageInfo()\\\` for \\\`${projectConfig.packageName}\\\``,
-    );
+    commitCode(root, `\\\`setPackageInfo()\\\` for \\\`${projectConfig.packageName}\\\``);
 }
 
 function prepareWorkspaces() {
   // Define workspaces.
 
-  extendJsonFile(rootPackageJsonFilePath, [
+  extendJsonFile(monorepoPackageJsonFilePath, [
     {
       path: 'workspaces[]',
       value: `sites/*`,
@@ -162,10 +157,7 @@ function prepareWorkspaces() {
   // Commit code.
 
   commitCodeEnabled &&
-    commitCode(
-      rootWorkspaceFolder,
-      `\\\`prepareWorkspaces()\\\` for \\\`${projectConfig.packageName}\\\``,
-    );
+    commitCode(root, `\\\`prepareWorkspaces()\\\` for \\\`${projectConfig.packageName}\\\``);
 }
 
 // Workspaces formatting and linting
@@ -175,7 +167,7 @@ function formattingAndLinting() {
 
   setupFormatLint({ targetWorkspaceFolder: siteWorkspaceFolder });
 
-  // All formatting and some lingting tools were available in root workspace, remove them here.
+  // All formatting and some lingting tools were available in `monorepo` workspace, remove them here.
 
   fs.rmSync(`${siteWorkspaceFolder}/.vscode`, { recursive: true });
   fs.rmSync(`${siteWorkspaceFolder}/.editorconfig`);
@@ -197,10 +189,7 @@ function formattingAndLinting() {
   // Commit code.
 
   commitCodeEnabled &&
-    commitCode(
-      rootWorkspaceFolder,
-      `\\\`formattingAndLinting()\\\` for \\\`${projectConfig.packageName}\\\``,
-    );
+    commitCode(root, `\\\`formattingAndLinting()\\\` for \\\`${projectConfig.packageName}\\\``);
 }
 
 // Workspaces base source code
@@ -279,10 +268,7 @@ function workspaceSrc() {
   // Commit code.
 
   commitCodeEnabled &&
-    commitCode(
-      rootWorkspaceFolder,
-      `\\\`workspaceSrc()\\\` for \\\`${projectConfig.packageName}\\\``,
-    );
+    commitCode(root, `\\\`workspaceSrc()\\\` for \\\`${projectConfig.packageName}\\\``);
 }
 
 // Finish workspaces
@@ -304,10 +290,7 @@ function finishWorkspace() {
   // Commit code.
 
   commitCodeEnabled &&
-    commitCode(
-      rootWorkspaceFolder,
-      `\\\`finishWorkspace()\\\` for \\\`${projectConfig.packageName}\\\``,
-    );
+    commitCode(root, `\\\`finishWorkspace()\\\` for \\\`${projectConfig.packageName}\\\``);
 }
 
 // Install and launch
@@ -341,7 +324,7 @@ function installAndLaunch() {
       `Launching \x1b[47m${projectConfig.extensionId}\x1b[0m in Visual Studio Code...`,
     );
 
-    execSync(`code ${rootWorkspaceFolder}.replaceAll(' ', '\\ ')`, {
+    execSync(`code ${monorepoWorkspaceFolder}.replaceAll(' ', '\\ ')`, {
       stdio: 'inherit',
     });
   }

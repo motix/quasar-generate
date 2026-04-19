@@ -20,7 +20,8 @@ if (projectConfig === undefined) {
   throw new Error('Please provide a valid `project.js`');
 }
 
-const rootWorkspaceFolder = path.resolve(output, projectConfig.projectFolder);
+const root = path.resolve(output, projectConfig.projectFolder);
+const monorepoWorkspaceFolder = projectConfig.monorepo ? `${root}/monorepo` : root;
 
 // Turning on/off features
 const f = false;
@@ -35,7 +36,7 @@ function createExtension() {
   // Create extension.
 
   execSync(
-    `yarn create-ext ${project} && cd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')} && node init.js`,
+    `yarn create-ext ${project} && cd ${monorepoWorkspaceFolder.replaceAll(' ', '\\ ')} && node init.js`,
     {
       stdio: 'inherit',
     },
@@ -43,8 +44,7 @@ function createExtension() {
 
   // Commit code.
 
-  commitCodeEnabled &&
-    commitCode(rootWorkspaceFolder, `\\\`init.js\\\` in extension \\\`${project}\\\` done`);
+  commitCodeEnabled && commitCode(root, `\\\`init.js\\\` in extension \\\`${project}\\\` done`);
 }
 
 // Create sites
@@ -63,7 +63,7 @@ async function createSites() {
       }
 
       execSync(
-        `yarn create-ext-site ${site} && cd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')}/sites/${siteConfig.packageName} && node init.js`,
+        `yarn create-ext-site ${site} && cd ${monorepoWorkspaceFolder.replaceAll(' ', '\\ ')}/sites/${siteConfig.packageName} && node init.js`,
         {
           stdio: 'inherit',
         },
@@ -71,8 +71,7 @@ async function createSites() {
 
       // Commit code.
 
-      commitCodeEnabled &&
-        commitCode(rootWorkspaceFolder, `\\\`init.js\\\` in site \\\`${site}\\\` done`);
+      commitCodeEnabled && commitCode(root, `\\\`init.js\\\` in site \\\`${site}\\\` done`);
     }
   }
 }
@@ -84,7 +83,7 @@ function createFirebase() {
     // Create Firebase
 
     execSync(
-      `yarn create-ext-firebase ${projectConfig.firebase} && cd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')}/firebase && node init.js`,
+      `yarn create-ext-firebase ${projectConfig.firebase} && cd ${root.replaceAll(' ', '\\ ')}/firebase && node init.js`,
       {
         stdio: 'inherit',
       },
@@ -93,6 +92,6 @@ function createFirebase() {
     // Commit code.
 
     commitCodeEnabled &&
-      commitCode(rootWorkspaceFolder, `\\\`init.js\\\` in \\\`${projectConfig.firebase}\\\` done`);
+      commitCode(root, `\\\`init.js\\\` in \\\`${projectConfig.firebase}\\\` done`);
   }
 }

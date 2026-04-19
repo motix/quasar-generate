@@ -4,9 +4,9 @@ import { extendJsonFile } from '../json-helpers.js';
 // This method is used by `fixPrettierPluginYarnPnPUnplug`, which is waiting to be removed.
 // Patch `@trivago/prettier-plugin-sort-imports`.
 export default function patchTrivagoPrettierPluginSortImports(options) {
-    if (options.rootWorkspaceFolder !== undefined) {
-        fs.mkdirSync(`${options.rootWorkspaceFolder}/.yarn/patches`, { recursive: true });
-        fs.writeFileSync(`${options.rootWorkspaceFolder}/.yarn/patches/@trivago-prettier-plugin-sort-imports-npm-6.0.2-0000000000.patch`, `diff --git a/lib/src/preprocessors/vue-preprocessor.js b/lib/src/preprocessors/vue-preprocessor.js
+    if (options.monorepoWorkspaceFolder !== undefined) {
+        fs.mkdirSync(`${options.monorepoWorkspaceFolder}/.yarn/patches`, { recursive: true });
+        fs.writeFileSync(`${options.monorepoWorkspaceFolder}/.yarn/patches/@trivago-prettier-plugin-sort-imports-npm-6.0.2-0000000000.patch`, `diff --git a/lib/src/preprocessors/vue-preprocessor.js b/lib/src/preprocessors/vue-preprocessor.js
 index 41b5bc94b0fb8406f74a952e2b9afb01510da617..bae2dffc50c8afc4b1c856e7cd832f4d02dc7f20 100644
 --- a/lib/src/preprocessors/vue-preprocessor.js
 +++ b/lib/src/preprocessors/vue-preprocessor.js

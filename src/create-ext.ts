@@ -46,13 +46,12 @@ if (projectConfig === undefined) {
 const extensionName = `quasar-app-extension-${projectConfig.extensionId}`;
 const extensionPackageName = `@${projectConfig.organizationName}/${extensionName}`;
 
-const rootWorkspaceFolder = path.resolve(output, projectConfig.projectFolder);
-const extensionWorkspaceFolder = projectConfig.monorepo
-  ? `${rootWorkspaceFolder}/ext`
-  : rootWorkspaceFolder;
+const root = path.resolve(output, projectConfig.projectFolder);
+const monorepoWorkspaceFolder = projectConfig.monorepo ? `${root}/monorepo` : root;
+const extensionWorkspaceFolder = projectConfig.monorepo ? `${monorepoWorkspaceFolder}/ext` : root;
 const templatesWorkspaceFolder = `${extensionWorkspaceFolder}/templates`;
 const devWorkspaceFolder = `${extensionWorkspaceFolder}/dev`;
-const rootPackageJsonFilePath = path.resolve(`${rootWorkspaceFolder}/package.json`);
+const monorepoPackageJsonFilePath = path.resolve(`${monorepoWorkspaceFolder}/package.json`);
 const extensionPackageJsonFilePath = path.resolve(`${extensionWorkspaceFolder}/package.json`);
 const templatesPackageJsonFilePath = path.resolve(`${templatesWorkspaceFolder}/package.json`);
 const devPackageJsonFilePath = path.resolve(`${devWorkspaceFolder}/package.json`);
@@ -66,7 +65,7 @@ console.log(
 const f = false;
 
 // Create workspaces
-f || (projectConfig.monorepo && createRootWorkspace());
+f || (projectConfig.monorepo && createMonorepoWorkspace());
 f || (await createExtensionQuasarProject());
 f || createTemplatesWorkspace();
 f || (await createDevQuasarProject());
@@ -77,24 +76,24 @@ f || refineGitignore();
 // Fix Yarn PnP for Quasar `dev` and `build`
 f ||
   fixCompileTimeYarnPnP({
-    rootWorkspaceFolder,
+    monorepoWorkspaceFolder,
     targetWorkspaceFolder: devWorkspaceFolder,
     commitCodeMessage: commitCodeEnabled ? '' : undefined,
   });
 
 // Workspaces formatting and linting
-f || rootWorkspaceFormattingAndLinting();
+f || monorepoWorkspaceFormattingAndLinting();
 f || devWorkspaceFormattingAndLinting();
 f || templatesWorkspaceFormattingAndLinting(); // `templates` workspace copies files from `dev` workspace, so it needs to be called after `dev` workspace.
 
 // Workspaces base source code
-f || rootWorkspaceSrc();
+f || monorepoWorkspaceSrc();
 f || extensionWorkspaceSrc();
 f || templatesWorkspaceSrc();
 f || devWorkspaceSrc();
 
 // Finish workspaces
-f || finishRootWorkspace();
+f || finishMonorepoWorkspace();
 f || finishExtensionWorkspace();
 f || finishTemplatesWorkspace();
 f || finishDevWorkspace();
@@ -104,20 +103,20 @@ f || installAndLaunch();
 
 // Create workspaces
 
-function createRootWorkspace() {
-  // Create initial root workspace.
+function createMonorepoWorkspace() {
+  // Create initial `monorepo` workspace.
 
-  console.log(' \x1b[32mquasar-generate •\x1b[0m', `Creating \x1b[33mroot\x1b[0m workspace...`);
+  console.log(' \x1b[32mquasar-generate •\x1b[0m', `Creating \x1b[33mmonorepo\x1b[0m workspace...`);
 
-  if (!fs.existsSync(rootWorkspaceFolder)) {
-    fs.mkdirSync(rootWorkspaceFolder, { recursive: true });
+  if (!fs.existsSync(monorepoWorkspaceFolder)) {
+    fs.mkdirSync(monorepoWorkspaceFolder, { recursive: true });
   }
 
   fs.writeFileSync(
-    rootPackageJsonFilePath,
+    monorepoPackageJsonFilePath,
     JSON.stringify(
       {
-        name: `${projectConfig.extensionId}-root`,
+        name: `${projectConfig.extensionId}-monorepo`,
         type: 'module',
         private: true,
         engines: {
@@ -134,13 +133,13 @@ function createRootWorkspace() {
 
   // Init git.
 
-  execSync(`cd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')} && git init -q`, {
+  execSync(`cd ${root.replaceAll(' ', '\\ ')} && git init -q`, {
     stdio: 'inherit',
   });
 
   // Commit code.
 
-  commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`createRootWorkspace()\\`');
+  commitCodeEnabled && commitCode(root, '\\`createMonorepoWorkspace()\\`');
 }
 
 async function createExtensionQuasarProject() {
@@ -171,14 +170,16 @@ async function createExtensionQuasarProject() {
 
   // Commit code.
 
-  // Remove the default commit created by Quasar CLI.
-  if (!projectConfig.monorepo) {
-    execSync(`cd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')} && git update-ref -d HEAD`, {
-      stdio: 'inherit',
-    });
-  }
+  if (commitCodeEnabled) {
+    // Remove the default commit created by Quasar CLI.
+    if (!projectConfig.monorepo) {
+      execSync(`cd ${root.replaceAll(' ', '\\ ')} && git update-ref -d HEAD`, {
+        stdio: 'inherit',
+      });
+    }
 
-  commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`createExtensionQuasarProject()\\`');
+    commitCode(root, '\\`createExtensionQuasarProject()\\`');
+  }
 }
 
 function createTemplatesWorkspace() {
@@ -193,7 +194,7 @@ function createTemplatesWorkspace() {
 
   fs.writeFileSync(
     `${templatesWorkspaceFolder}/modules/index.ts`,
-    `// Dump file to prevent \`lint\` script from rasing error.
+    `// Dump file to prevent \`lint\` script from reporting errors.
 // Remove this file if any code was added.
 `,
     'utf-8',
@@ -215,7 +216,7 @@ function createTemplatesWorkspace() {
 
   // Commit code.
 
-  commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`createTemplatesWorkspace()\\`');
+  commitCodeEnabled && commitCode(root, '\\`createTemplatesWorkspace()\\`');
 }
 
 async function createDevQuasarProject() {
@@ -247,7 +248,7 @@ async function createDevQuasarProject() {
 
   // Commit code.
 
-  commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`createDevQuasarProject()\\`');
+  commitCodeEnabled && commitCode(root, '\\`createDevQuasarProject()\\`');
 }
 
 function setPackagesInfo() {
@@ -279,13 +280,13 @@ function setPackagesInfo() {
 
   // Commit code.
 
-  commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`setPackagesInfo()\\`');
+  commitCodeEnabled && commitCode(root, '\\`setPackagesInfo()\\`');
 }
 
 function prepareWorkspaces() {
   // Define workspaces.
 
-  extendJsonFile(rootPackageJsonFilePath, [
+  extendJsonFile(monorepoPackageJsonFilePath, [
     {
       path: 'workspaces',
       value: projectConfig.monorepo ? ['ext', 'ext/templates', 'ext/dev'] : ['templates', 'dev'],
@@ -303,22 +304,22 @@ function prepareWorkspaces() {
 
   // Commit code.
 
-  commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`prepareWorkspaces()\\`');
+  commitCodeEnabled && commitCode(root, '\\`prepareWorkspaces()\\`');
 }
 
 function refineGitignore() {
-  const rootDotGitignoreFilePath = path.resolve(`${rootWorkspaceFolder}/.gitignore`);
+  const monorepoDotGitignoreFilePath = path.resolve(`${monorepoWorkspaceFolder}/.gitignore`);
   const extensionDotGitignoreFilePath = path.resolve(`${extensionWorkspaceFolder}/.gitignore`);
 
-  // Move `.gitignore` from extension workspace to root workspace.
+  // Move `.gitignore` from extension workspace to root.
 
   if (projectConfig.monorepo) {
-    fs.renameSync(extensionDotGitignoreFilePath, rootDotGitignoreFilePath);
+    fs.renameSync(extensionDotGitignoreFilePath, monorepoDotGitignoreFilePath);
   }
 
-  // Ignore `.yarn` and unignore `.vscode`.
+  // Ignore local .env files, `.yarn` and unignore `.vscode`.
 
-  let dotGitignore = fs.readFileSync(rootDotGitignoreFilePath, 'utf-8');
+  let dotGitignore = fs.readFileSync(monorepoDotGitignoreFilePath, 'utf-8');
 
   dotGitignore = `${dotGitignore}
 # local .env files
@@ -334,82 +335,87 @@ function refineGitignore() {
     ? dotGitignore
     : dotGitignore.replace('.vscode', '# .vscode');
 
-  fs.writeFileSync(rootDotGitignoreFilePath, dotGitignore, 'utf-8');
+  fs.writeFileSync(monorepoDotGitignoreFilePath, dotGitignore, 'utf-8');
 
   // Commit code.
 
-  commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`refineGitignore()\\`');
+  commitCodeEnabled && commitCode(root, '\\`refineGitignore()\\`');
 }
 
 // Workspaces formatting and linting
 
-function rootWorkspaceFormattingAndLinting() {
+function monorepoWorkspaceFormattingAndLinting() {
   // Copy `.vscode`, `.editorconfig`, `.prettierrc.json` and `eslint.config.js` from `dev` workspace.
 
-  fs.cpSync(`${devWorkspaceFolder}/.vscode`, `${rootWorkspaceFolder}/.vscode`, { recursive: true });
-  fs.copyFileSync(`${devWorkspaceFolder}/.editorconfig`, `${rootWorkspaceFolder}/.editorconfig`);
+  fs.cpSync(`${devWorkspaceFolder}/.vscode`, `${monorepoWorkspaceFolder}/.vscode`, {
+    recursive: true,
+  });
+  fs.copyFileSync(
+    `${devWorkspaceFolder}/.editorconfig`,
+    `${monorepoWorkspaceFolder}/.editorconfig`,
+  );
   fs.copyFileSync(
     `${devWorkspaceFolder}/.prettierrc.json`,
-    `${rootWorkspaceFolder}/.prettierrc.json`,
+    `${monorepoWorkspaceFolder}/.prettierrc.json`,
   );
   fs.copyFileSync(
     `${devWorkspaceFolder}/eslint.config.js`,
-    `${rootWorkspaceFolder}/eslint.config.js`,
+    `${monorepoWorkspaceFolder}/eslint.config.js`,
   );
 
   // Add `.prettierignore` to ignore `.yarn` and `dist` / `lib`.
 
   fs.writeFileSync(
-    `${rootWorkspaceFolder}/.prettierignore`,
+    `${monorepoWorkspaceFolder}/.prettierignore`,
     `/.yarn
 /${projectConfig.monorepo ? 'ext/' : ''}dist${
       projectConfig.monorepo
         ? `
-/firebase/functions*/lib
 /sites/*/dist`
         : ''
     }
-.pnp.*
+/.pnp.*
 `,
     'utf-8',
   );
 
+  // `package.json` formatting scripts will also ignore `sites`.
+
   projectConfig.monorepo &&
     fs.writeFileSync(
-      `${rootWorkspaceFolder}/.prettierignore-noneExtension`,
-      `/firebase
-/sites
+      `${monorepoWorkspaceFolder}/.prettierignore-noneExtension`,
+      `/sites
 `,
       'utf-8',
     );
 
   // Add dependencies for formatting and linting.
 
-  addFormatLintDependencies(rootPackageJsonFilePath);
+  addFormatLintDependencies(monorepoPackageJsonFilePath);
 
   // Setup formatting and linting.
 
   setupFormatLint({
-    rootWorkspaceFolder,
-    targetWorkspaceFolder: rootWorkspaceFolder,
+    monorepoWorkspaceFolder,
+    targetWorkspaceFolder: monorepoWorkspaceFolder,
   });
 
   // Add supports for monorepo in `eslint.config.js`.
 
-  monorepoSupportEslintConfig(`${rootWorkspaceFolder}/eslint.config.js`);
+  monorepoSupportEslintConfig(`${monorepoWorkspaceFolder}/eslint.config.js`);
 
   // Truncate Vue and HTML specific configurations.
 
   convertEslintConfigToTsOnly(
-    `${rootWorkspaceFolder}/eslint.config.js`,
-    `'.yarn/', '${projectConfig.monorepo ? 'ext/' : ''}dev/', '${projectConfig.monorepo ? 'ext/' : ''}dist/', '${projectConfig.monorepo ? 'ext/' : ''}templates/'${projectConfig.monorepo ? ", 'firebase/', 'sites/'" : ''}, '.pnp.*'`,
+    `${monorepoWorkspaceFolder}/eslint.config.js`,
+    `'.yarn/', '${projectConfig.monorepo ? 'ext/' : ''}dev/', '${projectConfig.monorepo ? 'ext/' : ''}dist/', '${projectConfig.monorepo ? 'ext/' : ''}templates/'${projectConfig.monorepo ? ", 'sites/'" : ''}, '.pnp.*'`,
   );
 
-  // Add `lint`, `lintf`, `format` and `clean` scripts but they won't work
+  // Add `lint`, `lintf` and `format` scripts and modify `clean` script but they won't work
   // before `dev` and `templates` workspaces formatting and linting are ready.
 
-  reduceJsonFile(rootPackageJsonFilePath, ['scripts.clean']);
-  extendJsonFile(rootPackageJsonFilePath, [
+  reduceJsonFile(monorepoPackageJsonFilePath, ['scripts.clean']);
+  extendJsonFile(monorepoPackageJsonFilePath, [
     {
       path: 'scripts.lint',
       value: `eslint -c ./eslint.config.js "./${projectConfig.monorepo ? 'ext/' : ''}src/**/*.{ts,js,cjs,mjs,vue}" && cd ./${projectConfig.monorepo ? 'ext/' : ''}templates && yarn lint && cd ../dev && yarn lint`,
@@ -430,7 +436,7 @@ function rootWorkspaceFormattingAndLinting() {
 
   // Commit code.
 
-  commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`rootWorkspaceFormattingAndLinting()\\`');
+  commitCodeEnabled && commitCode(root, '\\`monorepoWorkspaceFormattingAndLinting()\\`');
 }
 
 function devWorkspaceFormattingAndLinting() {
@@ -438,7 +444,7 @@ function devWorkspaceFormattingAndLinting() {
 
   setupFormatLint({ targetWorkspaceFolder: devWorkspaceFolder });
 
-  // All formatting and some lingting tools were available in root workspace, remove them here.
+  // All formatting and some lingting tools were available in `monorepo` workspace, remove them here.
 
   fs.rmSync(`${devWorkspaceFolder}/.vscode`, { recursive: true });
   fs.rmSync(`${devWorkspaceFolder}/.editorconfig`);
@@ -459,7 +465,7 @@ function devWorkspaceFormattingAndLinting() {
 
   // Commit code.
 
-  commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`devWorkspaceFormattingAndLinting()\\`');
+  commitCodeEnabled && commitCode(root, '\\`devWorkspaceFormattingAndLinting()\\`');
 }
 
 function templatesWorkspaceFormattingAndLinting() {
@@ -494,23 +500,22 @@ function templatesWorkspaceFormattingAndLinting() {
 
   // Commit code.
 
-  commitCodeEnabled &&
-    commitCode(rootWorkspaceFolder, '\\`templatesWorkspaceFormattingAndLinting()\\`');
+  commitCodeEnabled && commitCode(root, '\\`templatesWorkspaceFormattingAndLinting()\\`');
 }
 
 // Workspaces base source code
 
-function rootWorkspaceSrc() {
+function monorepoWorkspaceSrc() {
   let dirty = false;
 
   // Apply project template.
 
-  const rootAssets = `${projectAssets}/templates/root`;
+  const monorepoAssets = `${projectAssets}/templates/monorepo`;
 
-  if (fs.existsSync(rootAssets)) {
-    fs.readdirSync(rootAssets).forEach((file) => {
+  if (fs.existsSync(monorepoAssets)) {
+    fs.readdirSync(monorepoAssets).forEach((file) => {
       dirty = true;
-      fs.cpSync(path.join(rootAssets, file), path.join(rootWorkspaceFolder, file), {
+      fs.cpSync(path.join(monorepoAssets, file), path.join(monorepoWorkspaceFolder, file), {
         recursive: true,
         force: true,
       });
@@ -519,7 +524,7 @@ function rootWorkspaceSrc() {
 
   // Commit code.
 
-  commitCodeEnabled && dirty && commitCode(rootWorkspaceFolder, '\\`rootWorkspaceSrc()\\`');
+  commitCodeEnabled && dirty && commitCode(root, '\\`monorepoWorkspaceSrc()\\`');
 }
 
 function extensionWorkspaceSrc() {
@@ -577,7 +582,7 @@ function extensionWorkspaceSrc() {
   // Patch `@quasar/app-vite`.
 
   patchQuasarAppVite({
-    rootWorkspaceFolder,
+    monorepoWorkspaceFolder,
     targetPackageJsonFilePath: extensionPackageJsonFilePath,
   });
 
@@ -596,7 +601,7 @@ function extensionWorkspaceSrc() {
 
   // Commit code.
 
-  commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`extensionWorkspaceSrc()\\`');
+  commitCodeEnabled && commitCode(root, '\\`extensionWorkspaceSrc()\\`');
 }
 
 function templatesWorkspaceSrc() {
@@ -624,7 +629,7 @@ function templatesWorkspaceSrc() {
 
   // Commit code.
 
-  commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`templatesWorkspaceSrc()\\`');
+  commitCodeEnabled && commitCode(root, '\\`templatesWorkspaceSrc()\\`');
 }
 
 function devWorkspaceSrc() {
@@ -687,16 +692,16 @@ function devWorkspaceSrc() {
 
   // Commit code.
 
-  commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`devWorkspaceSrc()\\`');
+  commitCodeEnabled && commitCode(root, '\\`devWorkspaceSrc()\\`');
 }
 
 // Finish workspaces
 
-function finishRootWorkspace() {
+function finishMonorepoWorkspace() {
   // Exclude `.yarn`, `dist` from search and `node_modules`, `.git` from compare.
 
-  const extensionsJsonFilePath = path.resolve(`${rootWorkspaceFolder}/.vscode/extensions.json`);
-  const settingsJsonFilePath = path.resolve(`${rootWorkspaceFolder}/.vscode/settings.json`);
+  const extensionsJsonFilePath = path.resolve(`${monorepoWorkspaceFolder}/.vscode/extensions.json`);
+  const settingsJsonFilePath = path.resolve(`${monorepoWorkspaceFolder}/.vscode/settings.json`);
 
   extendJsonFile(extensionsJsonFilePath, [
     { path: 'recommendations[]', value: 'moshfeu.compare-folders' },
@@ -714,7 +719,7 @@ function finishRootWorkspace() {
 
   // Add build scripts.
 
-  extendJsonFile(rootPackageJsonFilePath, [
+  extendJsonFile(monorepoPackageJsonFilePath, [
     {
       path: 'scripts.build',
       value: `${projectConfig.monorepo ? 'cd ./ext && ' : ''}yarn tsc && cd ./templates && yarn tsc && cd ../dev && yarn tsc`,
@@ -731,16 +736,16 @@ function finishRootWorkspace() {
 
   // Reorder `package.json`.
 
-  reorderJsonFile(rootPackageJsonFilePath);
+  reorderJsonFile(monorepoPackageJsonFilePath);
 
   // Commit code.
 
-  commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`finishRootWorkspace()\\`');
+  commitCodeEnabled && commitCode(root, '\\`finishMonorepoWorkspace()\\`');
 }
 
 function finishExtensionWorkspace() {
   if (projectConfig.monorepo) {
-    // Add `typescript`
+    // Add `typescript`.
 
     extendJsonFile(extensionPackageJsonFilePath, [
       { path: 'devDependencies.typescript', value: packagesVersion['typescript'] },
@@ -752,7 +757,7 @@ function finishExtensionWorkspace() {
 
     // Commit code.
 
-    commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`finishExtensionWorkspace()\\`');
+    commitCodeEnabled && commitCode(root, '\\`finishExtensionWorkspace()\\`');
   }
 }
 
@@ -786,7 +791,7 @@ function finishTemplatesWorkspace() {
 
   // Commit code.
 
-  commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`finishTemplatesWorkspace()\\`');
+  commitCodeEnabled && commitCode(root, '\\`finishTemplatesWorkspace()\\`');
 }
 
 function finishDevWorkspace() {
@@ -809,7 +814,7 @@ function finishDevWorkspace() {
 
   // Commit code.
 
-  commitCodeEnabled && commitCode(rootWorkspaceFolder, '\\`finishDevWorkspace()\\`');
+  commitCodeEnabled && commitCode(root, '\\`finishDevWorkspace()\\`');
 }
 
 // Install and launch
@@ -824,14 +829,14 @@ function installAndLaunch() {
 
   if (runYarn) {
     execSync(
-      `cd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn buildPaths && yarn build && yarn clean && cd ./${projectConfig.monorepo ? 'ext/' : ''}dev ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${projectConfig.extensionId} && yarn dev`,
+      `cd ${monorepoWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn buildPaths && yarn build && yarn clean && cd ./${projectConfig.monorepo ? 'ext/' : ''}dev ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${projectConfig.extensionId} && yarn dev`,
       {
         stdio: 'inherit',
       },
     );
   } else {
     console.log(
-      `                   Run \x1b[47mcd ${rootWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn buildPaths && yarn build && yarn clean && cd ./${projectConfig.monorepo ? 'ext/' : ''}dev ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${projectConfig.extensionId} && yarn dev\x1b[0m manually.`,
+      `                   Run \x1b[47mcd ${monorepoWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn buildPaths && yarn build && yarn clean && cd ./${projectConfig.monorepo ? 'ext/' : ''}dev ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${projectConfig.extensionId} && yarn dev\x1b[0m manually.`,
     );
   }
 
@@ -843,7 +848,7 @@ function installAndLaunch() {
       `Launching \x1b[47m${projectConfig.extensionId}\x1b[0m in Visual Studio Code...`,
     );
 
-    execSync(`code ${rootWorkspaceFolder}.replaceAll(' ', '\\ ')`, {
+    execSync(`code ${monorepoWorkspaceFolder}.replaceAll(' ', '\\ ')`, {
       stdio: 'inherit',
     });
   }

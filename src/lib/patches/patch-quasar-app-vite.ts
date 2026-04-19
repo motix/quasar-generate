@@ -5,14 +5,14 @@ import { extendJsonFile } from '../json-helpers.js';
 // Patch `@quasar/app-vite` to gain access to `@quasar/app-vite/lib/app-extension/api-classes/InstallAPI.js`
 // and `@quasar/app-vite/lib/utils/get-caller-path.js`.
 export default function patchQuasarAppVite(options: {
-  rootWorkspaceFolder?: string | undefined;
+  monorepoWorkspaceFolder?: string | undefined;
   targetPackageJsonFilePath?: string | undefined;
 }) {
-  if (options.rootWorkspaceFolder !== undefined) {
-    fs.mkdirSync(`${options.rootWorkspaceFolder}/.yarn/patches`, { recursive: true });
+  if (options.monorepoWorkspaceFolder !== undefined) {
+    fs.mkdirSync(`${options.monorepoWorkspaceFolder}/.yarn/patches`, { recursive: true });
 
     fs.writeFileSync(
-      `${options.rootWorkspaceFolder}/.yarn/patches/@quasar-app-vite-npm-2.5.4-0000000000.patch`,
+      `${options.monorepoWorkspaceFolder}/.yarn/patches/@quasar-app-vite-npm-2.5.4-0000000000.patch`,
       `diff --git a/package.json b/package.json
 index 2e7ae61add3684688a04c2dae79405a058ee5862..c469c605365d5eeaa8e9011351ea5efdd4a54243 100644
 --- a/package.json

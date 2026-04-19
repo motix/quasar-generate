@@ -5,10 +5,9 @@ import { pathToFileURL } from 'url';
 import { repeat } from 'lodash-es';
 import { ACCEPT_DEFAULT, cliGhostwriter, DOWN_KEY, WHITESPACE_KEY, } from '@dreamonkey/cli-ghostwriter';
 import commitCode from './lib/commit-code.js';
-import { convertEslintConfigToTsOnly } from './lib/eslint-helpers.js';
-import { addFormatLintDependencies } from './lib/format-lint-helpers.js';
+import { addFormatLintDependencies, setupFormatLint } from './lib/format-lint-helpers.js';
 import getExtensionInfo from './lib/get-extension-info.js';
-import { extendJsonFile, reorderJsonFile } from './lib/json-helpers.js';
+import { extendJsonFile, reduceJsonFile, reorderJsonFile } from './lib/json-helpers.js';
 import packagesVersion from './lib/packages-version.js';
 import { assets, autoLaunch, commitCodeEnabled, output, projects, runYarn, } from './lib/qg-config.js';
 const globalAssets = path.resolve(assets, 'Firebase Template');
@@ -23,12 +22,11 @@ const projectConfig = (await import(pathToFileURL(projectConfigFilePath).href))
 if (projectConfig === undefined) {
     throw new Error('Please provide a valid `project.js`');
 }
-const rootWorkspaceFolder = path.resolve(output, projectConfig.projectFolder);
-const extensionWorkspaceFolder = `${rootWorkspaceFolder}/ext`;
-const devWorkspaceFolder = `${extensionWorkspaceFolder}/dev`;
-const firebaseWorkspaceFolder = `${rootWorkspaceFolder}/firebase`;
+const root = path.resolve(output, projectConfig.projectFolder);
+const monorepoWorkspaceFolder = `${root}/monorepo`;
+const extensionWorkspaceFolder = `${monorepoWorkspaceFolder}/ext`;
+const firebaseWorkspaceFolder = `${root}/firebase`;
 const functionsWorkspaceFolder = `${firebaseWorkspaceFolder}/functions`;
-const rootPackageJsonFilePath = path.resolve(`${rootWorkspaceFolder}/package.json`);
 const extensionPackageJsonFilePath = path.resolve(`${extensionWorkspaceFolder}/package.json`);
 const firebasePackageJsonFilePath = path.resolve(`${firebaseWorkspaceFolder}/package.json`);
 const functionsPackageJsonFilePath = path.resolve(`${functionsWorkspaceFolder}/package.json`);
@@ -39,6 +37,7 @@ const f = false;
 // Create workspaces
 f || (await createFirebaseWorkspace());
 f || prepareWorkspaces();
+f || refineGitignore();
 // Workspaces formatting and linting
 f || firebaseFormattingAndLinting();
 f || functionsFormattingAndLinting();
@@ -90,39 +89,76 @@ async function createFirebaseWorkspace() {
     }, null, 2), 'utf-8');
     // Commit code.
     commitCodeEnabled &&
-        commitCode(rootWorkspaceFolder, `\\\`createFirebaseWorkspace()\\\` for \\\`${projectConfig.packageName}\\\``);
+        commitCode(root, `\\\`createFirebaseWorkspace()\\\` for \\\`${projectConfig.packageName}\\\``);
 }
 function prepareWorkspaces() {
     // Define workspaces.
-    extendJsonFile(rootPackageJsonFilePath, [
+    extendJsonFile(firebasePackageJsonFilePath, [
         {
-            path: 'workspaces[]',
-            value: 'firebase',
+            path: 'workspaces',
+            value: ['functions*'],
         },
     ]);
-    extendJsonFile(rootPackageJsonFilePath, [
-        {
-            path: 'workspaces[]',
-            value: 'firebase/functions*',
-        },
-    ]);
+    // Use node-modules linker and hoisting to support Firebase CLI.
+    fs.writeFileSync(`${firebaseWorkspaceFolder}/.yarnrc.yml`, `nodeLinker: node-modules
+nmHoistingLimits: workspaces
+`, 'utf-8');
     // Commit code.
     commitCodeEnabled &&
-        commitCode(rootWorkspaceFolder, `\\\`prepareWorkspaces()\\\` for \\\`${projectConfig.packageName}\\\``);
+        commitCode(root, `\\\`prepareWorkspaces()\\\` for \\\`${projectConfig.packageName}\\\``);
+}
+function refineGitignore() {
+    // Ignore local .env files, `.yarn` and `emulators-data`.
+    let dotGitignore = fs.readFileSync(`${firebaseWorkspaceFolder}/.gitignore`, 'utf-8');
+    dotGitignore = `${dotGitignore}
+# local .env files
+.env.local*
+
+# Yarn PnP
+.yarn/cache/
+.yarn/sdks/
+.yarn/unplugged/
+.yarn/install-state.gz
+`;
+    dotGitignore = `${dotGitignore}
+# Emulators data
+emulators-data/
+`;
+    fs.writeFileSync(`${firebaseWorkspaceFolder}/.gitignore`, dotGitignore, 'utf-8');
+    // Commit code.
+    commitCodeEnabled &&
+        commitCode(root, `\\\`refineGitignore()\\\` for \\\`${projectConfig.packageName}\\\``);
 }
 // Workspaces formatting and linting
 function firebaseFormattingAndLinting() {
-    // Copy `eslint.config.js` from `dev` workspace.
-    fs.copyFileSync(`${devWorkspaceFolder}/eslint.config.js`, `${firebaseWorkspaceFolder}/eslint.config.js`);
-    // Truncate Vue and HTML specific configurations.
-    convertEslintConfigToTsOnly(`${firebaseWorkspaceFolder}/eslint.config.js`, "'functions*/'");
-    // Add `.prettierignore` to ignore `functions` and other codebase `lib`.
+    // Copy `.vscode`, `.editorconfig`, `.prettierrc.json` and `eslint.config.js` from `monorepo` workspace.
+    fs.cpSync(`${monorepoWorkspaceFolder}/.vscode`, `${firebaseWorkspaceFolder}/.vscode`, {
+        recursive: true,
+    });
+    fs.copyFileSync(`${monorepoWorkspaceFolder}/.editorconfig`, `${firebaseWorkspaceFolder}/.editorconfig`);
+    fs.copyFileSync(`${monorepoWorkspaceFolder}/.prettierrc.json`, `${firebaseWorkspaceFolder}/.prettierrc.json`);
+    fs.copyFileSync(`${monorepoWorkspaceFolder}/eslint.config.js`, `${firebaseWorkspaceFolder}/eslint.config.js`);
+    // Add `.prettierignore` to ignore `functions` and other codebase `lib`
+    // as well as Firebase generated files.
     fs.writeFileSync(`${firebaseWorkspaceFolder}/.prettierignore`, `/functions*/lib/
 /firestore.*
 `, 'utf-8');
     // Add dependencies for formatting and linting.
     addFormatLintDependencies(firebasePackageJsonFilePath);
-    // Add `lint`, `format` and `clean` scripts.
+    // Setup formatting and linting.
+    // This work has been done once on `monorepo` workspace and partially coppied here.
+    // Everything can be reapplied the setup except `eslint.config.js`, copy it from `monorepo` workspace again.
+    setupFormatLint({
+        monorepoWorkspaceFolder: firebaseWorkspaceFolder,
+        targetWorkspaceFolder: firebaseWorkspaceFolder,
+    });
+    fs.copyFileSync(`${monorepoWorkspaceFolder}/eslint.config.js`, `${firebaseWorkspaceFolder}/eslint.config.js`);
+    // Modify ESLint ignore patterns.
+    let eslintConfigJs = fs.readFileSync(`${firebaseWorkspaceFolder}/eslint.config.js`, 'utf-8');
+    eslintConfigJs = eslintConfigJs.replace(/ignores:\s*\[[\s\S]*?\]/, "ignores: ['functions*/']");
+    fs.writeFileSync(`${firebaseWorkspaceFolder}/eslint.config.js`, eslintConfigJs, 'utf-8');
+    // Add `lint` and `format` scripts and readd `clean` script.
+    reduceJsonFile(firebasePackageJsonFilePath, ['scripts.clean']);
     extendJsonFile(firebasePackageJsonFilePath, [
         {
             path: 'scripts.lint',
@@ -139,11 +175,15 @@ function firebaseFormattingAndLinting() {
     ]);
     // Commit code.
     commitCodeEnabled &&
-        commitCode(rootWorkspaceFolder, `\\\`firebaseFormattingAndLinting()\\\` for \\\`${projectConfig.packageName}\\\``);
+        commitCode(root, `\\\`firebaseFormattingAndLinting()\\\` for \\\`${projectConfig.packageName}\\\``);
 }
 function functionsFormattingAndLinting() {
-    // Copy `eslint.config.js` from `firebase` workspace.
-    fs.copyFileSync(`${firebaseWorkspaceFolder}/eslint.config.js`, `${functionsWorkspaceFolder}/eslint.config.js`);
+    // Copy `eslint.config.js` from `monorepo` workspace.
+    fs.copyFileSync(`${monorepoWorkspaceFolder}/eslint.config.js`, `${functionsWorkspaceFolder}/eslint.config.js`);
+    // Modify ESLint ignore patterns.
+    let eslintConfigJs = fs.readFileSync(`${functionsWorkspaceFolder}/eslint.config.js`, 'utf-8');
+    eslintConfigJs = eslintConfigJs.replace(/ignores:\s*\[[\s\S]*?\]/, '// ignores: []');
+    fs.writeFileSync(`${functionsWorkspaceFolder}/eslint.config.js`, eslintConfigJs, 'utf-8');
     // Add dependencies for formatting and linting.
     addFormatLintDependencies(functionsPackageJsonFilePath);
     // Add `lint`, `format` and `clean` scripts.
@@ -170,7 +210,7 @@ function functionsFormattingAndLinting() {
     ]);
     // Commit code.
     commitCodeEnabled &&
-        commitCode(rootWorkspaceFolder, `\\\`functionsFormattingAndLinting()\\\` for \\\`${projectConfig.packageName}\\\``);
+        commitCode(root, `\\\`functionsFormattingAndLinting()\\\` for \\\`${projectConfig.packageName}\\\``);
 }
 // Workspaces base source code
 function firebaseWorkspaceSrc() {
@@ -179,8 +219,6 @@ function firebaseWorkspaceSrc() {
     let rebuildFunctionsJs = fs.readFileSync(`${firebaseWorkspaceFolder}/rebuildFunctions.js`, 'utf-8');
     rebuildFunctionsJs = rebuildFunctionsJs.replace('__PACKAGE_NAME__', projectConfig.packageName);
     fs.writeFileSync(`${firebaseWorkspaceFolder}/rebuildFunctions.js`, rebuildFunctionsJs, 'utf-8');
-    // Prepare settings and instructions to run functions in Firebase emulator.
-    prepareFirebaseFunctionsEmulator();
     // Apply project template.
     const firebaseAssets = `${projectAssets}/templates/firebase`;
     if (fs.existsSync(firebaseAssets)) {
@@ -193,7 +231,7 @@ function firebaseWorkspaceSrc() {
     }
     // Commit code.
     commitCodeEnabled &&
-        commitCode(rootWorkspaceFolder, `\\\`firebaseWorkspaceSrc()\\\` for \\\`${projectConfig.packageName}\\\``);
+        commitCode(root, `\\\`firebaseWorkspaceSrc()\\\` for \\\`${projectConfig.packageName}\\\``);
 }
 function functionsWorkspaceSrc() {
     // Enable `module` type.
@@ -260,17 +298,10 @@ function functionsWorkspaceSrc() {
     fs.copyFileSync(`${globalAssets}/functions/refUpdate.js`, `${functionsWorkspaceFolder}/refUpdate.js`);
     // Commit code.
     commitCodeEnabled &&
-        commitCode(rootWorkspaceFolder, `\\\`functionsWorkspaceSrc()\\\` for \\\`${projectConfig.packageName}\\\``);
+        commitCode(root, `\\\`functionsWorkspaceSrc()\\\` for \\\`${projectConfig.packageName}\\\``);
 }
 // Finish workspaces
 function finishFirebaseWorkspace() {
-    // Ignore `emulators-data`.
-    let gitignore = fs.readFileSync(`${firebaseWorkspaceFolder}/.gitignore`, 'utf-8');
-    gitignore = `${gitignore}
-# Emulators data
-emulators-data/
-`;
-    fs.writeFileSync(`${firebaseWorkspaceFolder}/.gitignore`, gitignore, 'utf-8');
     // Add build, `serve` and `indexes` scripts.
     extendJsonFile(firebasePackageJsonFilePath, [
         {
@@ -290,7 +321,7 @@ emulators-data/
     reorderJsonFile(firebasePackageJsonFilePath);
     // Commit code.
     commitCodeEnabled &&
-        commitCode(rootWorkspaceFolder, `\\\`finishFirebaseWorkspace()\\\` for \\\`${projectConfig.packageName}\\\``);
+        commitCode(root, `\\\`finishFirebaseWorkspace()\\\` for \\\`${projectConfig.packageName}\\\``);
 }
 function finishFunctionsWorkspace() {
     // Set `main` to match `compilerOptions.rootDir`.
@@ -330,7 +361,7 @@ function finishFunctionsWorkspace() {
     reorderJsonFile(functionsPackageJsonFilePath);
     // Commit code.
     commitCodeEnabled &&
-        commitCode(rootWorkspaceFolder, `\\\`finishFunctionsWorkspace()\\\` for \\\`${projectConfig.packageName}\\\``);
+        commitCode(root, `\\\`finishFunctionsWorkspace()\\\` for \\\`${projectConfig.packageName}\\\``);
 }
 function createFunctionsCodebases() {
     for (const codebase of projectConfig.functionsCodebases) {
@@ -378,7 +409,7 @@ function createFunctionsCodebases() {
     // Commit code.
     commitCodeEnabled &&
         projectConfig.functionsCodebases.length > 0 &&
-        commitCode(rootWorkspaceFolder, `\\\`createFunctionsCodebases()\\\` for \\\`${projectConfig.packageName}\\\``);
+        commitCode(root, `\\\`createFunctionsCodebases()\\\` for \\\`${projectConfig.packageName}\\\``);
 }
 function applyFunctionsProjectTemplate() {
     let dirty = false;
@@ -410,7 +441,7 @@ function applyFunctionsProjectTemplate() {
     // Commit code.
     commitCodeEnabled &&
         dirty &&
-        commitCode(rootWorkspaceFolder, `\\\`applyFunctionsProjectTemplate()\\\` for \\\`${projectConfig.packageName}\\\``);
+        commitCode(root, `\\\`applyFunctionsProjectTemplate()\\\` for \\\`${projectConfig.packageName}\\\``);
 }
 // Install and launch
 function installAndLaunch() {
@@ -427,28 +458,8 @@ function installAndLaunch() {
     // Auto launch
     if (autoLaunch) {
         console.log(' \x1b[32mquasar-generate •\x1b[0m', `Launching \x1b[47m${extensionId}\x1b[0m in Visual Studio Code...`);
-        execSync(`code ${rootWorkspaceFolder}.replaceAll(' ', '\\ ')`, {
+        execSync(`code ${firebaseWorkspaceFolder}.replaceAll(' ', '\\ ')`, {
             stdio: 'inherit',
         });
     }
-}
-// Internal
-function prepareFirebaseFunctionsEmulator() {
-    extendJsonFile(firebasePackageJsonFilePath, [
-        {
-            path: 'workspaces',
-            value: ['functions*'],
-        },
-    ]);
-    fs.writeFileSync(`${firebaseWorkspaceFolder}/.yarnrc.yml`, `# nodeLinker: node-modules
-# nmHoistingLimits: workspaces
-`, 'utf-8');
-    fs.mkdirSync(`${firebaseWorkspaceFolder}/doc`, { recursive: true });
-    fs.writeFileSync(`${firebaseWorkspaceFolder}/doc/Notes.md`, `To run Firebase functions locally via Firebase emulators:
-
-1. Copy the whole folder to a different folder out of the root workspace.
-2. Uncomment all lines in \`.yarnrc.yml\`.
-3. Modify \`refRoot\` variable in \`functions/refTools.ts\`.
-4. Run \`yarn && yarn rebuildFunctions && yarn serve\`.
-`, 'utf-8');
 }

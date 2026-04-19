@@ -2,9 +2,9 @@ import fs from 'fs';
 import { extendJsonFile } from '../json-helpers.js';
 // Patch `vite-plugin-checker` to solve the error `TypeError: FlatESLint is not a constructor` of ESLint 10.
 export default function patchVitePluginChecker(options) {
-    if (options.rootWorkspaceFolder != undefined) {
-        fs.mkdirSync(`${options.rootWorkspaceFolder}/.yarn/patches`, { recursive: true });
-        fs.writeFileSync(`${options.rootWorkspaceFolder}/.yarn/patches/vite-plugin-checker-npm-0.12.0-0000000000.patch`, `diff --git a/dist/checkers/eslint/main.js b/dist/checkers/eslint/main.js
+    if (options.monorepoWorkspaceFolder != undefined) {
+        fs.mkdirSync(`${options.monorepoWorkspaceFolder}/.yarn/patches`, { recursive: true });
+        fs.writeFileSync(`${options.monorepoWorkspaceFolder}/.yarn/patches/vite-plugin-checker-npm-0.12.0-0000000000.patch`, `diff --git a/dist/checkers/eslint/main.js b/dist/checkers/eslint/main.js
 index 27a775515049aa60f23c2778632b86d2db6d3513..28dbef5303639bea2d53e5cc8727deced3cb47ba 100644
 --- a/dist/checkers/eslint/main.js
 +++ b/dist/checkers/eslint/main.js
