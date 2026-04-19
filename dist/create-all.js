@@ -17,8 +17,8 @@ const root = path.resolve(output, projectConfig.projectFolder);
 const monorepoWorkspaceFolder = projectConfig.monorepo ? `${root}/monorepo` : root;
 // Turning on/off features
 const f = false;
-f && createExtension();
-f && (await createSites());
+f || createExtension();
+f || (await createSites());
 f || createFirebase();
 // Create extension
 function createExtension() {

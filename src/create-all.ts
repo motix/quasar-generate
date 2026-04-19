@@ -26,8 +26,8 @@ const monorepoWorkspaceFolder = projectConfig.monorepo ? `${root}/monorepo` : ro
 // Turning on/off features
 const f = false;
 
-f && createExtension();
-f && (await createSites());
+f || createExtension();
+f || (await createSites());
 f || createFirebase();
 
 // Create extension
