@@ -14,7 +14,14 @@ if (projectConfig === undefined) {
     throw new Error('Please provide a valid `project.js`');
 }
 const root = path.resolve(output, projectConfig.projectFolder);
-const monorepoWorkspaceFolder = projectConfig.monorepo ? `${root}/monorepo` : root;
+const normalizedFolderName = path
+    .basename(projectConfig.projectFolder)
+    .toLowerCase()
+    .replaceAll(' ', '-');
+const monorepoWorkspaceFolder = projectConfig.monorepo
+    ? `${root}/${normalizedFolderName}-monorepo`
+    : root;
+const firebaseWorkspaceFolder = `${root}/${normalizedFolderName}-firebase`;
 // Turning on/off features
 const f = false;
 f || createExtension();
@@ -52,7 +59,7 @@ async function createSites() {
 function createFirebase() {
     if (projectConfig.firebase) {
         // Create Firebase
-        execSync(`yarn create-ext-firebase ${projectConfig.firebase} && cd ${root.replaceAll(' ', '\\ ')}/firebase && node init.js`, {
+        execSync(`yarn create-ext-firebase ${projectConfig.firebase} && cd ${firebaseWorkspaceFolder.replaceAll(' ', '\\ ')} && node init.js`, {
             stdio: 'inherit',
         });
         // Commit code.

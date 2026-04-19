@@ -26,7 +26,13 @@ if (projectConfig === undefined) {
 const extensionName = `quasar-app-extension-${projectConfig.extensionId}`;
 const extensionPackageName = `@${projectConfig.organizationName}/${extensionName}`;
 const root = path.resolve(output, projectConfig.projectFolder);
-const monorepoWorkspaceFolder = projectConfig.monorepo ? `${root}/monorepo` : root;
+const normalizedFolderName = path
+    .basename(projectConfig.projectFolder)
+    .toLowerCase()
+    .replaceAll(' ', '-');
+const monorepoWorkspaceFolder = projectConfig.monorepo
+    ? `${root}/${normalizedFolderName}-monorepo`
+    : root;
 const extensionWorkspaceFolder = projectConfig.monorepo ? `${monorepoWorkspaceFolder}/ext` : root;
 const templatesWorkspaceFolder = `${extensionWorkspaceFolder}/templates`;
 const devWorkspaceFolder = `${extensionWorkspaceFolder}/dev`;

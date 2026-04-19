@@ -23,9 +23,13 @@ if (projectConfig === undefined) {
     throw new Error('Please provide a valid `project.js`');
 }
 const root = path.resolve(output, projectConfig.projectFolder);
-const monorepoWorkspaceFolder = `${root}/monorepo`;
+const normalizedFolderName = path
+    .basename(projectConfig.projectFolder)
+    .toLowerCase()
+    .replaceAll(' ', '-');
+const monorepoWorkspaceFolder = `${root}/${normalizedFolderName}-monorepo`;
 const extensionWorkspaceFolder = `${monorepoWorkspaceFolder}/ext`;
-const firebaseWorkspaceFolder = `${root}/firebase`;
+const firebaseWorkspaceFolder = `${root}/${normalizedFolderName}-firebase`;
 const functionsWorkspaceFolder = `${firebaseWorkspaceFolder}/functions`;
 const extensionPackageJsonFilePath = path.resolve(`${extensionWorkspaceFolder}/package.json`);
 const firebasePackageJsonFilePath = path.resolve(`${firebaseWorkspaceFolder}/package.json`);
@@ -314,6 +318,9 @@ function functionsWorkspaceSrc() {
     // Add `refTools` and `refUpdate` from global `assets`.
     fs.copyFileSync(`${globalAssets}/functions/refTools.js`, `${functionsWorkspaceFolder}/refTools.js`);
     fs.copyFileSync(`${globalAssets}/functions/refUpdate.js`, `${functionsWorkspaceFolder}/refUpdate.js`);
+    let refToolsJs = fs.readFileSync(`${functionsWorkspaceFolder}/refTools.js`, 'utf-8');
+    refToolsJs = refToolsJs.replace('__MONOREPO__', `${normalizedFolderName}-monorepo`);
+    fs.writeFileSync(`${functionsWorkspaceFolder}/refTools.js`, refToolsJs, 'utf-8');
     // Commit code.
     commitCodeEnabled &&
         commitCode(root, `\\\`functionsWorkspaceSrc()\\\` for \\\`${projectConfig.packageName}\\\``);

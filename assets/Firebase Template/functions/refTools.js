@@ -1,7 +1,7 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
 
-export const refRoot = '../../monorepo/sites';
+export const refRoot = '../../__MONOREPO__/sites';
 
 export const alias = {
   // firebase/firestore

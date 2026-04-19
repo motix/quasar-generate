@@ -36,7 +36,11 @@ if (projectConfig === undefined) {
 }
 
 const root = path.resolve(output, projectConfig.projectFolder);
-const monorepoWorkspaceFolder = `${root}/monorepo`;
+const normalizedFolderName = path
+  .basename(projectConfig.projectFolder)
+  .toLowerCase()
+  .replaceAll(' ', '-');
+const monorepoWorkspaceFolder = `${root}/${normalizedFolderName}-monorepo`;
 const extensionWorkspaceFolder = `${monorepoWorkspaceFolder}/ext`;
 const siteWorkspaceFolder = `${monorepoWorkspaceFolder}/sites/${projectConfig.packageName}`;
 const monorepoPackageJsonFilePath = path.resolve(`${monorepoWorkspaceFolder}/package.json`);

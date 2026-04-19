@@ -21,7 +21,14 @@ if (projectConfig === undefined) {
 }
 
 const root = path.resolve(output, projectConfig.projectFolder);
-const monorepoWorkspaceFolder = projectConfig.monorepo ? `${root}/monorepo` : root;
+const normalizedFolderName = path
+  .basename(projectConfig.projectFolder)
+  .toLowerCase()
+  .replaceAll(' ', '-');
+const monorepoWorkspaceFolder = projectConfig.monorepo
+  ? `${root}/${normalizedFolderName}-monorepo`
+  : root;
+const firebaseWorkspaceFolder = `${root}/${normalizedFolderName}-firebase`;
 
 // Turning on/off features
 const f = false;
@@ -83,7 +90,7 @@ function createFirebase() {
     // Create Firebase
 
     execSync(
-      `yarn create-ext-firebase ${projectConfig.firebase} && cd ${root.replaceAll(' ', '\\ ')}/firebase && node init.js`,
+      `yarn create-ext-firebase ${projectConfig.firebase} && cd ${firebaseWorkspaceFolder.replaceAll(' ', '\\ ')} && node init.js`,
       {
         stdio: 'inherit',
       },
