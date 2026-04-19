@@ -3,6 +3,7 @@ export interface QGConfig {
   projects: string;
   output: string;
   commitCodeEnabled: boolean;
+  sortImportsEnabled: boolean;
   runYarn: boolean;
   autoLaunch: boolean;
 }

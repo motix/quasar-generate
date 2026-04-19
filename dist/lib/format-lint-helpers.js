@@ -2,10 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { extendJsonFile, reduceJsonFileArray } from './json-helpers.js';
 import packagesVersion from './packages-version.js';
+import { sortImportsEnabled } from './qg-config.js';
 const globalAssets = './assets';
-// TODO: Move to config
-// Turning on/off features
-const sortImportsEnabled = true;
 export function addFormatLintDependencies(packageJsonFilePath, quasar) {
     const packages = [
         'eslint',
