@@ -165,7 +165,7 @@ function prepareWorkspaces() {
 function formattingAndLinting() {
   // Setup formatting and linting.
 
-  setupFormatLint({ targetWorkspaceFolder: siteWorkspaceFolder });
+  setupFormatLint({ targetWorkspaceFolder: siteWorkspaceFolder, yarnPnp: true });
 
   // All formatting and some lingting tools were available in `monorepo` workspace, remove them here.
 

@@ -15,7 +15,12 @@ import {
 import commitCode from './lib/commit-code.js';
 import { addFormatLintDependencies, setupFormatLint } from './lib/format-lint-helpers.js';
 import getExtensionInfo from './lib/get-extension-info.js';
-import { extendJsonFile, reduceJsonFile, reorderJsonFile } from './lib/json-helpers.js';
+import {
+  extendJsonFile,
+  reduceJsonFile,
+  reduceJsonFileArray,
+  reorderJsonFile,
+} from './lib/json-helpers.js';
 import packagesVersion from './lib/packages-version.js';
 import {
   assets,
@@ -179,10 +184,7 @@ function refineGitignore() {
 # local .env files
 .env.local*
 
-# Yarn PnP
-.yarn/cache/
-.yarn/sdks/
-.yarn/unplugged/
+# Yarn
 .yarn/install-state.gz
 `;
 
@@ -220,6 +222,29 @@ function firebaseFormattingAndLinting() {
     `${firebaseWorkspaceFolder}/eslint.config.js`,
   );
 
+  // Remove Yarn PnP specific settings.
+
+  // Yarn editor SDKs
+  reduceJsonFile(`${firebaseWorkspaceFolder}/.vscode/settings.json`, [
+    'eslint.nodePath',
+    'prettier.prettierPath',
+    'typescript.enablePromptUseWorkspaceTsdk',
+  ]);
+  extendJsonFile(`${firebaseWorkspaceFolder}/.vscode/settings.json`, [
+    {
+      path: 'typescript.tsdk',
+      value: 'node_modules/typescript/lib',
+    },
+  ]);
+
+  // Prettier plugin bundle
+  reduceJsonFileArray(`${firebaseWorkspaceFolder}/.prettierrc.json`, [
+    {
+      path: 'plugins',
+      value: './scripts/prettier-plugin-sort-imports-bundle.js',
+    },
+  ]);
+
   // Add `.prettierignore` to ignore `functions` and other codebase `lib`
   // as well as Firebase generated files.
 
@@ -242,6 +267,7 @@ function firebaseFormattingAndLinting() {
   setupFormatLint({
     monorepoWorkspaceFolder: firebaseWorkspaceFolder,
     targetWorkspaceFolder: firebaseWorkspaceFolder,
+    yarnPnp: false,
   });
 
   fs.copyFileSync(

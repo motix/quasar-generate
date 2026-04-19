@@ -29,7 +29,7 @@ export function addFormatLintDependencies(packageJsonFilePath, quasar) {
     })));
 }
 export function setupFormatLint(options) {
-    const { monorepoWorkspaceFolder, targetWorkspaceFolder } = options;
+    const { monorepoWorkspaceFolder, targetWorkspaceFolder, yarnPnp } = options;
     const extensionsJsonFilePath = monorepoWorkspaceFolder === undefined
         ? undefined
         : path.resolve(`${monorepoWorkspaceFolder}/.vscode/extensions.json`);
@@ -110,7 +110,8 @@ export function setupFormatLint(options) {
                 { path: 'importOrderCaseInsensitive', value: true },
             ]);
             // Fix Prettier plugin Yarn PnP
-            fixPrettierPluginYarnPnP(monorepoWorkspaceFolder, monorepoPackageJsonFilePath, dotPrettierrcJsonFilePath);
+            yarnPnp &&
+                fixPrettierPluginYarnPnP(monorepoWorkspaceFolder, monorepoPackageJsonFilePath, dotPrettierrcJsonFilePath);
         }
     }
     // Modify `eslint.config.js`.

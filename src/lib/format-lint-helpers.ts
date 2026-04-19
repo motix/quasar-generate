@@ -44,8 +44,9 @@ export function addFormatLintDependencies(packageJsonFilePath: string, quasar?: 
 export function setupFormatLint(options: {
   monorepoWorkspaceFolder?: string | undefined;
   targetWorkspaceFolder: string;
+  yarnPnp: boolean;
 }) {
-  const { monorepoWorkspaceFolder, targetWorkspaceFolder } = options;
+  const { monorepoWorkspaceFolder, targetWorkspaceFolder, yarnPnp } = options;
 
   const extensionsJsonFilePath =
     monorepoWorkspaceFolder === undefined
@@ -142,11 +143,12 @@ export function setupFormatLint(options: {
       ]);
 
       // Fix Prettier plugin Yarn PnP
-      fixPrettierPluginYarnPnP(
-        monorepoWorkspaceFolder,
-        monorepoPackageJsonFilePath,
-        dotPrettierrcJsonFilePath,
-      );
+      yarnPnp &&
+        fixPrettierPluginYarnPnP(
+          monorepoWorkspaceFolder,
+          monorepoPackageJsonFilePath,
+          dotPrettierrcJsonFilePath,
+        );
     }
   }
 

@@ -256,6 +256,7 @@ function monorepoWorkspaceFormattingAndLinting() {
     setupFormatLint({
         monorepoWorkspaceFolder,
         targetWorkspaceFolder: monorepoWorkspaceFolder,
+        yarnPnp: true,
     });
     // Add supports for monorepo in `eslint.config.js`.
     monorepoSupportEslintConfig(`${monorepoWorkspaceFolder}/eslint.config.js`);
@@ -287,7 +288,7 @@ function monorepoWorkspaceFormattingAndLinting() {
 }
 function devWorkspaceFormattingAndLinting() {
     // Setup formatting and linting.
-    setupFormatLint({ targetWorkspaceFolder: devWorkspaceFolder });
+    setupFormatLint({ targetWorkspaceFolder: devWorkspaceFolder, yarnPnp: true });
     // All formatting and some lingting tools were available in `monorepo` workspace, remove them here.
     fs.rmSync(`${devWorkspaceFolder}/.vscode`, { recursive: true });
     fs.rmSync(`${devWorkspaceFolder}/.editorconfig`);
