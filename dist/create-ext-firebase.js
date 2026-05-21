@@ -236,6 +236,17 @@ function functionsFormattingAndLinting() {
 }
 // Workspaces base source code
 function firebaseWorkspaceSrc() {
+    // Add Yarn settings.
+    let dotYarnrcYml = fs.readFileSync(`${firebaseWorkspaceFolder}/.yarnrc.yml`, 'utf-8');
+    dotYarnrcYml = `${dotYarnrcYml}
+approvedGitRepositories:
+  - '**'
+
+enableScripts: true
+
+npmMinimalAgeGate: 0
+`;
+    fs.writeFileSync(`${firebaseWorkspaceFolder}/.yarnrc.yml`, dotYarnrcYml, 'utf-8');
     // Add `rebuildFunctions` from global `assets`.
     fs.copyFileSync(`${globalAssets}/rebuildFunctions.js`, `${firebaseWorkspaceFolder}/rebuildFunctions.js`);
     let rebuildFunctionsJs = fs.readFileSync(`${firebaseWorkspaceFolder}/rebuildFunctions.js`, 'utf-8');

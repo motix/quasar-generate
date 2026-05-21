@@ -513,7 +513,19 @@ function templatesWorkspaceFormattingAndLinting() {
 // Workspaces base source code
 
 function monorepoWorkspaceSrc() {
-  let dirty = false;
+  // Add Yarn settings.
+
+  fs.writeFileSync(
+    `${monorepoWorkspaceFolder}/.yarnrc.yml`,
+    `approvedGitRepositories:
+  - '**'
+
+enableScripts: true
+
+npmMinimalAgeGate: 0
+`,
+    'utf-8',
+  );
 
   // Apply project template.
 
@@ -521,7 +533,6 @@ function monorepoWorkspaceSrc() {
 
   if (fs.existsSync(monorepoAssets)) {
     fs.readdirSync(monorepoAssets).forEach((file) => {
-      dirty = true;
       fs.cpSync(path.join(monorepoAssets, file), path.join(monorepoWorkspaceFolder, file), {
         recursive: true,
         force: true,
@@ -531,7 +542,7 @@ function monorepoWorkspaceSrc() {
 
   // Commit code.
 
-  commitCodeEnabled && dirty && commitCode(root, '\\`monorepoWorkspaceSrc()\\`');
+  commitCodeEnabled && commitCode(root, '\\`monorepoWorkspaceSrc()\\`');
 }
 
 function extensionWorkspaceSrc() {
