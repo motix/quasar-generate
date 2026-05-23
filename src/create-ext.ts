@@ -617,6 +617,40 @@ function extensionWorkspaceSrc() {
     });
   }
 
+  // Migrate from current project.
+
+  if (projectConfig.currentProjectFolder) {
+    const { currentExtensionWorkspaceFolder } = preservedFolders();
+
+    // Migrate modules
+    if (fs.existsSync(path.join(currentExtensionWorkspaceFolder, 'src/modules'))) {
+      fs.readdirSync(path.join(currentExtensionWorkspaceFolder, 'src/modules'))
+        .filter((file) => file !== 'index.ts')
+        .forEach((file) => {
+          fs.cpSync(
+            path.join(currentExtensionWorkspaceFolder, 'src/modules', file),
+            path.join(extensionWorkspaceFolder, 'src/modules', file),
+            {
+              recursive: true,
+              force: true,
+            },
+          );
+        });
+    }
+
+    projectConfig.preservedExtAssetsPaths?.forEach((item) => {
+      fs.rmSync(path.join(extensionWorkspaceFolder, item), { recursive: true });
+      fs.cpSync(
+        path.join(currentExtensionWorkspaceFolder, item),
+        path.join(extensionWorkspaceFolder, item),
+        {
+          recursive: true,
+          force: true,
+        },
+      );
+    });
+  }
+
   // Commit code.
 
   commitCodeEnabled && commitCode(root, '\\`extensionWorkspaceSrc()\\`');
@@ -640,9 +674,43 @@ function templatesWorkspaceSrc() {
         force: true,
       });
     });
+  }
 
-    // Remove dump file as code was added to `templates`
-    fs.rmSync(`${templatesWorkspaceFolder}/modules/index.ts`);
+  // Migrate from current project.
+
+  if (projectConfig.currentProjectFolder) {
+    const { currentTemplatesWorkspaceFolder } = preservedFolders();
+
+    // Migrate modules
+    if (fs.existsSync(path.join(currentTemplatesWorkspaceFolder, 'modules'))) {
+      fs.readdirSync(path.join(currentTemplatesWorkspaceFolder, 'modules')).forEach((file) => {
+        fs.cpSync(
+          path.join(currentTemplatesWorkspaceFolder, 'modules', file),
+          path.join(templatesWorkspaceFolder, 'modules', file),
+          {
+            recursive: true,
+            force: true,
+          },
+        );
+      });
+    }
+
+    projectConfig.preservedTemplatesAssetsPaths?.forEach((item) => {
+      fs.rmSync(path.join(templatesWorkspaceFolder, item), { recursive: true });
+      fs.cpSync(
+        path.join(currentTemplatesWorkspaceFolder, item),
+        path.join(templatesWorkspaceFolder, item),
+        {
+          recursive: true,
+          force: true,
+        },
+      );
+    });
+  }
+
+  // Remove dump file if code was added to `templates`
+  if (fs.readdirSync(path.join(templatesWorkspaceFolder, 'modules')).length > 1) {
+    fs.rmSync(path.join(templatesWorkspaceFolder, 'modules/index.ts'));
   }
 
   // Commit code.
@@ -873,6 +941,29 @@ function installAndLaunch() {
 }
 
 // Internal
+
+function preservedFolders() {
+  if (!projectConfig.currentProjectFolder) {
+    throw new Error('`currentProjectFolder` not set.');
+  }
+
+  const currentRoot = path.resolve(output, projectConfig.currentProjectFolder);
+  const currentMonorepoWorkspaceFolder = projectConfig.monorepo
+    ? `${currentRoot}/${normalizedFolderName}-monorepo`
+    : currentRoot;
+  const currentExtensionWorkspaceFolder = projectConfig.monorepo
+    ? `${currentMonorepoWorkspaceFolder}/ext`
+    : currentRoot;
+  const currentTemplatesWorkspaceFolder = `${currentExtensionWorkspaceFolder}/templates`;
+  const currentDevWorkspaceFolder = `${currentExtensionWorkspaceFolder}/dev`;
+
+  return {
+    currentMonorepoWorkspaceFolder,
+    currentExtensionWorkspaceFolder,
+    currentTemplatesWorkspaceFolder,
+    currentDevWorkspaceFolder,
+  };
+}
 
 function mnappDetected() {
   return (

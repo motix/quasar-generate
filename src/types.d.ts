@@ -31,6 +31,9 @@ export interface CreateExtensionConfig {
   version: string;
   projectDescription: string;
   author: string;
+  currentProjectFolder?: string;
+  preservedExtAssetsPaths?: string[];
+  preservedTemplatesAssetsPaths?: string[];
   mnappLocation?: string;
   sites?: string[];
   firebase?: string;
