@@ -49,5 +49,6 @@ export interface CreateFirebaseConfig {
   storageEmulatorPort: number;
   emulatorUiPort: number;
   functionsRegion: string;
+  functionsServiceAccount?: string;
   functionsCodebases: string[];
 }

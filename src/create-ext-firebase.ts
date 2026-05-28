@@ -500,6 +500,14 @@ function functionsWorkspaceSrc() {
 
   let indexTs = fs.readFileSync(`${functionsWorkspaceFolder}/src/index.ts`, 'utf-8');
 
+  if (projectConfig.functionsServiceAccount) {
+    indexTs = indexTs.replace(
+      "region: '__REGION__',",
+      `serviceAccount: '${projectConfig.functionsServiceAccount}',
+  region: '__REGION__',`,
+    );
+  }
+
   indexTs = indexTs.replace('__REGION__', projectConfig.functionsRegion);
 
   fs.writeFileSync(`${functionsWorkspaceFolder}/src/index.ts`, indexTs, 'utf-8');
