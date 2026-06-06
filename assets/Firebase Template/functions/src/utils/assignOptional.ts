@@ -1,4 +1,4 @@
-// Copy from @motinet/quasar-app-extension-mnapp-new/utils
+// Copy from @motinet/quasar-app-extension-mnapp/utils
 
 type OptionalPropertiesOf<T extends object> = Exclude<
   {
