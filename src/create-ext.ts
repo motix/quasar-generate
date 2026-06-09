@@ -64,7 +64,7 @@ const devPackageJsonFilePath = path.resolve(`${devWorkspaceFolder}/package.json`
 
 console.log(
   ' \x1b[32mquasar-generate •\x1b[0m',
-  `Create extension \x1b[47m${extensionPackageName}\x1b[0m`,
+  `Create extension \x1b[47m\x1b[30m${extensionPackageName}\x1b[0m`,
 );
 
 // Turning on/off features
@@ -910,7 +910,7 @@ function installAndLaunch() {
 
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
-    `Installing \x1b[47m${projectConfig.extensionId}\x1b[0m packages, build and clean code...`,
+    `Installing \x1b[47m\x1b[30m${projectConfig.extensionId}\x1b[0m packages, build and clean code...`,
   );
 
   if (runYarn) {
@@ -922,7 +922,7 @@ function installAndLaunch() {
     );
   } else {
     console.log(
-      `                   Run \x1b[47mcd ${monorepoWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn buildPaths && yarn build && yarn clean && cd ./${projectConfig.monorepo ? 'ext/' : ''}dev ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${projectConfig.extensionId} && yarn dev\x1b[0m manually.`,
+      `                   Run \x1b[47m\x1b[30mcd ${monorepoWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn buildPaths && yarn build && yarn clean && cd ./${projectConfig.monorepo ? 'ext/' : ''}dev ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${projectConfig.extensionId} && yarn dev\x1b[0m manually.`,
     );
   }
 
@@ -931,7 +931,7 @@ function installAndLaunch() {
   if (autoLaunch) {
     console.log(
       ' \x1b[32mquasar-generate •\x1b[0m',
-      `Launching \x1b[47m${projectConfig.extensionId}\x1b[0m in Visual Studio Code...`,
+      `Launching \x1b[47m\x1b[30m${projectConfig.extensionId}\x1b[0m in Visual Studio Code...`,
     );
 
     execSync(`code ${monorepoWorkspaceFolder}.replaceAll(' ', '\\ ')`, {

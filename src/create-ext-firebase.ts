@@ -64,7 +64,7 @@ const { extensionId, extensionPackageName } = await getExtensionInfo(extensionPa
 
 console.log(
   ' \x1b[32mquasar-generate •\x1b[0m',
-  `Create \x1b[47mfirebase\x1b[0m for extension \x1b[47m${extensionPackageName}\x1b[0m`,
+  `Create \x1b[47m\x1b[30mfirebase\x1b[0m for extension \x1b[47m\x1b[30m${extensionPackageName}\x1b[0m`,
 );
 
 // Turning on/off features
@@ -99,7 +99,7 @@ async function createFirebaseWorkspace() {
 
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
-    `Initializing Firebase project for \x1b[47m${projectConfig.packageName}\x1b[0m...`,
+    `Initializing Firebase project for \x1b[47m\x1b[30m${projectConfig.packageName}\x1b[0m...`,
   );
 
   execSync(`mkdir ${firebaseWorkspaceFolder.replaceAll(' ', '\\ ')}`);
@@ -498,19 +498,26 @@ function functionsWorkspaceSrc() {
     recursive: true,
   });
 
-  let indexTs = fs.readFileSync(`${functionsWorkspaceFolder}/src/index.ts`, 'utf-8');
+  let initFunctionsTs = fs.readFileSync(
+    `${functionsWorkspaceFolder}/src/utils/initFunctions.ts`,
+    'utf-8',
+  );
 
   if (projectConfig.functionsServiceAccount) {
-    indexTs = indexTs.replace(
+    initFunctionsTs = initFunctionsTs.replace(
       "region: '__REGION__',",
       `serviceAccount: '${projectConfig.functionsServiceAccount}',
   region: '__REGION__',`,
     );
   }
 
-  indexTs = indexTs.replace('__REGION__', projectConfig.functionsRegion);
+  initFunctionsTs = initFunctionsTs.replace('__REGION__', projectConfig.functionsRegion);
 
-  fs.writeFileSync(`${functionsWorkspaceFolder}/src/index.ts`, indexTs, 'utf-8');
+  fs.writeFileSync(
+    `${functionsWorkspaceFolder}/src/utils/initFunctions.ts`,
+    initFunctionsTs,
+    'utf-8',
+  );
 
   // Add `refTools` and `refUpdate` from global `assets`.
 
@@ -666,7 +673,15 @@ function createFunctionsCodebases() {
 
     let indexTs = fs.readFileSync(`${codebaseWorkspaceFolder}/src/index.ts`, 'utf-8');
 
-    indexTs = indexTs.replace('export const app = group;', `export const ${codebase} = group;`);
+    if (codebase.endsWith('_v1')) {
+      indexTs = indexTs.replace('initFunctions.js', 'initFunctions_v1.js');
+      indexTs = indexTs.replace(
+        'export const app = group;',
+        `export const ${codebase.substring(0, codebase.length - 3)} = group;`,
+      );
+    } else {
+      indexTs = indexTs.replace('export const app = group;', `export const ${codebase} = group;`);
+    }
 
     fs.writeFileSync(`${codebaseWorkspaceFolder}/src/index.ts`, indexTs, 'utf-8');
   }
@@ -731,7 +746,7 @@ function installAndLaunch() {
 
   console.log(
     ' \x1b[32mquasar-generate •\x1b[0m',
-    `Installing \x1b[47m${projectConfig.packageName}\x1b[0m packages, build and clean code...`,
+    `Installing \x1b[47m\x1b[30m${projectConfig.packageName}\x1b[0m packages, build and clean code...`,
   );
 
   if (runYarn) {
@@ -743,7 +758,7 @@ function installAndLaunch() {
     );
   } else {
     console.log(
-      `                   Run \x1b[47mcd ${firebaseWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn rebuildFunctions && yarn clean && yarn serve\x1b[0m manually.`,
+      `                   Run \x1b[47m\x1b[30mcd ${firebaseWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn rebuildFunctions && yarn clean && yarn serve\x1b[0m manually.`,
     );
   }
 
@@ -752,7 +767,7 @@ function installAndLaunch() {
   if (autoLaunch) {
     console.log(
       ' \x1b[32mquasar-generate •\x1b[0m',
-      `Launching \x1b[47m${extensionId}\x1b[0m in Visual Studio Code...`,
+      `Launching \x1b[47m\x1b[30m${extensionId}\x1b[0m in Visual Studio Code...`,
     );
 
     execSync(`code ${firebaseWorkspaceFolder}.replaceAll(' ', '\\ ')`, {

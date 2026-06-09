@@ -34,7 +34,7 @@ const monorepoPackageJsonFilePath = path.resolve(`${monorepoWorkspaceFolder}/pac
 const extensionPackageJsonFilePath = path.resolve(`${extensionWorkspaceFolder}/package.json`);
 const sitePackageJsonFilePath = path.resolve(`${siteWorkspaceFolder}/package.json`);
 const { extensionPackageName, extensionOrganizationName } = await getExtensionInfo(extensionPackageJsonFilePath);
-console.log(' \x1b[32mquasar-generate •\x1b[0m', `Create site \x1b[47m${projectConfig.packageName}\x1b[0m for extension \x1b[47m${extensionPackageName}\x1b[0m`);
+console.log(' \x1b[32mquasar-generate •\x1b[0m', `Create site \x1b[47m\x1b[30m${projectConfig.packageName}\x1b[0m for extension \x1b[47m\x1b[30m${extensionPackageName}\x1b[0m`);
 // Turning on/off features
 const f = false;
 // Create workspaces
@@ -60,7 +60,7 @@ f || installAndLaunch();
 // Create workspaces
 async function createQuasarProject() {
     // Create Quasar project for `dev` workspace.
-    console.log(' \x1b[32mquasar-generate •\x1b[0m', `Creating Quasar project for \x1b[47m${projectConfig.packageName}\x1b[0m...`);
+    console.log(' \x1b[32mquasar-generate •\x1b[0m', `Creating Quasar project for \x1b[47m\x1b[30m${projectConfig.packageName}\x1b[0m...`);
     const answersMap = {
         'What would you like to build?': ACCEPT_DEFAULT, // App with Quasar CLI
         'Project folder': path.relative('.', siteWorkspaceFolder),
@@ -211,18 +211,18 @@ function finishWorkspace() {
 // Install and launch
 function installAndLaunch() {
     // Install site workspace packages and clean code.
-    console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47m${projectConfig.packageName}\x1b[0m packages and clean code...`);
+    console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47m\x1b[30m${projectConfig.packageName}\x1b[0m packages and clean code...`);
     if (runYarn) {
         execSync(`cd ${siteWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn clean ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${projectConfig.extensionId} && yarn dev`, {
             stdio: 'inherit',
         });
     }
     else {
-        console.log(`                   Run \x1b[47mcd ${siteWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn clean ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${projectConfig.extensionId} && yarn dev\x1b[0m manually.`);
+        console.log(`                   Run \x1b[47m\x1b[30mcd ${siteWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn clean ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${projectConfig.extensionId} && yarn dev\x1b[0m manually.`);
     }
     // Auto launch
     if (autoLaunch) {
-        console.log(' \x1b[32mquasar-generate •\x1b[0m', `Launching \x1b[47m${projectConfig.extensionId}\x1b[0m in Visual Studio Code...`);
+        console.log(' \x1b[32mquasar-generate •\x1b[0m', `Launching \x1b[47m\x1b[30m${projectConfig.extensionId}\x1b[0m in Visual Studio Code...`);
         execSync(`code ${monorepoWorkspaceFolder}.replaceAll(' ', '\\ ')`, {
             stdio: 'inherit',
         });

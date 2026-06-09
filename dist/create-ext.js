@@ -40,7 +40,7 @@ const monorepoPackageJsonFilePath = path.resolve(`${monorepoWorkspaceFolder}/pac
 const extensionPackageJsonFilePath = path.resolve(`${extensionWorkspaceFolder}/package.json`);
 const templatesPackageJsonFilePath = path.resolve(`${templatesWorkspaceFolder}/package.json`);
 const devPackageJsonFilePath = path.resolve(`${devWorkspaceFolder}/package.json`);
-console.log(' \x1b[32mquasar-generate •\x1b[0m', `Create extension \x1b[47m${extensionPackageName}\x1b[0m`);
+console.log(' \x1b[32mquasar-generate •\x1b[0m', `Create extension \x1b[47m\x1b[30m${extensionPackageName}\x1b[0m`);
 // Turning on/off features
 const f = false;
 // Create workspaces
@@ -604,18 +604,18 @@ function finishDevWorkspace() {
 // Install and launch
 function installAndLaunch() {
     // Install all workspaces packages, build and clean code.
-    console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47m${projectConfig.extensionId}\x1b[0m packages, build and clean code...`);
+    console.log(' \x1b[32mquasar-generate •\x1b[0m', `Installing \x1b[47m\x1b[30m${projectConfig.extensionId}\x1b[0m packages, build and clean code...`);
     if (runYarn) {
         execSync(`cd ${monorepoWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn buildPaths && yarn build && yarn clean && cd ./${projectConfig.monorepo ? 'ext/' : ''}dev ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${projectConfig.extensionId} && yarn dev`, {
             stdio: 'inherit',
         });
     }
     else {
-        console.log(`                   Run \x1b[47mcd ${monorepoWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn buildPaths && yarn build && yarn clean && cd ./${projectConfig.monorepo ? 'ext/' : ''}dev ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${projectConfig.extensionId} && yarn dev\x1b[0m manually.`);
+        console.log(`                   Run \x1b[47m\x1b[30mcd ${monorepoWorkspaceFolder.replaceAll(' ', '\\ ')} && yarn && yarn buildPaths && yarn build && yarn clean && cd ./${projectConfig.monorepo ? 'ext/' : ''}dev ${mnappDetected() ? `&& yarn i-mnapp ` : ''}&& yarn i-${projectConfig.extensionId} && yarn dev\x1b[0m manually.`);
     }
     // Auto launch
     if (autoLaunch) {
-        console.log(' \x1b[32mquasar-generate •\x1b[0m', `Launching \x1b[47m${projectConfig.extensionId}\x1b[0m in Visual Studio Code...`);
+        console.log(' \x1b[32mquasar-generate •\x1b[0m', `Launching \x1b[47m\x1b[30m${projectConfig.extensionId}\x1b[0m in Visual Studio Code...`);
         execSync(`code ${monorepoWorkspaceFolder}.replaceAll(' ', '\\ ')`, {
             stdio: 'inherit',
         });
