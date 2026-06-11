@@ -108,7 +108,7 @@ async function createQuasarProject() {
   };
 
   await cliGhostwriter({
-    command: 'yarn create quasar',
+    command: 'yarn create-quasar',
     answersMap: answersMap,
     endingMarker: 'Enjoy! - Quasar Team',
   });

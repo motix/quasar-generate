@@ -169,7 +169,7 @@ async function createExtensionQuasarProject() {
   };
 
   await cliGhostwriter({
-    command: 'yarn create quasar',
+    command: 'yarn create-quasar',
     answersMap: answersMap,
     endingMarker: 'Enjoy! - Quasar Team',
   });
@@ -247,7 +247,7 @@ async function createDevQuasarProject() {
   };
 
   await cliGhostwriter({
-    command: 'yarn create quasar',
+    command: 'yarn create-quasar',
     answersMap: answersMap,
     endingMarker: 'Enjoy! - Quasar Team',
   });

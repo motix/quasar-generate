@@ -74,7 +74,7 @@ async function createQuasarProject() {
         'Install project dependencies?': `${DOWN_KEY}`, // No
     };
     await cliGhostwriter({
-        command: 'yarn create quasar',
+        command: 'yarn create-quasar',
         answersMap: answersMap,
         endingMarker: 'Enjoy! - Quasar Team',
     });

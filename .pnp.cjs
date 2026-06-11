@@ -38,6 +38,7 @@ const RAW_RUNTIME_STATE =
           ["@vue/compiler-sfc", "npm:3.5.34"],\
           ["@vue/eslint-config-prettier", "virtual:d68c6d3ee5245086e90ce9d01fbf5a91a6e3c4f0728600cff5ea1535b40b1ab5fb4394dd176d85a5dcd8266a2614c0ece00becd27bbced44c11d665d239c9ee8#npm:10.2.0"],\
           ["@vue/eslint-config-typescript", "virtual:d68c6d3ee5245086e90ce9d01fbf5a91a6e3c4f0728600cff5ea1535b40b1ab5fb4394dd176d85a5dcd8266a2614c0ece00becd27bbced44c11d665d239c9ee8#npm:14.7.0"],\
+          ["create-quasar", "npm:2.2.3"],\
           ["dotenv", "npm:17.4.2"],\
           ["esbuild", "npm:0.28.0"],\
           ["eslint", "virtual:d68c6d3ee5245086e90ce9d01fbf5a91a6e3c4f0728600cff5ea1535b40b1ab5fb4394dd176d85a5dcd8266a2614c0ece00becd27bbced44c11d665d239c9ee8#npm:10.4.0"],\
@@ -2379,6 +2380,7 @@ const RAW_RUNTIME_STATE =
           ["@vue/compiler-sfc", "npm:3.5.34"],\
           ["@vue/eslint-config-prettier", "virtual:d68c6d3ee5245086e90ce9d01fbf5a91a6e3c4f0728600cff5ea1535b40b1ab5fb4394dd176d85a5dcd8266a2614c0ece00becd27bbced44c11d665d239c9ee8#npm:10.2.0"],\
           ["@vue/eslint-config-typescript", "virtual:d68c6d3ee5245086e90ce9d01fbf5a91a6e3c4f0728600cff5ea1535b40b1ab5fb4394dd176d85a5dcd8266a2614c0ece00becd27bbced44c11d665d239c9ee8#npm:14.7.0"],\
+          ["create-quasar", "npm:2.2.3"],\
           ["dotenv", "npm:17.4.2"],\
           ["esbuild", "npm:0.28.0"],\
           ["eslint", "virtual:d68c6d3ee5245086e90ce9d01fbf5a91a6e3c4f0728600cff5ea1535b40b1ab5fb4394dd176d85a5dcd8266a2614c0ece00becd27bbced44c11d665d239c9ee8#npm:10.4.0"],\
@@ -4757,6 +4759,21 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["create-quasar", [\
+      ["npm:2.2.3", {\
+        "packageLocation": "../../../../../.yarn/berry/cache/create-quasar-npm-2.2.3-794bb7a191-10c0.zip/node_modules/create-quasar/",\
+        "packageDependencies": [\
+          ["create-quasar", "npm:2.2.3"],\
+          ["cross-spawn", "npm:7.0.6"],\
+          ["fs-extra", "npm:11.3.5"],\
+          ["kolorist", "npm:1.8.0"],\
+          ["minimist", "npm:1.2.8"],\
+          ["prompts", "npm:2.4.2"],\
+          ["tinyglobby", "npm:0.2.16"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
     ["cross-spawn", [\
       ["npm:7.0.6", {\
         "packageLocation": "../../../../../.yarn/berry/cache/cross-spawn-npm-7.0.6-264bddf921-10c0.zip/node_modules/cross-spawn/",\
@@ -6347,6 +6364,15 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["kleur", [\
+      ["npm:3.0.3", {\
+        "packageLocation": "../../../../../.yarn/berry/cache/kleur-npm-3.0.3-f6f53649a4-10c0.zip/node_modules/kleur/",\
+        "packageDependencies": [\
+          ["kleur", "npm:3.0.3"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
     ["kolorist", [\
       ["npm:1.8.0", {\
         "packageLocation": "../../../../../.yarn/berry/cache/kolorist-npm-1.8.0-2cc04dcc05-10c0.zip/node_modules/kolorist/",\
@@ -7231,6 +7257,17 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["prompts", [\
+      ["npm:2.4.2", {\
+        "packageLocation": "../../../../../.yarn/berry/cache/prompts-npm-2.4.2-f5d25d5eea-10c0.zip/node_modules/prompts/",\
+        "packageDependencies": [\
+          ["kleur", "npm:3.0.3"],\
+          ["prompts", "npm:2.4.2"],\
+          ["sisteransi", "npm:1.0.5"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
     ["protobufjs", [\
       ["npm:7.6.0", {\
         "packageLocation": "./.yarn/unplugged/protobufjs-npm-7.6.0-3f49e954b3/node_modules/protobufjs/",\
@@ -7947,6 +7984,15 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "../../../../../.yarn/berry/cache/signal-exit-npm-4.1.0-61fb957687-10c0.zip/node_modules/signal-exit/",\
         "packageDependencies": [\
           ["signal-exit", "npm:4.1.0"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["sisteransi", [\
+      ["npm:1.0.5", {\
+        "packageLocation": "../../../../../.yarn/berry/cache/sisteransi-npm-1.0.5-af60cc0cfa-10c0.zip/node_modules/sisteransi/",\
+        "packageDependencies": [\
+          ["sisteransi", "npm:1.0.5"]\
         ],\
         "linkType": "HARD"\
       }]\

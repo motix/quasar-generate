@@ -1565,6 +1565,7 @@ __metadata:
     "@vue/compiler-sfc": "npm:^3.5.34"
     "@vue/eslint-config-prettier": "npm:^10.2.0"
     "@vue/eslint-config-typescript": "npm:^14.7.0"
+    create-quasar: "npm:2.2.3"
     dotenv: "npm:^17.4.2"
     esbuild: "npm:^0.28.0"
     eslint: "npm:^10.4.0"
@@ -3441,6 +3442,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"create-quasar@npm:2.2.3":
+  version: 2.2.3
+  resolution: "create-quasar@npm:2.2.3"
+  dependencies:
+    cross-spawn: "npm:^7.0.6"
+    fs-extra: "npm:^11.3.4"
+    kolorist: "npm:^1.8.0"
+    minimist: "npm:^1.2.8"
+    prompts: "npm:^2.4.2"
+    tinyglobby: "npm:^0.2.10"
+  bin:
+    create-quasar: index.js
+  checksum: 10c0/3946be2c4e1b043a3abf1fdfd871ad239b51d7875db0684da4b1702ecc98beeab212085d6e9a74ee887ecb762ee25d81839cb4d7a5c433754d2113ed57605c23
+  languageName: node
+  linkType: hard
+
 "cross-spawn@npm:^7.0.6":
   version: 7.0.6
   resolution: "cross-spawn@npm:7.0.6"
@@ -4896,6 +4913,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"kleur@npm:^3.0.3":
+  version: 3.0.3
+  resolution: "kleur@npm:3.0.3"
+  checksum: 10c0/cd3a0b8878e7d6d3799e54340efe3591ca787d9f95f109f28129bdd2915e37807bf8918bb295ab86afb8c82196beec5a1adcaf29042ce3f2bd932b038fe3aa4b
+  languageName: node
+  linkType: hard
+
 "kolorist@npm:^1.8.0":
   version: 1.8.0
   resolution: "kolorist@npm:1.8.0"
@@ -5682,6 +5706,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prompts@npm:^2.4.2":
+  version: 2.4.2
+  resolution: "prompts@npm:2.4.2"
+  dependencies:
+    kleur: "npm:^3.0.3"
+    sisteransi: "npm:^1.0.5"
+  checksum: 10c0/16f1ac2977b19fe2cf53f8411cc98db7a3c8b115c479b2ca5c82b5527cd937aa405fa04f9a5960abeb9daef53191b53b4d13e35c1f5d50e8718c76917c5f1ea4
+  languageName: node
+  linkType: hard
+
 "protobufjs@npm:^7.2.5":
   version: 7.6.0
   resolution: "protobufjs@npm:7.6.0"
@@ -6372,6 +6406,13 @@ __metadata:
   version: 4.1.0
   resolution: "signal-exit@npm:4.1.0"
   checksum: 10c0/41602dce540e46d599edba9d9860193398d135f7ff72cab629db5171516cfae628d21e7bfccde1bbfdf11c48726bc2a6d1a8fb8701125852fbfda7cf19c6aa83
+  languageName: node
+  linkType: hard
+
+"sisteransi@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "sisteransi@npm:1.0.5"
+  checksum: 10c0/230ac975cca485b7f6fe2b96a711aa62a6a26ead3e6fb8ba17c5a00d61b8bed0d7adc21f5626b70d7c33c62ff4e63933017a6462942c719d1980bb0b1207ad46
   languageName: node
   linkType: hard
 

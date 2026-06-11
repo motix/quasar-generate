@@ -113,7 +113,7 @@ async function createExtensionQuasarProject() {
         'Pick the needed scripts': 'a', // Prompts script, Install script, Uninstall script
     };
     await cliGhostwriter({
-        command: 'yarn create quasar',
+        command: 'yarn create-quasar',
         answersMap: answersMap,
         endingMarker: 'Enjoy! - Quasar Team',
     });
@@ -159,7 +159,7 @@ async function createDevQuasarProject() {
         'Install project dependencies?': `${DOWN_KEY}`, // No
     };
     await cliGhostwriter({
-        command: 'yarn create quasar',
+        command: 'yarn create-quasar',
         answersMap: answersMap,
         endingMarker: 'Enjoy! - Quasar Team',
     });
