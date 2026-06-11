@@ -803,6 +803,92 @@ function finishMonorepoWorkspace() {
     { path: ['compareFolders.ignoreFileNameCase'], value: false },
   ]);
 
+  // Better Comments settings
+
+  extendJsonFile(extensionsJsonFilePath, [
+    { path: 'recommendations[]', value: 'aaron-bond.better-comments' },
+  ]);
+
+  extendJsonFile(settingsJsonFilePath, [
+    {
+      path: 'better-comments.tags',
+      value: [
+        {
+          tag: '•+',
+          color: '#000000',
+          strikethrough: false,
+          underline: false,
+          backgroundColor: '#a67216',
+          bold: false,
+          italic: false,
+        },
+        {
+          tag: '•-',
+          color: '#000000',
+          strikethrough: true,
+          underline: false,
+          backgroundColor: '#a67216',
+          bold: false,
+          italic: false,
+        },
+        {
+          tag: '•!',
+          color: '#000000',
+          strikethrough: false,
+          underline: false,
+          backgroundColor: '#a67216',
+          bold: false,
+          italic: true,
+        },
+        {
+          tag: '!',
+          color: '#FF2D00',
+          strikethrough: false,
+          underline: false,
+          backgroundColor: 'transparent',
+          bold: false,
+          italic: false,
+        },
+        {
+          tag: '?',
+          color: '#3498DB',
+          strikethrough: false,
+          underline: false,
+          backgroundColor: 'transparent',
+          bold: false,
+          italic: false,
+        },
+        {
+          tag: '//',
+          color: '#474747',
+          strikethrough: true,
+          underline: false,
+          backgroundColor: 'transparent',
+          bold: false,
+          italic: false,
+        },
+        {
+          tag: 'todo',
+          color: '#FF8C00',
+          strikethrough: false,
+          underline: false,
+          backgroundColor: 'transparent',
+          bold: false,
+          italic: false,
+        },
+        {
+          tag: '*',
+          color: '#98C379',
+          strikethrough: false,
+          underline: false,
+          backgroundColor: 'transparent',
+          bold: false,
+          italic: false,
+        },
+      ],
+    },
+  ]);
+
   // Add build scripts.
 
   extendJsonFile(monorepoPackageJsonFilePath, [
