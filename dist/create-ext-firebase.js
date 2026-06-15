@@ -428,6 +428,13 @@ function createFunctionsCodebases() {
                 value: `lib/functions-${codebase}/src/index.js`,
             },
         ]);
+        // Modify `tsconfig.json`.
+        extendJsonFile(`${codebaseWorkspaceFolder}/tsconfig.json`, [
+            {
+                path: 'include[]',
+                value: '../functions/src/ref/types',
+            },
+        ]);
         // Modify `firebase.json`.
         extendJsonFile(`${firebaseWorkspaceFolder}/firebase.json`, [
             {
