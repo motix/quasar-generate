@@ -13,7 +13,7 @@ export default function (
     removeIfEmpty?: string[];
   },
 ) {
-  const callerPath: string = getCallerPath();
+  const callerPath = getCallerPath();
   const absoluteTemplatePath = path.resolve(callerPath, templatePath);
 
   const paths = fs.readdirSync(absoluteTemplatePath);
@@ -46,11 +46,11 @@ function removePath(
   relativePath: string,
   excludePaths: string[],
 ) {
-  const absolutePath = path.resolve(absoluteTemplatePath, relativePath);
-
   if (excludePaths.includes(relativePath)) {
     return;
   }
+
+  const absolutePath = path.resolve(absoluteTemplatePath, relativePath);
 
   if (fs.lstatSync(absolutePath).isFile()) {
     api.removePath(relativePath);

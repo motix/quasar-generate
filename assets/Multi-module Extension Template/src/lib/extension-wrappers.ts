@@ -3,6 +3,7 @@ import { InstallAPI as InstallAPIClass } from '@quasar/app-vite/lib/app-extensio
 import { getCallerPath } from '@quasar/app-vite/lib/utils/get-caller-path.js';
 
 import getExtensionConfig from './extension-config.js';
+import getModulesMapping from './modules-mapping.js';
 import removeTree from './remove-tree.js';
 
 type Config = Awaited<ReturnType<typeof getExtensionConfig>>;
@@ -47,13 +48,14 @@ export type ExtendedInstallDefinition = (api: ExtendedInstallAPI) => void | Prom
 export type UninstallDefinition = (api: UninstallAPI) => void | Promise<void>;
 export type ExtendedUninstallDefinition = (api: ExtendedUninstallAPI) => void | Promise<void>;
 
+const implementedModules = getModulesMapping();
+
 export function definePrompts(callback: PromptsDefinition): PromptsDefinition {
   return callback;
 }
 
 export function defineIndex(callback: ExtendedIndexDefinition): IndexDefinition {
-  const callerPath: string = getCallerPath();
-  const moduleName = callerPath.substring(callerPath.lastIndexOf('/') + 1);
+  const moduleName = getModuleName(getCallerPath());
 
   return async (api) => {
     await extendApi(moduleName, api);
@@ -62,15 +64,14 @@ export function defineIndex(callback: ExtendedIndexDefinition): IndexDefinition 
 }
 
 export function defineInstall(callback: ExtendedInstallDefinition): InstallDefinition {
-  const callerPath: string = getCallerPath();
-  const moduleName = callerPath.substring(callerPath.lastIndexOf('/') + 1);
+  const moduleName = getModuleName(getCallerPath());
 
   return async (api) => {
     await extendApi(moduleName, api);
 
     Object.assign(api, {
       renderTemplate(name: string = 'dist', scope?: object) {
-        api.render(`../../templates/modules/${moduleName}/${name}`, scope);
+        api.render(`../../templates/modules/${implementedModules[moduleName]}/${name}`, scope);
       },
     });
 
@@ -79,8 +80,7 @@ export function defineInstall(callback: ExtendedInstallDefinition): InstallDefin
 }
 
 export function defineUninstall(callback: ExtendedUninstallDefinition): UninstallDefinition {
-  const callerPath: string = getCallerPath();
-  const moduleName = callerPath.substring(callerPath.lastIndexOf('/') + 1);
+  const moduleName = getModuleName(getCallerPath());
 
   return async (api) => {
     await extendApi(moduleName, api);
@@ -103,12 +103,30 @@ export function defineUninstall(callback: ExtendedUninstallDefinition): Uninstal
           removeIfEmpty?: string[];
         },
       ) => {
-        removeTree(api, `../../templates/modules/${moduleName}/${name}`, options);
+        removeTree(
+          api,
+          `../../templates/modules/${implementedModules[moduleName]}/${name}`,
+          options,
+        );
       },
     });
 
     return callback(api as ExtendedUninstallAPI);
   };
+}
+
+function getModuleName(callerPath: string) {
+  const moduleRelativePath = callerPath.substring(
+    callerPath.lastIndexOf('modules/') + 'modules/'.length,
+  );
+
+  for (const moduleName in implementedModules) {
+    if (implementedModules[moduleName] === moduleRelativePath) {
+      return moduleName;
+    }
+  }
+
+  throw new Error(`Could not find module name for path: ${moduleRelativePath}.`);
 }
 
 async function extendApi(moduleName: string, api: IndexAPI | InstallAPI | UninstallAPI) {

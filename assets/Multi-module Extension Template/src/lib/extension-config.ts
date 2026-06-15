@@ -1,22 +1,17 @@
-import fs from 'fs';
-import path from 'path';
-
+import getModulesMapping from './modules-mapping.js';
 import { getPackageName } from './package-name.js';
 
 export default async function (appDir: string) {
-  let modules: {
+  let configModules: {
     [key in string]: boolean | { prompts?: Record<string, unknown> };
   } = {};
-  let moduleNames: string[] = [];
+  let deployingModuleNames: string[] = [];
   let rawConfig: {
     deployToDev?: boolean;
-    modules?: typeof modules;
+    modules?: typeof configModules;
   };
 
-  const implementedModulesPath = path.resolve(import.meta.dirname, '../modules');
-  const implementedModules = fs
-    .readdirSync(implementedModulesPath)
-    .filter((value) => fs.lstatSync(path.resolve(implementedModulesPath, value)).isDirectory());
+  const implementedModules = getModulesMapping();
 
   const config: Required<Omit<typeof rawConfig, 'modules'>> & {
     hasModule: (name: string) => boolean;
@@ -25,20 +20,20 @@ export default async function (appDir: string) {
     moduleIndex: (name: string) => number;
   } = {
     deployToDev: true,
-    hasModule: (name) => implementedModules.includes(name) && !!modules[name],
+    hasModule: (name) => !!implementedModules[name] && !!configModules[name],
     hasPrompts: (name) =>
-      implementedModules.includes(name) && typeof modules[name] === 'object'
-        ? !!modules[name].prompts
+      !!implementedModules[name] && typeof configModules[name] === 'object'
+        ? !!configModules[name].prompts
         : false,
     prompts: (name) =>
-      implementedModules.includes(name) &&
-      typeof modules[name] === 'object' &&
-      !!modules[name].prompts
-        ? modules[name].prompts
+      !!implementedModules[name] &&
+      typeof configModules[name] === 'object' &&
+      !!configModules[name].prompts
+        ? configModules[name].prompts
         : (() => {
             throw new Error(`Module '${name}' does not exist or it doesn't have prompts.`);
           })(),
-    moduleIndex: (name) => moduleNames.indexOf(name),
+    moduleIndex: (name) => deployingModuleNames.indexOf(name),
   };
 
   try {
@@ -50,13 +45,13 @@ export default async function (appDir: string) {
       config.deployToDev = rawConfig.deployToDev;
     }
 
-    modules = rawConfig.modules || {};
+    configModules = rawConfig.modules || {};
   } catch {
     // .[packageName]rc.js might not exist in appDir
   }
 
-  moduleNames = Object.getOwnPropertyNames(modules).filter((value) =>
-    implementedModules.includes(value),
+  deployingModuleNames = Object.getOwnPropertyNames(configModules).filter(
+    (value) => !!implementedModules[value],
   );
 
   return config;

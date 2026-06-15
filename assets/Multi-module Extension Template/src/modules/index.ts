@@ -1,5 +1,3 @@
-import fs from 'fs';
-
 import getExtensionConfig from '../lib/extension-config.js';
 import type {
   IndexDefinition,
@@ -7,6 +5,7 @@ import type {
   PromptsDefinition,
   UninstallDefinition,
 } from '../lib/extension-wrappers.js';
+import getModulesMapping from '../lib/modules-mapping.js';
 
 export default async function <
   T extends PromptsDefinition | IndexDefinition | InstallDefinition | UninstallDefinition,
@@ -23,30 +22,32 @@ export default async function <
           : never,
 ) {
   const config = await getExtensionConfig(appDir);
+  const implementedModules = getModulesMapping();
 
-  let modules: T[] = [];
-  const files = fs.readdirSync(import.meta.dirname);
+  let scriptDefinitions: T[] = [];
+  const implementedModuleNames = Object.getOwnPropertyNames(implementedModules);
 
-  for (const file of files) {
-    if (file === 'index.js' || !config.hasModule(file)) continue;
+  for (const moduleName of implementedModuleNames) {
+    if (!config.hasModule(moduleName)) continue;
 
     try {
-      const module: T = (await import(`./${file}/${script}.js`)).default;
+      const scriptDefinition: T = (await import(`./${implementedModules[moduleName]}/${script}.js`))
+        .default;
 
-      Object.defineProperty(module, 'name', { value: file });
-      modules[config.moduleIndex(file)] = module;
+      Object.defineProperty(scriptDefinition, 'name', { value: moduleName });
+      scriptDefinitions[config.moduleIndex(moduleName)] = scriptDefinition;
     } catch {
       // prompts, index, install or uninstall might be missing in a module
     }
   }
 
-  modules = modules.filter((value) => !!value);
+  scriptDefinitions = scriptDefinitions.filter((value) => !!value);
 
   if (script === 'uninstall') {
-    modules.reverse();
+    scriptDefinitions.reverse();
   }
 
-  return modules;
+  return scriptDefinitions;
 }
 
 export {
