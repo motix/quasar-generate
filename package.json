@@ -1,0 +1,28 @@
+{
+  "name": "@motinet/quasar-generate",
+  "version": "2.0.0",
+  "private": true,
+  "description": "",
+  "author": "",
+  "type": "module",
+  "scripts": {
+    "lint": "oxfmt && oxlint --fix",
+    "lint:check": "oxfmt --check && oxlint",
+    "build": "pnpm tsc",
+    "watch": "pnpm tsc --watch",
+    "create-qg": "node ./dist/create-qg.js",
+    "create-ext": "node ./dist/create-ext.js",
+    "create-ext-site": "node ./dist/create-ext-site.js",
+    "create-ext-firebase": "node ./dist/create-ext-firebase.js",
+    "create-all": "node ./dist/create-all.js"
+  },
+  "devDependencies": {
+    "oxfmt": "^0.x",
+    "oxlint": "^1.x",
+    "oxlint-tsgolint": "^7.0.2001",
+    "typescript": "^6.0.0"
+  },
+  "engines": {
+    "node": ">= 26 || ^24 || ^22.12"
+  }
+}
